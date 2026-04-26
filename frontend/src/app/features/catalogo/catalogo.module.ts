@@ -1,12 +1,24 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
-
+import { SharedModule } from '../../shared/shared.module';
+import { ListaLibrosComponent } from './lista-libros/lista-libros.component';
+import { DetalleLibroComponent } from './detalle-libro/detalle-libro.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    ListaLibrosComponent,
+    DetalleLibroComponent
+  ],
   imports: [
-    CommonModule
+    SharedModule,
+    FormsModule,
+    RouterModule
+  ],
+  exports: [
+    ListaLibrosComponent,
+    DetalleLibroComponent
   ]
 })
-export class CatalogoModule { }
+export class CatalogoModule {}
