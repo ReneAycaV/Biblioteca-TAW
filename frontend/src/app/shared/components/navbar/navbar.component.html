@@ -1,6 +1,5 @@
 <nav class="nyu-navbar">
   <div class="nyu-navbar__container">
-
     <!-- Logo -->
     <a routerLink="/catalogo" class="nyu-navbar__brand">
       <img
@@ -13,27 +12,47 @@
     <!-- Enlaces de navegación (escritorio) -->
     <ul class="nyu-navbar__links">
       <li>
-        <a routerLink="/inicio" routerLinkActive="active" class="nyu-navbar__link">
+        <a
+          routerLink="/menu-usuario"
+          routerLinkActive="active"
+          class="nyu-navbar__link"
+        >
           Inicio
         </a>
       </li>
       <li>
-        <a routerLink="/catalogo" routerLinkActive="active" class="nyu-navbar__link">
+        <a
+          routerLink="/catalogo"
+          routerLinkActive="active"
+          class="nyu-navbar__link"
+        >
           Catálogo
         </a>
       </li>
       <li>
-        <a routerLink="/historial" routerLinkActive="active" class="nyu-navbar__link">
+        <a
+          routerLink="/historial"
+          routerLinkActive="active"
+          class="nyu-navbar__link"
+        >
           Historial
         </a>
       </li>
       <li>
-        <a routerLink="/salas" routerLinkActive="active" class="nyu-navbar__link">
+        <a
+          routerLink="/salas"
+          routerLinkActive="active"
+          class="nyu-navbar__link"
+        >
           Salas de estudio
         </a>
       </li>
       <li>
-        <a routerLink="/multas" routerLinkActive="active" class="nyu-navbar__link">
+        <a
+          routerLink="/multas"
+          routerLinkActive="active"
+          class="nyu-navbar__link"
+        >
           Multas
         </a>
       </li>
@@ -41,7 +60,6 @@
 
     <!-- Acciones del lado derecho (avatar, cerrar sesión) -->
     <div class="nyu-navbar__actions">
-
       <!-- Avatar del usuario con iniciales -->
       <div class="nyu-navbar__avatar" [title]="userName">
         {{ userInitials }}

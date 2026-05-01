@@ -7,6 +7,7 @@ import { MenuPrincipalUsuarioComponent } from './features/menu-principal/menu-pr
 import { MenuPrincipalAdminComponent } from './features/menu-principal/menu-principal-admin/menu-principal-admin.component';
 
 const routes: Routes = [
+  { path: '', component: MenuPrincipalUsuarioComponent },
   { path: 'catalogo', component: ListaLibrosComponent },
   { path: 'catalogo/:id', component: DetalleLibroComponent },
   { path: 'menu-usuario', component: MenuPrincipalUsuarioComponent },
