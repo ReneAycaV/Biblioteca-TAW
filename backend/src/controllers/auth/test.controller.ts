@@ -5,7 +5,6 @@ import { Roles } from '../../security/decorators/roles.decorator';
 
 @Controller('test')
 export class TestController {
-  
   @Get('perfil')
   @UseGuards(JwtAuthGuard)
   perfil(@Req() req: any) {

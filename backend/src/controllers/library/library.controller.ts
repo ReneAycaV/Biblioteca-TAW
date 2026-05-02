@@ -3,9 +3,7 @@ import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
 import { LibraryAccessService } from '../../providers/library-access.service';
 @Controller('library')
 export class LibraryController {
-  constructor(
-    private readonly libraryAccessService: LibraryAccessService,
-  ) {}
+  constructor(private readonly libraryAccessService: LibraryAccessService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('validate-loan')
