@@ -9,6 +9,7 @@ import { JwtStrategy } from '../security/strategies/jwt.strategy';
 import { LibraryAccessService } from '../providers/library-access.service';
 import { LibraryController } from '../controllers/library/library.controller';
 
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([UsuarioEntity]),
