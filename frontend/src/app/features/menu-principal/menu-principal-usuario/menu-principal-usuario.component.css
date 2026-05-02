@@ -1,0 +1,28 @@
+/* ── Página de menu principal de usuario ── */
+.menu-principal-usuario {
+  background-color: #f4f0f8;
+  min-height: calc(100vh - 64px);
+}
+
+/* ── Encabezado del menú principal de usuario ── */
+.menu-principal-usuario-header {
+  background: #ffffff;
+  border-bottom: 1px solid #eee6f3;
+  padding: 32px 22px 20px;
+}
+
+.menu-principal-usuario-header__title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #330662;
+  margin: 0 0 4px 0;
+}
+
+.menu-principal-usuario-header__subtitle {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #6d6d6d;
+  margin: 0;
+}
