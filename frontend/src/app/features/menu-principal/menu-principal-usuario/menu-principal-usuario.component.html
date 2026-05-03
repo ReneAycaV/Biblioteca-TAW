@@ -3,13 +3,101 @@
 <body class="menu-principal-usuario">
   <!-- ── Encabezado de página ── -->
   <header class="menu-principal-usuario-header">
-    <div class="menu-principal-usuario-header__inner">
-      <h1 class="menu-principal-usuario-header__title">
-        Bienvenido, {{ userName }}!
-      </h1>
-      <p class="menu-principal-usuario-header__subtitle">
-        ¿Qué te gustaría hacer hoy?
-      </p>
-    </div>
+    <h1 class="menu-principal-usuario-header__title">
+      Bienvenido, {{ userName }}!
+    </h1>
+    <p class="menu-principal-usuario-header__text">
+      ¿Qué te gustaría hacer hoy?
+    </p>
   </header>
+  <section class="seccion-catalogo">
+    <h2 class="seccion-catalogo__text">
+      Revisa y solicita algunos de nuestros libros disponibles en el catálogo.
+    </h2>
+    <div class="grilla-libros">
+      <article
+        *ngFor="let libro of libros; let i = index"
+        class="book-card"
+        [routerLink]="['/catalogo', libro.id]"
+        [attr.aria-label]="libro.titulo + ' por ' + libro.autor"
+      >
+        <div
+          *ngIf="i < 4 && libro.disponibilidad === 'disponible'"
+          class="book-card"
+        >
+          <!-- Portada del libro con gradiente según género -->
+          <div
+            class="book-card__cover"
+            [style.background]="
+              'linear-gradient(145deg, ' +
+              getCoverColor(libro.genero) +
+              ', ' +
+              getCoverAccent(libro.genero) +
+              ')'
+            "
+          >
+            <!-- Etiqueta de género sobre la portada -->
+            <span class="book-card__genre-tag">{{ libro.genero }}</span>
+
+            <!-- Letra inicial grande del título -->
+            <span class="book-card__initial">{{
+              getInitial(libro.titulo)
+            }}</span>
+
+            <!-- Ícono decorativo del libro (semitransparente) -->
+            <svg
+              class="book-card__cover-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="40"
+              height="40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="rgba(255,255,255,0.18)"
+              stroke-width="1.2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+
+          <!-- Información textual del libro -->
+          <div class="book-card__info">
+            <h3 class="book-card__title">{{ libro.titulo }}</h3>
+            <p class="book-card__author">{{ libro.autor }}</p>
+            <p class="book-card__year">
+              {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + " a.C." }}
+            </p>
+
+            <div class="book-card__footer">
+              <!-- Insignia de disponibilidad con color según estado -->
+              <span
+                class="book-card__badge"
+                [ngClass]="{
+                  'badge--available': libro.disponibilidad === 'disponible',
+                }"
+              >
+                <span class="badge__dot"></span>
+                <span *ngIf="libro.disponibilidad === 'disponible'"
+                  >Disponible</span
+                >
+                >
+              </span>
+
+              <!-- Botón de acción: se desactiva si el libro no está disponible -->
+              <button
+                class="book-card__cta"
+                [disabled]="libro.disponibilidad !== 'disponible'"
+                [attr.aria-label]="'Solicitar préstamo de ' + libro.titulo"
+              >
+                Solicitar
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 </body>
