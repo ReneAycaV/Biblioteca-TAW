@@ -44,16 +44,16 @@
                 <form (ngSubmit)="onSubmit(loginForm)" class="login-form" #loginForm="ngForm" novalidate>
                     
                     <div class="input-group">
-                        <label for="netid">
+                        <label for="email">
                             {{ activeRole === 'student' ? 'CORREO INSTITUCIONAL' : 'ID DE ADMINISTRADOR' }}
                         </label>
-                        <div class="input-with-icon" [class.error-border]="netidCtrl.invalid && loginForm.submitted">
+                        <div class="input-with-icon" [class.error-border]="emailCtrl.invalid && loginForm.submitted">
                             <span class="input-icon">👤</span> 
-                            <input type="text" id="netid" name="netid" 
-                                [(ngModel)]="loginData.netid" #netidCtrl="ngModel"
+                            <input type="text" id="email" name="email" 
+                                [(ngModel)]="loginData.email" #emailCtrl="ngModel"
                                 [placeholder]="activeRole === 'student' ? 'ej. alumno@nyu.com' : 'ej. admin_01'" required>
                         </div>
-                        <small class="error-text" *ngIf="netidCtrl.invalid && loginForm.submitted">
+                        <small class="error-text" *ngIf="emailCtrl.invalid && loginForm.submitted">
                             Este campo es obligatorio.
                         </small>
                     </div>
