@@ -10,8 +10,8 @@
       ¿Qué te gustaría hacer hoy?
     </p>
   </header>
-  <section class="seccion-catalogo-oscuro">
-    <h2 class="seccion-catalogo-oscuro__text">
+  <section class="seccion-oscura">
+    <h2 class="seccion-oscura__text">
       Revisa y solicita algunos de nuestros libros disponibles en el catálogo
     </h2>
     <div class="seccion-grilla">
@@ -102,8 +102,8 @@
     </button>
   </section>
 
-  <section class="seccion-catalogo-claro">
-    <h2 class="seccion-catalogo-claro__text">
+  <section class="seccion-clara">
+    <h2 class="seccion-clara__text">
       Reserva cualquiera de nuestras salas disponibles para todo uso
     </h2>
     <div class="seccion-grilla">
@@ -163,5 +163,31 @@
     >
       Ir a reservar una sala
     </button>
+  </section>
+  <section class="seccion-oscura">
+    <article class="seccion-oscura-pequena">
+      <h2 class="seccion-oscura__text">
+        Revisa los prestamos y reservas anteriores
+      </h2>
+      <button
+        routerLink=""
+        class="seccion-btn"
+        [attr.aria-label]="'Ir a historial de préstamos y reservas'"
+      >
+        Ir a historial
+      </button>
+    </article>
+    <article class="seccion-oscura-pequena">
+      <h2 class="seccion-oscura__text">
+        Revisa que multa pendiente queda por pagar
+      </h2>
+      <button
+        routerLink=""
+        class="seccion-btn"
+        [attr.aria-label]="'Ir a historial de multas'"
+      >
+        Ir a historial de multas
+      </button>
+    </article>
   </section>
 </body>

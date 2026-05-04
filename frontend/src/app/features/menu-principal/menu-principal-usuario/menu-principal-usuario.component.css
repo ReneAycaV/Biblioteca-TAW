@@ -28,13 +28,13 @@
 }
 
 /* ── Sección de catálogo ── */
-.seccion-catalogo-oscuro {
+.seccion-oscura {
   background: #7b5aa6;
   border-bottom: 1px solid #eee6f3;
   padding: 15px 22px 20px;
 }
 
-.seccion-catalogo-oscuro__text {
+.seccion-oscura__text {
   font-family: "Montserrat", sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -228,14 +228,14 @@
 }
 
 /* ── Sección de salas ── */
-.seccion-catalogo-claro {
+.seccion-clara {
   background: #eee6f3;
   border-bottom: 1px solid #eee6f3;
   padding: 15px 22px 20px;
   text-align: right;
 }
 
-.seccion-catalogo-claro__text {
+.seccion-clara__text {
   font-family: "Montserrat", sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -264,4 +264,11 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.seccion-oscura-pequena {
+  width: 50%;
+  height: 110px;
+  display: inline-block;
+  text-align: center;
 }
