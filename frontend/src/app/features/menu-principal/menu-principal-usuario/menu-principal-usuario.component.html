@@ -4,7 +4,7 @@
   <!-- ── Encabezado de página ── -->
   <header class="menu-principal-usuario-header">
     <h1 class="menu-principal-usuario-header__title">
-      Bienvenido, {{ userName }}!
+      ¡Bienvenido, {{ userName }}!
     </h1>
     <p class="menu-principal-usuario-header__text">
       ¿Qué te gustaría hacer hoy?
@@ -16,15 +16,12 @@
     </h2>
     <div class="grilla-libros">
       <article
-        *ngFor="let libro of libros; let i = index"
+        *ngFor="let libro of librosDisponibles; let i = index"
         class="book-card"
         [routerLink]="['/catalogo', libro.id]"
         [attr.aria-label]="libro.titulo + ' por ' + libro.autor"
       >
-        <div
-          *ngIf="i < 4 && libro.disponibilidad === 'disponible'"
-          class="book-card"
-        >
+        <div *ngIf="i < 4" class="book-card">
           <!-- Portada del libro con gradiente según género -->
           <div
             class="book-card__cover"
@@ -89,7 +86,6 @@
               <!-- Botón de acción: se desactiva si el libro no está disponible -->
               <button
                 class="book-card__cta"
-                [disabled]="libro.disponibilidad !== 'disponible'"
                 [attr.aria-label]="'Solicitar préstamo de ' + libro.titulo"
               >
                 Solicitar

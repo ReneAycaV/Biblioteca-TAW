@@ -46,10 +46,6 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* ── Book Card ── */
@@ -181,30 +177,12 @@
     height: 6px;
     border-radius: 50%;
     flex-shrink: 0;
+    background: #57068c;
   }
 
   &.badge--available {
     background: #eee6f3;
     color: #57068c;
-    .badge__dot {
-      background: #57068c;
-    }
-  }
-
-  &.badge--checked-out {
-    background: #f0f0f0;
-    color: #404040;
-    .badge__dot {
-      background: #6d6d6d;
-    }
-  }
-
-  &.badge--reserved {
-    background: #fff4e5;
-    color: #b45309;
-    .badge__dot {
-      background: #f59e0b;
-    }
   }
 }
 
@@ -227,13 +205,7 @@
     background-color 0.15s ease;
   white-space: nowrap;
 
-  &:hover:not(:disabled) {
+  &:hover {
     background: #702b9d;
-  }
-
-  &:disabled {
-    background: #d6d6d6;
-    color: #b8b8b8;
-    cursor: not-allowed;
   }
 }

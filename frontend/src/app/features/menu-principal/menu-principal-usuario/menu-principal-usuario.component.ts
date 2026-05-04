@@ -24,7 +24,7 @@ export class MenuPrincipalUsuarioComponent {
       autor: 'Miguel de Cervantes',
       anio: 1605,
       genero: 'Literatura',
-      disponibilidad: 'disponible',
+      disponibilidad: 'prestado',
     },
     {
       id: 3,
@@ -40,7 +40,7 @@ export class MenuPrincipalUsuarioComponent {
       autor: 'Yuval Noah Harari',
       anio: 2011,
       genero: 'Historia',
-      disponibilidad: 'disponible',
+      disponibilidad: 'reservado',
     },
     {
       id: 5,
@@ -173,5 +173,10 @@ export class MenuPrincipalUsuarioComponent {
   // Extrae la primera letra del título en mayúscula para mostrarla en la portada
   getInitial(titulo: string): string {
     return titulo.charAt(0).toUpperCase();
+  }
+
+  // Crea una lista con solo los libros disponibles
+  get librosDisponibles(): Libro[] {
+    return this.libros.filter((libro) => libro.disponibilidad === 'disponible');
   }
 }
