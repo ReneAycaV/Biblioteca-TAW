@@ -8,7 +8,7 @@
 .menu-principal-usuario-header {
   background: #ffffff;
   border-bottom: 1px solid #eee6f3;
-  padding: 32px 22px 20px;
+  padding: 32px 22px 12px;
 }
 
 .menu-principal-usuario-header__title {
@@ -28,13 +28,13 @@
 }
 
 /* ── Sección de catálogo ── */
-.seccion-catalogo {
+.seccion-catalogo-oscuro {
   background: #7b5aa6;
   border-bottom: 1px solid #eee6f3;
   padding: 15px 22px 20px;
 }
 
-.seccion-catalogo__text {
+.seccion-catalogo-oscuro__text {
   font-family: "Montserrat", sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -42,10 +42,11 @@
   margin: 0 0 20px;
 }
 
-.grilla-libros {
+.seccion-grilla {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  column-gap: 20px;
+  margin-bottom: 20px;
 }
 
 /* ── Book Card ── */
@@ -208,4 +209,59 @@
   &:hover {
     background: #702b9d;
   }
+}
+
+/* ── Botón de sección ── */
+.seccion-btn {
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  background: #57068c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+
+  &:hover {
+    background: #702b9d;
+  }
+}
+
+/* ── Sección de salas ── */
+.seccion-catalogo-claro {
+  background: #eee6f3;
+  border-bottom: 1px solid #eee6f3;
+  padding: 15px 22px 20px;
+  text-align: right;
+}
+
+.seccion-catalogo-claro__text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000;
+  margin: 0 0 20px;
+}
+
+/* Info */
+.room-card__info {
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.room-card__title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  color: #1a0033;
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

@@ -10,11 +10,11 @@
       ¿Qué te gustaría hacer hoy?
     </p>
   </header>
-  <section class="seccion-catalogo">
-    <h2 class="seccion-catalogo__text">
-      Revisa y solicita algunos de nuestros libros disponibles en el catálogo.
+  <section class="seccion-catalogo-oscuro">
+    <h2 class="seccion-catalogo-oscuro__text">
+      Revisa y solicita algunos de nuestros libros disponibles en el catálogo
     </h2>
-    <div class="grilla-libros">
+    <div class="seccion-grilla">
       <article
         *ngFor="let libro of librosDisponibles; let i = index"
         class="book-card"
@@ -77,13 +77,11 @@
                 }"
               >
                 <span class="badge__dot"></span>
-                <span *ngIf="libro.disponibilidad === 'disponible'"
-                  >Disponible</span
-                >
+                <span>Disponible</span>
                 >
               </span>
 
-              <!-- Botón de acción: se desactiva si el libro no está disponible -->
+              <!-- Botón de acción -->
               <button
                 class="book-card__cta"
                 [attr.aria-label]="'Solicitar préstamo de ' + libro.titulo"
@@ -95,5 +93,75 @@
         </div>
       </article>
     </div>
+    <button
+      routerLink="/catalogo"
+      class="seccion-btn"
+      [attr.aria-label]="'Ir al catálogo de libros'"
+    >
+      Ir a catálogo de libros
+    </button>
+  </section>
+
+  <section class="seccion-catalogo-claro">
+    <h2 class="seccion-catalogo-claro__text">
+      Reserva cualquiera de nuestras salas disponibles para todo uso
+    </h2>
+    <div class="seccion-grilla">
+      <article
+        *ngFor="let sala of salasDisponibles; let i = index"
+        class="book-card"
+        [routerLink]=""
+        [attr.aria-label]="sala.nombre + ' - ' + sala.disponibilidad"
+      >
+        <div *ngIf="i < 4" class="book-card">
+          <!-- Portada del libro con gradiente según género -->
+          <div
+            class="book-card__cover"
+            [style.background]="
+              'linear-gradient(145deg, ' + '#7B5AA6' + ', ' + '#9B75C0' + ')'
+            "
+          >
+            <!-- Letra inicial grande del nombre -->
+            <span class="book-card__initial">{{
+              getInitial(sala.nombre)
+            }}</span>
+          </div>
+
+          <!-- Información textual de la sala -->
+          <div class="room-card__info">
+            <h3 class="room-card__title">{{ sala.nombre }}</h3>
+
+            <div class="book-card__footer">
+              <!-- Insignia de disponibilidad -->
+              <span
+                class="book-card__badge"
+                [ngClass]="{
+                  'badge--available': sala.disponibilidad === 'disponible',
+                }"
+              >
+                <span class="badge__dot"></span>
+                <span>Disponible</span>
+                >
+              </span>
+
+              <!-- Botón de acción -->
+              <button
+                class="book-card__cta"
+                [attr.aria-label]="'Solicitar reserva de ' + sala.nombre"
+              >
+                Reservar
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+    <button
+      routerLink=""
+      class="seccion-btn"
+      [attr.aria-label]="'Ir a reservar una sala'"
+    >
+      Ir a reservar una sala
+    </button>
   </section>
 </body>

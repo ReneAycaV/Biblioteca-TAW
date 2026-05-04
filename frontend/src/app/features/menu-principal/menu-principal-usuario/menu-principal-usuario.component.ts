@@ -2,6 +2,12 @@ import { Component } from '@angular/core';
 import { Libro } from '../../catalogo/lista-libros/lista-libros.component';
 import { ListaLibrosComponent } from '../../catalogo/lista-libros/lista-libros.component';
 
+export interface Sala {
+  id: number;
+  nombre: string;
+  disponibilidad: 'disponible' | 'reservado';
+}
+
 @Component({
   selector: 'app-menu-principal-usuario',
   templateUrl: './menu-principal-usuario.component.html',
@@ -9,6 +15,39 @@ import { ListaLibrosComponent } from '../../catalogo/lista-libros/lista-libros.c
 })
 export class MenuPrincipalUsuarioComponent {
   userName = 'Juan González';
+  salas: Sala[] = [
+    {
+      id: 1,
+      nombre: 'Parinacota',
+      disponibilidad: 'disponible',
+    },
+    {
+      id: 2,
+      nombre: 'Sala de Ciencias',
+      disponibilidad: 'reservado',
+    },
+    {
+      id: 3,
+      nombre: 'Azufre',
+      disponibilidad: 'disponible',
+    },
+    {
+      id: 4,
+      nombre: 'Sala de Tecnología',
+      disponibilidad: 'reservado',
+    },
+    {
+      id: 5,
+      nombre: 'Belen',
+      disponibilidad: 'disponible',
+    },
+    {
+      id: 6,
+      nombre: 'Guallatire',
+      disponibilidad: 'disponible',
+    },
+  ];
+
   libros: Libro[] = [
     {
       id: 1,
@@ -178,5 +217,10 @@ export class MenuPrincipalUsuarioComponent {
   // Crea una lista con solo los libros disponibles
   get librosDisponibles(): Libro[] {
     return this.libros.filter((libro) => libro.disponibilidad === 'disponible');
+  }
+
+  // Crea una lista con solo las salas disponibles
+  get salasDisponibles(): Sala[] {
+    return this.salas.filter((sala) => sala.disponibilidad === 'disponible');
   }
 }
