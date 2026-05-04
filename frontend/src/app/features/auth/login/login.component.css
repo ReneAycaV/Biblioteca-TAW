@@ -13,7 +13,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Usamos tu fuente principal general */
     font-family: var(--font-primary);
     background-color: transparent; 
 }
@@ -35,7 +34,6 @@
    ========================================= */
 .brand-side {
     flex: 1.2;
-    /* Gradiente usando tu violeta principal y el oscuro */
     background: linear-gradient(135deg, var(--color-violet) 0%, var(--color-deep-violet) 100%);
     color: var(--color-white);
     padding: 60px;
@@ -45,20 +43,20 @@
     position: relative;
 }
 
-/* Nuevo contenedor que centra el logo y mantiene el espacio */
+/*contenedor */
 .libraries-logo-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 40px; /* Mismo espacio inferior que antes */
-    width: 100%; /* Ocupa todo el ancho disponible para centrar */
+    margin-bottom: 40px; 
+    width: 100%; 
 }
 
-/* Estilos para el logo en sí */
+/* Estilos para el logo */
 .libraries-logo {
-    max-width: 300px; /* Le damos un ancho máximo razonable (antes era solo 100) */
-    max-height: 60px; /* Le damos un alto máximo para que no sea gigante verticalmente */
-    object-fit: contain; /* Esto asegura que el logo mantenga sus proporciones sin aplastarse */
+    max-width: 300px;
+    max-height: 60px; 
+    object-fit: contain;
 }
 
 /* Texto de la Universidad */
@@ -73,7 +71,7 @@
     font-size: 16px;
     font-weight: 300;
     line-height: 1.5;
-    color: var(--color-light-violet-2); /* Acento lila */
+    color: var(--color-light-violet-2);
     max-width: 400px;
 }
 
@@ -124,7 +122,7 @@
 /* --- SELECTOR DE ROL (BOTONES SUPERIORES) --- */
 .role-selector {
     display: flex;
-    background-color: var(--color-light-violet-3); /* Un fondo sutil de la paleta */
+    background-color: var(--color-light-violet-3);
     border-radius: 30px;
     padding: 5px;
     margin-bottom: 30px;
@@ -240,7 +238,7 @@
 }
 
 .submit-btn:hover {
-    background-color: var(--color-ultra-violet); /* Color secundario para el hover */
+    background-color: var(--color-ultra-violet);
 }
 
 /* --- ENLACES INFERIORES --- */
@@ -284,4 +282,25 @@
     color: var(--color-gray-mid-1);
     line-height: 1.5;
     max-width: 600px;
+}
+
+/* --- ESTADO DE ERROR PARA LOS INPUTS --- */
+.error-border {
+    border: 2px solid var(--color-magenta) !important;
+    background-color: #FFF0F5 !important; 
+}
+
+/* Cambia el color del icono si hay error */
+.error-border .input-icon {
+    color: var(--color-magenta);
+}
+
+/* --- TEXTO DE ERROR DEBAJO DEL INPUT --- */
+.error-text {
+    color: var(--color-magenta);
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left: 5px;
+    font-weight: 600;
+    display: block;
 }

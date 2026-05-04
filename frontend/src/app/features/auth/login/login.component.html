@@ -41,24 +41,38 @@
                     </button>
                 </div>
 
-                <form (ngSubmit)="onSubmit()" class="login-form">
+                <form (ngSubmit)="onSubmit(loginForm)" class="login-form" #loginForm="ngForm" novalidate>
                     
                     <div class="input-group">
                         <label for="netid">
                             {{ activeRole === 'student' ? 'CORREO INSTITUCIONAL' : 'ID DE ADMINISTRADOR' }}
                         </label>
-                        <div class="input-with-icon">
+                        <div class="input-with-icon" [class.error-border]="netidCtrl.invalid && loginForm.submitted">
                             <span class="input-icon">👤</span> 
                             <input type="text" id="netid" name="netid" 
+                                [(ngModel)]="loginData.netid" #netidCtrl="ngModel"
                                 [placeholder]="activeRole === 'student' ? 'ej. alumno@nyu.com' : 'ej. admin_01'" required>
                         </div>
+                        <small class="error-text" *ngIf="netidCtrl.invalid && loginForm.submitted">
+                            Este campo es obligatorio.
+                        </small>
                     </div>
 
                     <div class="input-group">
                         <label for="password">CONTRASEÑA</label>
-                        <div class="input-with-icon">
+                        <div class="input-with-icon" [class.error-border]="passCtrl.invalid && loginForm.submitted">
                             <span class="input-icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <input type="password" id="password" name="password" 
+                                [(ngModel)]="loginData.password" #passCtrl="ngModel"
+                                placeholder="••••••••" required minlength="6">
+                        </div>
+                        <div *ngIf="passCtrl.invalid && loginForm.submitted">
+                            <small class="error-text" *ngIf="passCtrl.errors?.['required']">
+                                Ingresa tu contraseña.
+                            </small>
+                            <small class="error-text" *ngIf="passCtrl.errors?.['minlength']">
+                                La contraseña debe tener al menos 6 caracteres.
+                            </small>
                         </div>
                     </div>
 
@@ -69,7 +83,6 @@
 
                     <button type="submit" class="submit-btn">Ingresar al Portal</button>
                 </form>
-
                 <div class="login-links">
                     <a href="#" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
                     <div class="help-links">
