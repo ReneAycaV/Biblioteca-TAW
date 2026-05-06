@@ -1,34 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ILoginRequestDTO } from '../../../shared/dtos/auth/login-request.dto';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  
-  activeRole: string = 'student'; 
+export class LoginComponent implements OnInit {
 
-  loginData = {
-    netid: '',
+  // Rol seleccionado por el usuario en la UI
+  rolActivo: string = 'estudiante';
+
+  // Modelo del formulario de login
+  loginData: ILoginRequestDTO = {
+    email: '',
     password: ''
   };
 
-  setRole(role: string) {
-    this.activeRole = role;
-    this.loginData.netid = '';
-    this.loginData.password = '';
+  // Mensaje de error de validación de la UI
+  mensajeError: string = '';
+
+  // Constructor: solo inyección de dependencias
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  // Cambia el rol activo y limpia el formulario y errores
+  cambiarRol(rol: string): void {
+    this.rolActivo = rol;
+    this.loginData = { email: '', password: '' };
+    this.mensajeError = '';
   }
 
-  // MODIFICAMOS ESTA FUNCIÓN para que reciba el formulario (form: any)
-  onSubmit(form: any) {
-    // Si el formulario es inválido (faltan datos), detenemos todo aquí
+  // Valida el formulario y navega al catálogo
+  // TODO: integrar llamada a la API de autenticación cuando el backend esté disponible
+  onSubmit(form: any): void {
     if (form.invalid) {
-      console.log("Faltan datos, no se envía nada al backend.");
-      return; 
+      return;
     }
-
-    console.log(`Intentando ingresar como ${this.activeRole} con:`, this.loginData);
-    alert(`Ingresando como: ${this.activeRole.toUpperCase()}`);
+    console.log(`Ingresando como ${this.rolActivo}:`, this.loginData);
+    this.router.navigate(['/catalogo']);
   }
 }
