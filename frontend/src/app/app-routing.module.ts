@@ -5,6 +5,8 @@ import { ListaLibrosComponent } from './features/catalogo/lista-libros/lista-lib
 import { DetalleLibroComponent } from './features/catalogo/detalle-libro/detalle-libro.component';
 import { MenuPrincipalUsuarioComponent } from './features/menu-principal/menu-principal-usuario/menu-principal-usuario.component';
 import { MenuPrincipalAdminComponent } from './features/menu-principal/menu-principal-admin/menu-principal-admin.component';
+import { CrearPrestamoComponent } from './features/prestamos/crear-prestamo/crear-prestamo.component';
+import { HistorialPrestamosComponent } from './features/prestamos/historial-prestamos/historial-prestamos.component';
 
 const routes: Routes = [
   { path: '', component: MenuPrincipalUsuarioComponent },
@@ -12,6 +14,8 @@ const routes: Routes = [
   { path: 'catalogo/:id', component: DetalleLibroComponent },
   { path: 'menu-usuario', component: MenuPrincipalUsuarioComponent },
   { path: 'menu-admin', component: MenuPrincipalAdminComponent },
+  { path: 'crear-prestamo', component: CrearPrestamoComponent },
+  { path: 'historial', component: HistorialPrestamosComponent },
 ];
 
 @NgModule({

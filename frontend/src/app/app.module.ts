@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
 import { MenuPrincipalModule } from './features/menu-principal/menu-principal.module';
+import { PrestamosModule } from './features/prestamos/prestamos.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -13,6 +14,7 @@ import { MenuPrincipalModule } from './features/menu-principal/menu-principal.mo
     AppRoutingModule,
     CatalogoModule,
     MenuPrincipalModule,
+    PrestamosModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
