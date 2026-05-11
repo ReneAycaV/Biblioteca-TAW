@@ -1,29 +1,55 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
 import { LibraryAccessService } from '../../providers/library-access.service';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse,} from '@nestjs/swagger';
+
+@ApiTags('Library')
 @Controller('library')
 export class LibraryController {
   constructor(
     private readonly libraryAccessService: LibraryAccessService,
   ) {}
 
+
   @UseGuards(JwtAuthGuard)
   @Get('validate-loan')
+  @ApiBearerAuth()  
+  @ApiOperation({
+  summary: 'Validate book loan',
+    description: 'Checks if user is allowed to borrow books',
+  })
+  @ApiResponse({ status: 200 })
   async validateLoan(@Req() req: any) {
-    await this.libraryAccessService.validateAcademicStatus(req.user.id);
+
+    const userId = req.user.id;
+
+    await this.libraryAccessService.validateLoan(userId);
 
     return {
-      message: 'Usuario habilitado para solicitar préstamo',
+      success: true,
+      message: 'User can borrow books',
+      data: { canLoan: true },
     };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('validate-room-reservation')
-  async validateRoomReservation(@Req() req: any) {
-    await this.libraryAccessService.validateNoPendingFines(req.user.id);
+  @Get('validate-room')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Validador de reserva de salas',
+    description: 'Validadando si el usuario puede reservar salas',
+  })
+  @ApiResponse({ status: 200 })
+  async validateRoom(@Req() req: any) {
+
+    const userId = req.user.id;
+
+    await this.libraryService.validateRoom(userId);
 
     return {
-      message: 'Usuario habilitado para reservar sala',
+      success: true,
+      message: 'El usuario puede reservar salas',
+      data: { canReserve: true },
     };
   }
 }
