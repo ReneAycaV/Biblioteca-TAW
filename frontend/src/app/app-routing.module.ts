@@ -7,6 +7,7 @@ import { MenuPrincipalUsuarioComponent } from './features/menu-principal/menu-pr
 import { MenuPrincipalAdminComponent } from './features/menu-principal/menu-principal-admin/menu-principal-admin.component';
 import { CrearPrestamoComponent } from './features/prestamos/crear-prestamo/crear-prestamo.component';
 import { HistorialPrestamosComponent } from './features/prestamos/historial-prestamos/historial-prestamos.component';
+import { LoginComponent } from './features/auth/login/login.component';
 
 const routes: Routes = [
   { path: '', component: MenuPrincipalUsuarioComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'menu-admin', component: MenuPrincipalAdminComponent },
   { path: 'crear-prestamo', component: CrearPrestamoComponent },
   { path: 'historial', component: HistorialPrestamosComponent },
+  { path: 'login', component: LoginComponent },
 ];
 
 @NgModule({
