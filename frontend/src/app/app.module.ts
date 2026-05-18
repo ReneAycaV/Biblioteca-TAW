@@ -6,17 +6,19 @@ import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
 import { LoginComponent } from './features/auth/login/login.component';
 import { FormsModule } from '@angular/forms';
+import { ReservasModule } from './features/reservas/reservas.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     CatalogoModule,
-    FormsModule
+    FormsModule,
+    ReservasModule
   ],
   providers: [],
   bootstrap: [AppComponent]

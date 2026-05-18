@@ -1,0 +1,16 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+    
+    <div class="mb-4">
+        <h2 class="titulo">Reserva de Salas</h2>
+        <p class="subtitulo">
+            <span *ngIf="vistaActual === 1">Selecciona el bloque de horario que necesitas.</span>
+            <span *ngIf="vistaActual === 2">Elige tu sala ideal para tu reserva</span>
+            <span *ngIf="vistaActual === 3">Revisa y confirma los datos de tu reserva.</span>
+        </p>
+    </div>
+
+    <div *ngIf="vistaActual === 1">
+        <app-horario (horarioSeleccionado)="avanzarASalas($event)"></app-horario>
+    </div>
