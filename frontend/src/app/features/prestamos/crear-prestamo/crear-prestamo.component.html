@@ -46,12 +46,28 @@
         </p>
       </div>
     </div>
-    <form>
-      <label for="fecha-retiro">Fecha de retiro:</label><br />
-      <input type="date" id="fecha-retiro" name="fecha-retiro" />
+    <form class="prestamo-form">
+      <label class="prestamo-form__label" for="fecha-retiro"
+        >Fecha de retiro:</label
+      ><br />
+      <input
+        class="prestamo-form__input"
+        type="date"
+        id="fecha-retiro"
+        name="fecha-retiro"
+      />
       <br />
-      <label for="fecha-devolucion">Fecha de devolución:</label><br />
-      <input type="date" id="fecha-devolucion" name="fecha-devolucion" />
+      <label class="prestamo-form__label" for="fecha-devolucion"
+        >Fecha de devolución:</label
+      ><br />
+      <input
+        class="prestamo-form__input"
+        type="date"
+        id="fecha-devolucion"
+        name="fecha-devolucion"
+      />
+      <!-- Botón para solicitar préstamo -->
+      <button type="submit" class="prestamo-btn">Solicitar</button>
     </form>
   </div>
 </body>
