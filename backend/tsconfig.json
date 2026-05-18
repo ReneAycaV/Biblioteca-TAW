@@ -20,8 +20,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "strict": true
-  },
-  "exclude": ["node_modules"]
+    "noFallthroughCasesInSwitch": false
+  }
 }
