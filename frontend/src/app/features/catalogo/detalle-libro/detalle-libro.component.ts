@@ -24,7 +24,7 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
       'lo cotidiano con lo fantástico, García Márquez construyó una saga épica sobre el amor, la ' +
       'soledad, el poder y la memoria colectiva de un pueblo condenado a repetir su historia.',
     stockTotal: 5,
-    stockDisponible: 2,
+    stockDisponible: 0,
     estado: 'disponible',
     ubicacionFisica: 'Biblioteca Central — Campus Arica, Edificio A, Piso 2'
   };
@@ -42,7 +42,7 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // route.params es un Observable que emite cada vez que cambia el :id en la URL.
@@ -96,10 +96,10 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
   getCoverColor(genero: string): string {
     const map: { [key: string]: string } = {
       'Literatura': '#702B9D',
-      'Ciencias':   '#009B8A',
-      'Historia':   '#330662',
+      'Ciencias': '#009B8A',
+      'Historia': '#330662',
       'Tecnología': '#59B2D1',
-      'Filosofía':  '#7B5AA6',
+      'Filosofía': '#7B5AA6',
     };
     return map[genero] ?? '#57068C';
   }
@@ -108,10 +108,10 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
   getCoverAccent(genero: string): string {
     const map: { [key: string]: string } = {
       'Literatura': '#9B4BC7',
-      'Ciencias':   '#00BFA8',
-      'Historia':   '#5A0FA8',
+      'Ciencias': '#00BFA8',
+      'Historia': '#5A0FA8',
       'Tecnología': '#7EC8E3',
-      'Filosofía':  '#9B75C0',
+      'Filosofía': '#9B75C0',
     };
     return map[genero] ?? '#702B9D';
   }
