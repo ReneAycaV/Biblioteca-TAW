@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UsuarioEntity } from './usuario.entity';
 import { LibroEntity } from './libro.entity';
+import { MultaEntity } from './multa.entity';
 
 export enum EstadoPrestamo {
   ACTIVO = 'ACTIVO',
@@ -25,16 +26,20 @@ export class PrestamoEntity {
   usuario!: UsuarioEntity;
 
   @ManyToOne(() => LibroEntity)
-  @JoinColumn({ name: 'id_libro' })
+  @JoinColumn({ name: 'id_libros' })
   libro!: LibroEntity;
 
-  @Column({ name: 'fecha_prestamo' })
+  @ManyToOne(() => MultaEntity, { nullable: true })
+  @JoinColumn({ name: 'id_multa' })
+  multa?: MultaEntity;
+
+  @Column({ name: 'fecha_prestamo', type: 'date' })
   fechaPrestamo!: Date;
 
-  @Column({ name: 'fecha_devolucion_esperada' })
+  @Column({ name: 'fecha_devolucion_esperada', type: 'date' })
   fechaDevolucionEsperada!: Date;
 
-  @Column({ name: 'fecha_devolucion_real', nullable: true })
+  @Column({ name: 'fecha_devolucion_real', type: 'date', nullable: true })
   fechaDevolucionReal?: Date;
 
   @Column({
@@ -43,6 +48,9 @@ export class PrestamoEntity {
     default: EstadoPrestamo.ACTIVO,
   })
   estado!: EstadoPrestamo;
+
+  @Column({ type: 'text', nullable: true })
+  observacion?: string;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion!: Date;

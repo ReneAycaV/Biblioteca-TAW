@@ -8,11 +8,12 @@ import { AuthService } from '../providers/auth.service';
 import { JwtStrategy } from '../security/strategies/jwt.strategy';
 import { LibraryAccessService } from '../providers/library-access.service';
 import { LibraryController } from '../controllers/library/library.controller';
-
+import { LibroEntity } from '../database/entities/libro.entity';
+import { ReservaEntity } from '../database/entities/reserva.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UsuarioEntity]),
+    TypeOrmModule.forFeature([UsuarioEntity, LibroEntity, ReservaEntity]),
     JwtModule.register({
       secret: 'super_secreto_hu17',
       signOptions: {
