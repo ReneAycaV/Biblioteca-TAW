@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
 import { PrestamoService } from '../../providers/prestamo.service';
 import { SolicitarPrestamoDto } from '../../dto/solicitar-prestamo.dto';
@@ -24,6 +32,27 @@ export class PrestamoController {
         idPrestamo: prestamo.idPrestamo,
         fechaPrestamo: prestamo.fechaPrestamo,
         fechaDevolucionEsperada: prestamo.fechaDevolucionEsperada,
+        estado: prestamo.estado,
+      },
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/devolver')
+  async devolverPrestamo(
+    @Req() req: any,
+    @Param('id', ParseIntPipe) idPrestamo: number,
+  ) {
+    const prestamo = await this.prestamoService.devolverPrestamo(
+      req.user.id,
+      idPrestamo,
+    );
+
+    return {
+      message: 'Libro devuelto exitosamente',
+      prestamo: {
+        idPrestamo: prestamo.idPrestamo,
+        fechaDevolucionReal: prestamo.fechaDevolucionReal,
         estado: prestamo.estado,
       },
     };
