@@ -1,73 +1,66 @@
 <app-navbar></app-navbar>
-<body class="crear-prestamo__body">
-  <div class="container-prestamo">
-    <h1 class="container-prestamo__title">Libro seleccionado:</h1>
-    <div class="book-card">
-      <div
-        class="book-card__cover"
-        [style.background]="
-          'linear-gradient(145deg, ' +
-          getCoverColor(libro.genero) +
-          ', ' +
-          getCoverAccent(libro.genero) +
-          ')'
-        "
-      >
-        <!-- Etiqueta de género sobre la portada -->
-        <span class="book-card__genre-tag">{{ libro.genero }}</span>
 
-        <!-- Letra inicial grande del título -->
-        <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
+<main class="crear-prestamo__page">
+  <div class="crear-prestamo__inner">
+    <div class="container-prestamo">
 
-        <!-- Ícono decorativo del libro (semitransparente) -->
-        <svg
-          class="book-card__cover-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="40"
-          height="40"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="rgba(255,255,255,0.18)"
-          stroke-width="1.2"
+      <!-- Título -->
+      <h1 class="container-prestamo__title">Libro seleccionado:</h1>
+
+      <!-- Tarjeta del libro seleccionado -->
+      <div class="book-card">
+        <div
+          class="book-card__cover"
+          [style.background]="'linear-gradient(145deg, ' + getCoverColor(libro.genero) + ', ' + getCoverAccent(libro.genero) + ')'"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          <span class="book-card__genre-tag">{{ libro.genero }}</span>
+          <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
+          <svg
+            class="book-card__cover-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="40" height="40" fill="none"
+            viewBox="0 0 24 24" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <div class="book-card__info">
+          <h3 class="book-card__title">{{ libro.titulo }}</h3>
+          <p class="book-card__author">{{ libro.autor }}</p>
+          <p class="book-card__year">
+            {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + ' a.C.' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Formulario de fechas -->
+      <form class="prestamo-form">
+
+        <div class="prestamo-form__group">
+          <label class="prestamo-form__label" for="fecha-retiro">Fecha de retiro</label>
+          <input
+            class="prestamo-form__input"
+            type="date"
+            id="fecha-retiro"
+            name="fecha-retiro"
           />
-        </svg>
-      </div>
-      <!-- Información textual del libro -->
-      <div class="book-card__info">
-        <h3 class="book-card__title">{{ libro.titulo }}</h3>
-        <p class="book-card__author">{{ libro.autor }}</p>
-        <p class="book-card__year">
-          {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + " a.C." }}
-        </p>
-      </div>
+        </div>
+
+        <div class="prestamo-form__group">
+          <label class="prestamo-form__label" for="fecha-devolucion">Fecha de devolución</label>
+          <input
+            class="prestamo-form__input"
+            type="date"
+            id="fecha-devolucion"
+            name="fecha-devolucion"
+          />
+        </div>
+
+        <!-- Botón para solicitar préstamo -->
+        <button type="submit" class="prestamo-btn">Solicitar préstamo</button>
+
+      </form>
     </div>
-    <form class="prestamo-form">
-      <label class="prestamo-form__label" for="fecha-retiro"
-        >Fecha de retiro:</label
-      ><br />
-      <input
-        class="prestamo-form__input"
-        type="date"
-        id="fecha-retiro"
-        name="fecha-retiro"
-      />
-      <br />
-      <label class="prestamo-form__label" for="fecha-devolucion"
-        >Fecha de devolución:</label
-      ><br />
-      <input
-        class="prestamo-form__input"
-        type="date"
-        id="fecha-devolucion"
-        name="fecha-devolucion"
-      />
-      <!-- Botón para solicitar préstamo -->
-      <button type="submit" class="prestamo-btn">Solicitar</button>
-    </form>
   </div>
-</body>
+</main>
