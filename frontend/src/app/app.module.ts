@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
 import { LoginComponent } from './features/auth/login/login.component';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { ReservasModule } from './features/reservas/reservas.module';
 
 @NgModule({
   declarations: [
