@@ -47,7 +47,7 @@
       </div>
 
       <!-- Formulario de fechas -->
-      <form class="prestamo-form">
+      <form class="prestamo-form" #prestamoForm="ngForm">
         <div class="prestamo-form__group">
           <label class="prestamo-form__label" for="fecha-retiro"
             >Fecha de retiro</label
@@ -57,7 +57,18 @@
             type="date"
             id="fecha-retiro"
             name="fecha-retiro"
+            min="{{ today }}"
+            required
+            #fechaRetiro
+            [class.error-border]="!fechaRetiro.value && prestamoForm.submitted"
           />
+          <!-- Mensaje de error cuando no se ha seleccionado una fecha de retiro -->
+          <span
+            class="texto-error"
+            *ngIf="!fechaRetiro.value && prestamoForm.submitted"
+          >
+            La fecha de retiro es obligatoria.
+          </span>
         </div>
 
         <div class="prestamo-form__group">
@@ -69,39 +80,25 @@
             type="date"
             id="fecha-devolucion"
             name="fecha-devolucion"
+            min="{{ today }}"
+            required
+            #fechaDevolucion
+            [class.error-border]="
+              !fechaDevolucion.value && prestamoForm.submitted
+            "
           />
+          <!-- Mensaje de error cuando no se ha seleccionado una fecha de devolución -->
+          <span
+            class="texto-error"
+            *ngIf="!fechaDevolucion.value && prestamoForm.submitted"
+          >
+            La fecha de devolución es obligatoria.
+          </span>
         </div>
 
         <!-- Botón para solicitar préstamo -->
         <button type="submit" class="prestamo-btn">Solicitar préstamo</button>
       </form>
     </div>
-    <form class="prestamo-form">
-      <label class="prestamo-form__label" for="fecha-retiro"
-        >Fecha de retiro:
-      </label>
-      <input
-        class="prestamo-form__input"
-        type="date"
-        id="fecha-retiro"
-        name="fecha-retiro"
-        min="{{ today }}"
-        required
-      />
-
-      <label class="prestamo-form__label" for="fecha-devolucion"
-        >Fecha de devolución:
-      </label>
-      <input
-        class="prestamo-form__input"
-        type="date"
-        id="fecha-devolucion"
-        name="fecha-devolucion"
-        min="{{ today }}"
-        required
-      />
-      <!-- Botón para solicitar préstamo -->
-      <button type="submit" class="prestamo-btn">Solicitar</button>
-    </form>
   </div>
 </main>

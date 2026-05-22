@@ -145,12 +145,29 @@
   outline: none;
   background: #ffffff;
   color: #330662;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:focus {
     border-color: #57068c;
     box-shadow: 0 0 0 3px rgba(87, 6, 140, 0.12);
   }
+}
+
+/* Error en inputs */
+.error-border {
+  border: 2px solid var(--color-magenta) !important;
+  background-color: #fff0f5 !important;
+}
+
+.texto-error {
+  display: block;
+  color: var(--color-magenta);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  margin-left: 6px;
 }
 
 /* ── Botón de solicitar ── */
@@ -166,7 +183,9 @@
   padding: 11px 28px;
   cursor: pointer;
   margin-top: 4px;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
     background: #702b9d;
