@@ -48,23 +48,27 @@
     </div>
     <form class="prestamo-form">
       <label class="prestamo-form__label" for="fecha-retiro"
-        >Fecha de retiro:</label
-      ><br />
+        >Fecha de retiro:
+      </label>
       <input
         class="prestamo-form__input"
         type="date"
         id="fecha-retiro"
         name="fecha-retiro"
+        min="{{ today }}"
+        required
       />
-      <br />
+
       <label class="prestamo-form__label" for="fecha-devolucion"
-        >Fecha de devolución:</label
-      ><br />
+        >Fecha de devolución:
+      </label>
       <input
         class="prestamo-form__input"
         type="date"
         id="fecha-devolucion"
         name="fecha-devolucion"
+        min="{{ today }}"
+        required
       />
       <!-- Botón para solicitar préstamo -->
       <button type="submit" class="prestamo-btn">Solicitar</button>

@@ -50,4 +50,7 @@ export class CrearPrestamoComponent {
   getInitial(titulo: string): string {
     return titulo.charAt(0).toUpperCase();
   }
+
+  // Fecha actual para mostrar en el formulario
+  today = new Date().toISOString().split('T')[0];
 }
