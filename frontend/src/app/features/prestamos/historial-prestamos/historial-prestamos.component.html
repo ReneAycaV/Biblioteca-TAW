@@ -1,1 +1,18 @@
 <app-navbar></app-navbar>
+
+<main class="historial__page">
+  <header class="historial-header">
+    <div class="historial-header__inner">
+      <h1 class="historial-header__title">Historial de préstamos y reservas</h1>
+    </div>
+  </header>
+  <div class="historial__meh">
+    <div *ngIf="prestamos.length > 0; else noPrestamos">
+      <div *ngFor="let prestamo of prestamos" class="prestamo-card"></div>
+    </div>
+
+    <ng-template #noPrestamos>
+      <p class="historial__empty">No tienes préstamos registrados.</p>
+    </ng-template>
+  </div>
+</main>
