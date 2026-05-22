@@ -13,7 +13,7 @@ const routes: Routes = [
   { path: '', component: MenuPrincipalUsuarioComponent },
   { path: 'catalogo', component: ListaLibrosComponent },
   { path: 'catalogo/:id', component: DetalleLibroComponent },
-  { path: 'menu-usuario', component: MenuPrincipalUsuarioComponent },
+  { path: 'inicio', component: MenuPrincipalUsuarioComponent },
   { path: 'menu-admin', component: MenuPrincipalAdminComponent },
   { path: 'crear-prestamo', component: CrearPrestamoComponent },
   { path: 'historial', component: HistorialPrestamosComponent },
