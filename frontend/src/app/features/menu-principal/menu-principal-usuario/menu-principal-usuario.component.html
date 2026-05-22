@@ -1,7 +1,6 @@
 <app-navbar></app-navbar>
 
 <main class="menu-principal-usuario">
-
   <!-- ── Encabezado de página ── -->
   <header class="menu-principal-usuario-header">
     <div class="menu-principal-usuario-header__inner">
@@ -31,18 +30,33 @@
             <!-- Portada con gradiente según género -->
             <div
               class="book-card__cover"
-              [style.background]="'linear-gradient(145deg, ' + getCoverColor(libro.genero) + ', ' + getCoverAccent(libro.genero) + ')'"
+              [style.background]="
+                'linear-gradient(145deg, ' +
+                getCoverColor(libro.genero) +
+                ', ' +
+                getCoverAccent(libro.genero) +
+                ')'
+              "
             >
               <span class="book-card__genre-tag">{{ libro.genero }}</span>
-              <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
+              <span class="book-card__initial">{{
+                getInitial(libro.titulo)
+              }}</span>
               <svg
                 class="book-card__cover-icon"
                 xmlns="http://www.w3.org/2000/svg"
-                width="40" height="40" fill="none"
-                viewBox="0 0 24 24" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"
+                width="40"
+                height="40"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="rgba(255,255,255,0.18)"
+                stroke-width="1.2"
               >
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
               </svg>
             </div>
 
@@ -51,21 +65,27 @@
               <h3 class="book-card__title">{{ libro.titulo }}</h3>
               <p class="book-card__author">{{ libro.autor }}</p>
               <p class="book-card__year">
-                {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + ' a.C.' }}
+                {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + " a.C." }}
               </p>
               <div class="book-card__footer">
                 <span
                   class="book-card__badge"
                   [ngClass]="{
-                    'badge--available':   libro.disponibilidad === 'disponible',
+                    'badge--available': libro.disponibilidad === 'disponible',
                     'badge--checked-out': libro.disponibilidad === 'prestado',
-                    'badge--reserved':    libro.disponibilidad === 'reservado'
+                    'badge--reserved': libro.disponibilidad === 'reservado',
                   }"
                 >
                   <span class="badge__dot"></span>
-                  <span *ngIf="libro.disponibilidad === 'disponible'">Disponible</span>
-                  <span *ngIf="libro.disponibilidad === 'prestado'">Prestado</span>
-                  <span *ngIf="libro.disponibilidad === 'reservado'">Reservado</span>
+                  <span *ngIf="libro.disponibilidad === 'disponible'"
+                    >Disponible</span
+                  >
+                  <span *ngIf="libro.disponibilidad === 'prestado'"
+                    >Prestado</span
+                  >
+                  <span *ngIf="libro.disponibilidad === 'reservado'"
+                    >Reservado</span
+                  >
                 </span>
                 <button
                   class="book-card__cta"
@@ -79,7 +99,11 @@
           </article>
         </ng-container>
       </div>
-      <a routerLink="/catalogo" class="seccion-nav-link seccion-nav-link--oscura" aria-label="Ir al catálogo de libros">
+      <a
+        routerLink="/catalogo"
+        class="seccion-nav-link seccion-nav-link--oscura"
+        aria-label="Ir al catálogo de libros"
+      >
         Ver catálogo completo →
       </a>
     </div>
@@ -104,7 +128,9 @@
               class="book-card__cover"
               [style.background]="'linear-gradient(145deg, #7B5AA6, #9B75C0)'"
             >
-              <span class="book-card__initial">{{ getInitial(sala.nombre) }}</span>
+              <span class="book-card__initial">{{
+                getInitial(sala.nombre)
+              }}</span>
             </div>
 
             <!-- Información textual de la sala -->
@@ -113,7 +139,9 @@
               <div class="book-card__footer">
                 <span
                   class="book-card__badge"
-                  [ngClass]="{ 'badge--available': sala.disponibilidad === 'disponible' }"
+                  [ngClass]="{
+                    'badge--available': sala.disponibilidad === 'disponible',
+                  }"
                 >
                   <span class="badge__dot"></span>
                   <span>Disponible</span>
@@ -129,7 +157,11 @@
           </article>
         </ng-container>
       </div>
-      <a routerLink="" class="seccion-nav-link seccion-nav-link--clara" aria-label="Ir a reservar una sala">
+      <a
+        routerLink=""
+        class="seccion-nav-link seccion-nav-link--clara"
+        aria-label="Ir a reservar una sala"
+      >
         Ver todas las salas →
       </a>
     </div>
@@ -142,7 +174,11 @@
         <h2 class="seccion__titulo">
           Revisa los préstamos y reservas anteriores
         </h2>
-        <a routerLink="" class="seccion-nav-link seccion-nav-link--oscura" aria-label="Ir a historial de préstamos y reservas">
+        <a
+          routerLink="/historial"
+          class="seccion-nav-link seccion-nav-link--oscura"
+          aria-label="Ir a historial de préstamos y reservas"
+        >
           Ir a historial →
         </a>
       </article>
@@ -150,11 +186,14 @@
         <h2 class="seccion__titulo">
           Revisa qué multa pendiente queda por pagar
         </h2>
-        <a routerLink="" class="seccion-nav-link seccion-nav-link--oscura" aria-label="Ir a historial de multas">
+        <a
+          routerLink=""
+          class="seccion-nav-link seccion-nav-link--oscura"
+          aria-label="Ir a historial de multas"
+        >
           Ir a historial de multas →
         </a>
       </article>
     </div>
   </section>
-
 </main>
