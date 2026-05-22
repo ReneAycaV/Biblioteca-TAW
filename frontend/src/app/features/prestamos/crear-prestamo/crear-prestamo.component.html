@@ -84,7 +84,9 @@
             required
             #fechaDevolucion
             [class.error-border]="
-              !fechaDevolucion.value && prestamoForm.submitted
+              (!fechaDevolucion.value ||
+                fechaDevolucion.value < fechaRetiro.value) &&
+              prestamoForm.submitted
             "
           />
           <!-- Mensaje de error cuando no se ha seleccionado una fecha de devolución -->
@@ -93,6 +95,16 @@
             *ngIf="!fechaDevolucion.value && prestamoForm.submitted"
           >
             La fecha de devolución es obligatoria.
+          </span>
+          <!-- Mensaje de error cuando la fecha de devolución es anterior a la fecha de retiro -->
+          <span
+            class="texto-error"
+            *ngIf="
+              fechaDevolucion.value < fechaRetiro.value &&
+              prestamoForm.submitted
+            "
+          >
+            La fecha de devolución debe ser posterior a la fecha de retiro.
           </span>
         </div>
 
