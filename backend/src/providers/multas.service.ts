@@ -374,7 +374,7 @@ export class MultasService {
         };
     }
 
-        
+    /* Es para realizar pruebas
     async generarMultaPorVencimientoManual(prestamoId: number): Promise<any> {
         const prestamo = await this.prestamosRepository.findOne({
             where: { idPrestamo: prestamoId },
@@ -433,5 +433,5 @@ export class MultasService {
                 estado: multaGuardada.estadoPago
             }
         };
-    } 
+    } */
 }
