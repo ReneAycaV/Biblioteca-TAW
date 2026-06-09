@@ -1,31 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ILoginRequestDTO } from '../../../shared/dtos/auth/login-request.dto';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  
-  // 1. Variable para saber en qué vista estamos (por defecto 'student')
-  activeRole: string = 'student'; 
+export class LoginComponent implements OnInit {
 
-  loginData = {
+  // Rol seleccionado por el usuario en la UI
+  rolActivo: string = 'estudiante';
+
+  // Modelo del formulario de login
+  loginData: ILoginRequestDTO = {
     email: '',
     password: ''
   };
 
-  // 2. Función que se activa al hacer click en los botones
-  setRole(role: string) {
-    this.activeRole = role;
-    // Opcional: limpiar los campos al cambiar de pestaña
-    this.loginData.email = '';
-    this.loginData.password = '';
+  // Mensaje de error de validación de la UI
+  mensajeError: string = '';
+
+  // Constructor: solo inyección de dependencias
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
+
+  // Cambia el rol activo y limpia el formulario y errores
+  cambiarRol(rol: string): void {
+    this.rolActivo = rol;
+    this.loginData = { email: '', password: '' };
+    this.mensajeError = '';
   }
 
-  onSubmit() {
-    // Ahora podemos saber qué tipo de usuario intenta entrar
-    console.log(`Intentando ingresar como ${this.activeRole} con:`, this.loginData);
-    alert(`Ingresando como: ${this.activeRole.toUpperCase()}`);
+  // Valida el formulario y navega al catálogo
+  // TODO: integrar llamada a la API de autenticación cuando el backend esté disponible
+  onSubmit(form: any): void {
+    if (form.invalid) {
+      return;
+    }
+    console.log(`Ingresando como ${this.rolActivo}:`, this.loginData);
+    this.router.navigate(['/catalogo']);
   }
 }
