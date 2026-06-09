@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReserveResponseDto {
   @IsNumber()
@@ -11,8 +11,12 @@ export class ReserveResponseDto {
   fechaReserva!: string;
 
   @IsString()
-  horaInicio!: string;
+  bloqueHorario!: string;
 
   @IsString()
-  horaFin!: string;
+  estado!: string;
+
+  @IsOptional()
+  @IsString()
+  motivoCancelacion?: string;
 }

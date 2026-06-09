@@ -5,13 +5,37 @@ import {
   JoinColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UsuarioEntity } from './usuario.entity';
 import { SalaEntity } from './sala.entity';
+import { UsuarioEntity } from './usuario.entity';
 
 export enum EstadoReserva {
   ACTIVA = 'Activa',
   CANCELADA = 'Cancelada',
   FINALIZADA = 'Finalizada',
+}
+
+export enum BloqueHorario {
+  BLOQUE_1 = '1',
+  BLOQUE_2 = '2',
+  BLOQUE_3 = '3',
+  BLOQUE_4 = '4',
+  BLOQUE_5 = '5',
+  BLOQUE_6 = '6',
+  BLOQUE_7 = '7',
+  BLOQUE_8 = '8',
+  BLOQUE_9 = '9',
+  BLOQUE_10 = '10',
+  BLOQUE_11 = '11',
+  BLOQUE_12 = '12',
+  BLOQUE_13 = '13',
+  BLOQUE_14 = '14',
+  BLOQUE_A = 'A',
+  BLOQUE_B = 'B',
+  BLOQUE_C = 'C',
+  BLOQUE_D = 'D',
+  BLOQUE_E = 'E',
+  BLOQUE_F = 'F',
+  BLOQUE_G = 'G',
 }
 
 @Entity('reservas')
@@ -22,21 +46,22 @@ export class ReservaEntity {
   // clave foranea usuario
   @ManyToOne(() => UsuarioEntity)
   @JoinColumn({ name: 'id_usuario' })
-  usuario!: UsuarioEntity;
+  idUsuario!: UsuarioEntity;
 
   // clave foranea sala
   @ManyToOne(() => SalaEntity)
   @JoinColumn({ name: 'id_sala' })
-  sala!: SalaEntity;
+  idSala!: SalaEntity;
 
   @Column({ name: 'fecha_reserva', type: 'date' })
   fechaReserva!: Date;
 
-  @Column({ name: 'hora_inicio', type: 'time' })
-  horaInicio!: string;
-
-  @Column({ name: 'hora_fin', type: 'time' })
-  horaFin!: string;
+  @Column({
+    type: 'enum',
+    enum: BloqueHorario,
+    name: 'bloque_horario',
+  })
+  bloqueHorario!: BloqueHorario;
 
   @Column({
     type: 'enum',

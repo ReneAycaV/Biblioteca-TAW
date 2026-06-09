@@ -8,8 +8,5 @@ export class ReserveCreateDto {
   fechaReserva!: string;
 
   @IsString()
-  horaInicio!: string; // HH:MM:SS
-
-  @IsString()
-  horaFin!: string; // HH:MM:SS
+  bloqueHorario!: string;
 }

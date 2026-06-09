@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // controllers/reservations/reservations.controller.ts
 import {
   Controller,
@@ -23,46 +26,52 @@ export class ReservationsController {
   // crea una reserva
   @Post()
   async create(@Body() dto: ReserveCreateDto, @Req() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const usuarioId = req.user.id; // El ID viene del token JWT
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const usuarioId = req.user.id;
     return this.reserveRoomService.create(dto, usuarioId);
   }
 
-  // ver mis reservas
+  // ver todas las reservas de un usuario especifico
   @Get('my')
   getMyReservations(@Req() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const usuarioId = req.user.id;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.reserveRoomService.findByUser(usuarioId);
+  }
+
+  @Get('common')
+  async getMostFrequentBlock() {
+    return this.reserveRoomService.getMostFrequentBlock();
   }
 
   // detalle de una reserva específica
   @Get(':id')
   async getReservationById(@Param('id') id: string, @Req() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    console.log('ID recibido:', id);
     const usuarioId = req.user.id;
-    const reserva = await this.reserveRoomService.findById(+id);
+
+    // Usar método privado para validación
+    const reserva = await this.reserveRoomService.findEntityById(+id);
 
     if (!reserva) {
       throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
     }
 
-    // verificar que la reserva pertenezca al usuario
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (reserva.usuario.idUsuario !== usuarioId && req.user.rol !== 'ADMIN') {
+    // Validar usando la entidad
+    if (reserva.idUsuario.idUsuario !== usuarioId && req.user.rol !== 'ADMIN') {
       throw new ForbiddenException('No tienes permiso para ver esta reserva');
     }
-    return reserva;
+
+    // Retornar usando el DTO
+    return this.reserveRoomService.findById(+id);
   }
 
   // cancelar una reserva
   @Patch(':id/cancel')
-  cancelReservation(@Param('id') id: string, @Req() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+  cancelReservation(
+    @Param('id') id: string,
+    @Body('motivoCancelacion') motivoCancelacion: string,
+    @Req() req: any,
+  ) {
     const usuarioId = req.user.id;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return this.reserveRoomService.cancel(+id, usuarioId);
+    return this.reserveRoomService.cancel(+id, usuarioId, motivoCancelacion);
   }
 }
