@@ -79,4 +79,5 @@ export class MultasController {
       // Solo admin puede hacer esto en producción
       return this.multasService.generarMultaPorVencimientoManual(+prestamoId);
   } */
+ 
 }
