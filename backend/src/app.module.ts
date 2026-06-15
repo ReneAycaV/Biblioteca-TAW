@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+
 
 @Module({
   imports: [
@@ -23,6 +26,7 @@ import { AppService } from './app.service';
     }),
 
     AuthModule,
+    ScheduleModule.forRoot()
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,7 +10,6 @@ const routes: Routes = [
   { path: 'catalogo/:id', component: DetalleLibroComponent },
   { path: 'login', component: LoginComponent },
 ];
-
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
