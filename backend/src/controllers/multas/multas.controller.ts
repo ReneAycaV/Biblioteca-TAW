@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Param, Req, UseGuards, Body } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiBearerAuth, ApiParam , ApiResponse, ApiBody} from '@nestjs/swagger';
+import { Controller, Get, Post, Req, UseGuards, Body } from '@nestjs/common';
+import { ApiOperation, ApiTags, ApiBearerAuth , ApiResponse, ApiBody} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
 import { MultasService } from '../../providers/multas.service';
 

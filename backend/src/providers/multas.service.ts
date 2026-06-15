@@ -6,7 +6,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { EstadoLibroDevuelto, EstadoPagoMulta, MultaEntity } from 'src/database/entities/multa.entity';
 import { PrestamoEntity, EstadoPrestamo } from 'src/database/entities/prestamo.entity';
 import { UsuarioEntity } from 'src/database/entities/usuario.entity';
-import { EstadoLibro, LibroEntity } from 'src/database/entities/libro.entity';
+import { LibroEntity } from 'src/database/entities/libro.entity';
 
 @Injectable()
 export class MultasService {
