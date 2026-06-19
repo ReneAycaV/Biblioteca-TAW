@@ -31,7 +31,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const passwordCorrecta = await bcrypt.compare(dto.password, usuario.passwordHash);
+    const passwordCorrecta = await bcrypt.compare(
+      dto.password,
+      usuario.passwordHash,
+    );
 
     if (!passwordCorrecta) {
       throw new UnauthorizedException('Credenciales inválidas');

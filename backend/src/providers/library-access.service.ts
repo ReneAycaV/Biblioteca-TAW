@@ -143,7 +143,7 @@ export class LibraryAccessService {
       const reserva = await reservaRepository.findOne({
         where: {
           idReserva,
-          usuario: { idUsuario: userId },
+          idUsuario: { idUsuario: userId },
           estado: EstadoReserva.ACTIVA,
         },
         lock: { mode: 'pessimistic_write' },

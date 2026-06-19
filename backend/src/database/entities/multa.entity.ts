@@ -30,7 +30,12 @@ export class MultaEntity {
   })
   estadoPago!: EstadoPagoMulta;
 
-  @Column({ name: 'estado_libro', type: 'smallint', nullable: true, default: null })
+  @Column({
+    name: 'estado_libro',
+    type: 'smallint',
+    nullable: true,
+    default: null,
+  })
   estadoLibro!: EstadoLibroDevuelto | null;
 
   @Column({ name: 'fecha_generacion', type: 'date' })
