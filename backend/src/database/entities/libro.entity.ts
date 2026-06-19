@@ -9,7 +9,7 @@ export enum EstadoLibro {
   DISPONIBLE = 1,
   PRESTADO = 2,
   MANTENIMIENTO = 3,
-  EXTRAVIADO = 4
+  EXTRAVIADO = 4,
 }
 
 @Entity('libros')
@@ -44,7 +44,13 @@ export class LibroEntity {
   @Column({ name: 'stock_total', type: 'int', default: 0 })
   stockTotal!: number;
 
-  @Column({ name: 'valor_libro', type: 'decimal', precision: 10, scale: 2,default: 25000, })
+  @Column({
+    name: 'valor_libro',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 25000,
+  })
   valorLibro!: number;
 
   @Column({

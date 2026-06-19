@@ -5,8 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
-
+import { PrestamoModule } from './modules/prestamo.module';
 
 @Module({
   imports: [
@@ -21,12 +20,14 @@ import { AppService } from './app.service';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
+      entities: [__dirname + '/database/entities/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
     }),
 
     AuthModule,
-    ScheduleModule.forRoot()
+    PrestamoModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
