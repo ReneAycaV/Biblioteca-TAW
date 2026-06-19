@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Injectable,
   NotFoundException,
@@ -87,31 +89,27 @@ export class ReserveRoomService {
     // validar no choque de horario
     // diccionario bloques de horarios
     const bloqueHorarios: Record<string, { inicio: string; fin: string }> = {
-      '1': { inicio: '08:00:00', fin: '08:45:00' },
-      '2': { inicio: '08:45:00', fin: '09:30:00' },
-      '3': { inicio: '09:40:00', fin: '10:25:00' },
-      '4': { inicio: '10:25:00', fin: '11:10:00' },
-      '5': { inicio: '11:20:00', fin: '12:05:00' },
-      '6': { inicio: '12:05:00', fin: '12:50:00' },
-      '7': { inicio: '13:00:00', fin: '13:45:00' },
-      '8': { inicio: '13:45:00', fin: '14:30:00' },
-      '9': { inicio: '14:45:00', fin: '15:30:00' },
-      '10': { inicio: '15:30:00', fin: '16:15:00' },
-      '11': { inicio: '16:20:00', fin: '17:05:00' },
-      '12': { inicio: '17:05:00', fin: '17:50:00' },
-      '13': { inicio: '17:55:00', fin: '18:40:00' },
-      '14': { inicio: '18:40:00', fin: '19:25:00' },
-      A: { inicio: '08:00:00', fin: '09:30:00' },
-      B: { inicio: '09:40:00', fin: '11:10:00' },
-      C: { inicio: '11:20:00', fin: '12:50:00' },
-      D: { inicio: '13:00:00', fin: '14:30:00' },
-      E: { inicio: '14:45:00', fin: '16:15:00' },
-      F: { inicio: '16:20:00', fin: '17:50:00' },
-      G: { inicio: '17:55:00', fin: '19:25:00' },
+      A: { inicio: '08:00:00', fin: '09:00:00' },
+      B: { inicio: '09:00:00', fin: '10:00:00' },
+      C: { inicio: '10:00:00', fin: '11:00:00' },
+      D: { inicio: '11:00:00', fin: '12:00:00' },
+      E: { inicio: '12:00:00', fin: '13:00:00' },
+      F: { inicio: '13:00:00', fin: '14:00:00' },
+      G: { inicio: '14:00:00', fin: '15:00:00' },
+      H: { inicio: '15:00:00', fin: '16:00:00' },
+      I: { inicio: '16:00:00', fin: '17:00:00' },
+      J: { inicio: '17:00:00', fin: '18:00:00' },
+      K: { inicio: '18:00:00', fin: '19:00:00' },
     };
 
     // bloque que envio el dto del frontend
     const nuevoRango = bloqueHorarios[dto.bloqueHorario];
+
+    if (!nuevoRango) {
+      throw new BadRequestException(
+        `El bloque horario ${dto.bloqueHorario} no es válido. Debe ser de la A a la K`,
+      );
+    }
 
     // buscar reservas existentes en la misma sala, fecha y activas
     const reservasExistentes = await this.reservaRepository
@@ -295,48 +293,26 @@ export class ReserveRoomService {
       return 'No hay reservas en las salas de cafetería';
     }
 
-    // mapa bloques letra a bloques numéricos
-    const mapeoLetras: Record<string, number[]> = {
-      A: [1, 2],
-      B: [3, 4],
-      C: [5, 6],
-      D: [7, 8],
-      E: [9, 10],
-      F: [11, 12],
-      G: [13, 14],
-    };
+    // frecuencia de cada bloque (A-K)
+    const contador: Record<string, number> = {};
+    const letras = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
-    // diccionario para contar frecuencias (bloques 1 al 14)
-    const contador: Record<number, number> = {};
-
-    // Inicializar contador en 0
-    for (let i = 1; i <= 14; i++) {
-      contador[i] = 0;
+    for (const letra of letras) {
+      contador[letra] = 0;
     }
 
-    // contar cada reserva (descomponiendo si es letra)
     for (const reserva of reservas) {
       const bloque = reserva.bloqueHorario;
-
-      // Si es número (1-14)
-      if (/^[1-9]$|^1[0-4]$/.test(bloque)) {
-        const num = parseInt(bloque, 10);
-        contador[num]++;
-      }
-      // Si es letra (A-G)
-      else if (mapeoLetras[bloque]) {
-        const numeros = mapeoLetras[bloque];
-        for (const num of numeros) {
-          contador[num]++;
-        }
+      if (contador[bloque] !== undefined) {
+        contador[bloque]++;
       }
     }
 
-    // encontrar la sala más frecuente
+    // la máxima frecuencia
     let maxFrecuencia = 0;
-    for (let i = 1; i <= 14; i++) {
-      if (contador[i] > maxFrecuencia) {
-        maxFrecuencia = contador[i];
+    for (const letra of letras) {
+      if (contador[letra] > maxFrecuencia) {
+        maxFrecuencia = contador[letra];
       }
     }
 
@@ -344,33 +320,29 @@ export class ReserveRoomService {
       return 'No hay suficientes datos para determinar el bloque más frecuente';
     }
 
-    // encontrar todos los bloques con frecuencia máxima
-    const bloquesMasFrecuentes: number[] = [];
-    for (let i = 1; i <= 14; i++) {
-      if (contador[i] === maxFrecuencia) {
-        bloquesMasFrecuentes.push(i);
+    // bloque con máxima frecuencia
+    const bloquesMasFrecuentes: string[] = [];
+    for (const letra of letras) {
+      if (contador[letra] === maxFrecuencia) {
+        bloquesMasFrecuentes.push(letra);
       }
     }
 
-    // diccionario bloques de horarios
-    const rangosHorarios: Record<number, { inicio: string; fin: string }> = {
-      1: { inicio: '08:00', fin: '08:45' },
-      2: { inicio: '08:45', fin: '09:30' },
-      3: { inicio: '09:40', fin: '10:25' },
-      4: { inicio: '10:25', fin: '11:10' },
-      5: { inicio: '11:20', fin: '12:05' },
-      6: { inicio: '12:05', fin: '12:50' },
-      7: { inicio: '13:00', fin: '13:45' },
-      8: { inicio: '13:45', fin: '14:30' },
-      9: { inicio: '14:45', fin: '15:30' },
-      10: { inicio: '15:30', fin: '16:15' },
-      11: { inicio: '16:20', fin: '17:05' },
-      12: { inicio: '17:05', fin: '17:50' },
-      13: { inicio: '17:55', fin: '18:40' },
-      14: { inicio: '18:40', fin: '19:25' },
+    // mensaje
+    const rangosHorarios = {
+      A: { inicio: '08:00', fin: '09:00' },
+      B: { inicio: '09:00', fin: '10:00' },
+      C: { inicio: '10:00', fin: '11:00' },
+      D: { inicio: '11:00', fin: '12:00' },
+      E: { inicio: '12:00', fin: '13:00' },
+      F: { inicio: '13:00', fin: '14:00' },
+      G: { inicio: '14:00', fin: '15:00' },
+      H: { inicio: '15:00', fin: '16:00' },
+      I: { inicio: '16:00', fin: '17:00' },
+      J: { inicio: '17:00', fin: '18:00' },
+      K: { inicio: '18:00', fin: '19:00' },
     };
 
-    // return mensaje
     if (bloquesMasFrecuentes.length === 1) {
       const bloque = bloquesMasFrecuentes[0];
       const rango = rangosHorarios[bloque];
@@ -382,7 +354,6 @@ export class ReserveRoomService {
           return `${bloque} (${rango.inicio} - ${rango.fin})`;
         })
         .join(' y ');
-
       return `Los bloques ${mensajeBloques} son los más frecuentes`;
     }
   }

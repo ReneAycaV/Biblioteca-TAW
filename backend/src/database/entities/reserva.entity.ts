@@ -15,29 +15,18 @@ export enum EstadoReserva {
 }
 
 export enum BloqueHorario {
-  BLOQUE_1 = '1',
-  BLOQUE_2 = '2',
-  BLOQUE_3 = '3',
-  BLOQUE_4 = '4',
-  BLOQUE_5 = '5',
-  BLOQUE_6 = '6',
-  BLOQUE_7 = '7',
-  BLOQUE_8 = '8',
-  BLOQUE_9 = '9',
-  BLOQUE_10 = '10',
-  BLOQUE_11 = '11',
-  BLOQUE_12 = '12',
-  BLOQUE_13 = '13',
-  BLOQUE_14 = '14',
-  BLOQUE_A = 'A',
-  BLOQUE_B = 'B',
-  BLOQUE_C = 'C',
-  BLOQUE_D = 'D',
-  BLOQUE_E = 'E',
-  BLOQUE_F = 'F',
-  BLOQUE_G = 'G',
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  E = 'E',
+  F = 'F',
+  G = 'G',
+  H = 'H',
+  I = 'I',
+  J = 'J',
+  K = 'K',
 }
-
 @Entity('reservas')
 export class ReservaEntity {
   @PrimaryGeneratedColumn({ name: 'id_reserva' })
