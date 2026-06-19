@@ -8,6 +8,10 @@ import { AuthModule } from './modules/auth.module';
 import { ReserveModule } from './modules/reserve.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+import { LibrosModule } from './modules/libros.module';
+import { PrestamosModule } from './modules/prestamos.module';
+import { HistorialModule } from './modules/historial.module';
 import { PrestamoModule } from './modules/prestamo.module';
 
 @Module({
@@ -25,10 +29,14 @@ import { PrestamoModule } from './modules/prestamo.module';
       database: process.env.DB_NAME,
       entities: [__dirname + '/database/entities/*.entity{.ts,.js}'],
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
 
     AuthModule,
+
+    LibrosModule,
+    PrestamosModule,
+    HistorialModule,
     ReserveModule,
     PrestamoModule,
     ScheduleModule.forRoot(),
