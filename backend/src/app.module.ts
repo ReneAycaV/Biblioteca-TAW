@@ -5,6 +5,9 @@ import { AuthModule } from './modules/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { LibrosModule } from './modules/libros.module';
+import { PrestamosModule } from './modules/prestamos.module';
+import { HistorialModule } from './modules/historial.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,10 +22,14 @@ import { AppService } from './app.service';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
 
     AuthModule,
+
+    LibrosModule,
+    PrestamosModule,
+    HistorialModule,
   ],
   controllers: [AppController],
   providers: [AppService],
