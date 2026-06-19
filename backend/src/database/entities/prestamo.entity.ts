@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UsuarioEntity } from './usuario.entity';
@@ -11,9 +12,10 @@ import { LibroEntity } from './libro.entity';
 import { MultaEntity } from './multa.entity';
 
 export enum EstadoPrestamo {
-  ACTIVO = 'ACTIVO',
-  DEVUELTO = 'DEVUELTO',
-  VENCIDO = 'VENCIDO',
+  ACTIVO = 1,
+  DEVUELTO = 2,
+  VENCIDO = 3,
+  PERDIDO = 4,
 }
 
 @Entity('prestamos')
@@ -29,7 +31,7 @@ export class PrestamoEntity {
   @JoinColumn({ name: 'id_libros' })
   libro!: LibroEntity;
 
-  @ManyToOne(() => MultaEntity, { nullable: true })
+  @OneToOne(() => MultaEntity, (multa) => multa.prestamo, { nullable: true })
   @JoinColumn({ name: 'id_multa' })
   multa?: MultaEntity;
 
@@ -43,7 +45,7 @@ export class PrestamoEntity {
   fechaDevolucionReal?: Date;
 
   @Column({
-    type: 'enum',
+    type: 'smallint',
     enum: EstadoPrestamo,
     default: EstadoPrestamo.ACTIVO,
   })

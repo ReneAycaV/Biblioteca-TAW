@@ -6,10 +6,10 @@ import {
 } from 'typeorm';
 
 export enum EstadoLibro {
-  DISPONIBLE = 'DISPONIBLE',
-  PRESTADO = 'PRESTADO',
-  MANTENIMIENTO = 'MANTENIMIENTO',
-  EXTRAVIADO = 'EXTRAVIADO',
+  DISPONIBLE = 1,
+  PRESTADO = 2,
+  MANTENIMIENTO = 3,
+  EXTRAVIADO = 4,
 }
 
 @Entity('libros')
@@ -45,7 +45,16 @@ export class LibroEntity {
   stockTotal!: number;
 
   @Column({
-    type: 'enum',
+    name: 'valor_libro',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 25000,
+  })
+  valorLibro!: number;
+
+  @Column({
+    type: 'smallint',
     enum: EstadoLibro,
     default: EstadoLibro.DISPONIBLE,
   })
