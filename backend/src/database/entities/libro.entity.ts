@@ -5,6 +5,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export enum EstadoLibro {
+  DISPONIBLE = 1,
+  PRESTADO = 2,
+  MANTENIMIENTO = 3,
+  EXTRAVIADO = 4,
+}
+
 @Entity('libros')
 export class LibroEntity {
   @PrimaryGeneratedColumn({ name: 'id_libros' })
@@ -37,7 +44,13 @@ export class LibroEntity {
   @Column({ name: 'stock_total', type: 'int' })
   stockTotal!: number;
 
-  @Column({ name: 'valor_libro', type: 'numeric' })
+  @Column({
+    name: 'valor_libro',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 25000,
+  })
   valorLibro!: number;
 
   @Column({ name: 'estado', type: 'int2' })
