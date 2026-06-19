@@ -5,8 +5,8 @@ import {
   JoinColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SalaEntity } from './sala.entity';
 import { UsuarioEntity } from './usuario.entity';
+import { SalaEntity } from './sala.entity';
 
 export enum EstadoReserva {
   ACTIVA = 'Activa',

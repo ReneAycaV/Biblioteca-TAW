@@ -1,0 +1,83 @@
+/* ── Página de historial de préstamos ── */
+.historial__page {
+  background-color: #f4f0f8;
+  min-height: calc(100vh - 64px);
+}
+
+/* ── Encabezado ── */
+.historial-header {
+  padding: 32px 0 20px;
+}
+
+.historial-header__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  min-width: 600px;
+}
+
+.historial-header__title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #330662;
+  margin: 0 0 4px 0;
+}
+
+/* ── Tabla de historial de préstamos y reservas ── */
+.historial-table-container {
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.historial-table {
+  width: 800px;
+  min-width: 400px;
+  background-color: #ffffff;
+  overflow: hidden;
+  border-radius: 16px;
+  border-collapse: collapse;
+  box-shadow: 0 2px 12px rgba(87, 6, 140, 0.07);
+  text-align: center;
+}
+
+.historial-table__header {
+  background-color: #330662;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  border-bottom: 1px solid #000000;
+}
+
+.historial-table__body {
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.historial-table__cell {
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  padding: 12px 16px;
+}
+
+/* Quita la línea derecha de la última columna */
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+
+/* Quita la línea inferior de la última fila */
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Mensaje de no hay préstamos o reservas ── */
+.historial__empty-text {
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: #330662;
+  margin-top: 40px;
+}

@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ReservaEntity } from '../database/entities/reserva.entity';
 import { SalaEntity } from '../database/entities/sala.entity';
 import { UsuarioEntity } from '../database/entities/usuario.entity';
+import { LibroEntity } from '../database/entities/libro.entity';
 
 // controladores
 import { ReservationsController } from '../controllers/reserve/reserve.controller';
@@ -17,7 +18,12 @@ import { LibraryAccessService } from '../providers/library-access.service';
 @Module({
   imports: [
     // entidades
-    TypeOrmModule.forFeature([ReservaEntity, SalaEntity, UsuarioEntity]),
+    TypeOrmModule.forFeature([
+      ReservaEntity,
+      SalaEntity,
+      UsuarioEntity,
+      LibroEntity,
+    ]),
 
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'super_secreto_hu17',

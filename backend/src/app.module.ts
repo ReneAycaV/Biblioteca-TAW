@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth.module';
 import { ReserveModule } from './modules/reserve.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrestamoModule } from './modules/prestamo.module';
 
 @Module({
   imports: [
@@ -19,12 +23,15 @@ import { AppService } from './app.service';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
+      entities: [__dirname + '/database/entities/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
     }),
 
     AuthModule,
     ReserveModule,
+    PrestamoModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
