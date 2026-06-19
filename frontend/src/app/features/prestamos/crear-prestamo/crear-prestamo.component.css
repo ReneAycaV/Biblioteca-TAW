@@ -148,11 +148,11 @@
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-}
 
-.prestamo-form__input:focus {
-  border-color: #57068c;
-  box-shadow: 0 0 0 3px rgba(87, 6, 140, 0.12);
+  &:focus {
+    border-color: #57068c;
+    box-shadow: 0 0 0 3px rgba(87, 6, 140, 0.12);
+  }
 }
 
 /* Error en inputs */
@@ -186,9 +186,9 @@
   transition:
     background-color 0.15s ease,
     box-shadow 0.15s ease;
-}
 
-.prestamo-btn:hover {
-  background: #702b9d;
-  box-shadow: 0 4px 16px rgba(87, 6, 140, 0.3);
+  &:hover {
+    background: #702b9d;
+    box-shadow: 0 4px 16px rgba(87, 6, 140, 0.3);
+  }
 }
