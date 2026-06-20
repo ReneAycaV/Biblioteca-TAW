@@ -10,30 +10,33 @@
             </thead>
             
             <tbody>
-                <tr *ngFor="let hora of horas">
-                    <td class="hora-cell">{{ hora }}</td>
-                    
-                    <td *ngFor="let dia of dias" 
-                        class="bloque-cell"
-                        [class.agotado]="esAgotado(dia, hora)"
-                        [class.seleccionado]="esSeleccionado(dia, hora)"
-                        [class.disponible]="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)"
-                        (click)="seleccionarCelda(dia, hora)"
-                        [attr.data-bs-toggle]="esAgotado(dia, hora) ? null : 'modal'" 
-                        [attr.data-bs-target]="esAgotado(dia, hora) ? null : '#modalSalas'">
-                        
-                        <span class="status-text" *ngIf="esAgotado(dia, hora)">Sin cupo</span>
-                        <span class="status-text" *ngIf="esSeleccionado(dia, hora)">Seleccionado</span>
-                        <span class="status-text" *ngIf="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)">Salas Disponibles</span>
+              <tr *ngFor="let b of bloques">
+                <td class="hora-cell">{{ b.rango }}</td>
+        
+                <td *ngFor="let dia of dias" 
+                class="bloque-cell"
+                [class.agotado]="esAgotado(dia, b.id)"
+                [class.seleccionado]="esSeleccionado(dia, b.id)"
+                [class.disponible]="!esAgotado(dia, b.id) && !esSeleccionado(dia, b.id)"
+                (click)="seleccionarCelda(dia, b.id)"
+                [attr.data-bs-toggle]="esAgotado(dia, b.id) ? null : 'modal'" 
+                [attr.data-bs-target]="esAgotado(dia, b.id) ? null : '#modalSalas'">
+            
+                <span class="status-text" *ngIf="esAgotado(dia, b.id)">Sin cupo</span>
+                <span class="status-text" *ngIf="esSeleccionado(dia, b.id)">Seleccionado</span>
+                <span class="status-text" *ngIf="!esAgotado(dia, b.id) && !esSeleccionado(dia, b.id)">Salas Disponibles</span>
 
-                        <div *ngIf="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)" class="d-flex flex-column gap-1 align-items-center mt-1">
-                            <span class="badge bg-light text-violet border border-violet rounded-pill tag-sala"> Estudio: 5</span>
-                            <span class="badge bg-light text-teal border border-teal rounded-pill tag-sala"> Auditorio: 3</span>
-                        </div>
-                        
-                    </td>
-                </tr>
-            </tbody>
+                <div class="tags-grid mt-1" *ngIf="!esAgotado(dia, b.id) && !esSeleccionado(dia, b.id)">
+                  <span class="badge bg-light text-violet border border-violet rounded-pill tag-sala">
+                    Estudio: {{ contarSalas('Estudio') }}
+                  </span>
+                  <span class="badge bg-light text-teal border border-teal rounded-pill tag-sala">
+                    Auditorio: {{ contarSalas('Auditorio') }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
     </div>
 </div>
@@ -53,38 +56,40 @@
           <div class="col-md-6">
             <h6 class="category-title text-violet"> Salas de Estudio</h6>
             <div class="room-list">
-              <button *ngFor="let sala of salasDisponibles.estudio" 
-                      class="room-btn"
-                      data-bs-dismiss="modal" 
-                      (click)="irADetalles(sala)">
-                <div class="room-info">
-                  <span class="room-name">{{ sala.nombre }}</span>
-                  <span class="room-location">{{ sala.ubicacion }}</span>
-                </div>
-                <span class="room-action-pill">Reservar</span>
-              </button>
+              <ng-container *ngFor="let sala of allSalas">
+                <button *ngIf="sala.tipo === 'Estudio'" 
+                        class="room-btn"
+                        data-bs-dismiss="modal" 
+                        (click)="irADetalles(sala)">
+                  <div class="room-info">
+                    <span class="room-name">{{ sala.nombreSala }}</span>
+                    <span class="room-location">{{ sala.ubicacion }}</span>
+                  </div>
+                  <span class="room-action-pill">Reservar</span>
+                </button>
+              </ng-container>
             </div>
           </div>
 
           <div class="col-md-6">
             <h6 class="category-title text-teal">Auditorios</h6>
             <div class="room-list">
-              <button *ngFor="let sala of salasDisponibles.auditorio" 
-                      class="room-btn"
-                      data-bs-dismiss="modal" 
-                      (click)="irADetalles(sala)">
-                <div class="room-info">
-                  <span class="room-name">{{ sala.nombre }}</span>
-                  <span class="room-location">{{ sala.ubicacion }}</span>
-                </div>
-                <span class="room-action-pill-teal">Reservar</span>
-              </button>
+              <ng-container *ngFor="let sala of allSalas">
+                <button *ngIf="sala.tipo === 'Auditorio'" 
+                        class="room-btn"
+                        data-bs-dismiss="modal" 
+                        (click)="irADetalles(sala)">
+                  <div class="room-info">
+                    <span class="room-name">{{ sala.nombreSala }}</span>
+                    <span class="room-location">{{ sala.ubicacion }}</span>
+                  </div>
+                  <span class="room-action-pill-teal">Reservar</span>
+                </button>
+              </ng-container>
             </div>
           </div>
-
         </div>
       </div>
-      
     </div>
   </div>
 </div>

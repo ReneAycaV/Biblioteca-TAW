@@ -20,4 +20,15 @@ export class ReservaService {
   guardarSala(sala: any) {
     this.datosTemporales.salaSeleccionada = sala;
   }
+
+  private horarioSeleccionado: any = null;
+
+  guardarHorario(horario: any) {
+    this.horarioSeleccionado = horario;
+    console.log('Horario guardado en el Servicio:', this.horarioSeleccionado);
+  }
+
+  obtenerHorario() {
+    return this.horarioSeleccionado;
+  }
 }

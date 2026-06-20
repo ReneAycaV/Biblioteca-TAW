@@ -1,77 +1,94 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router'; // Traemos las herramientas de rutas
+import { ActivatedRoute, Router } from '@angular/router';
+import { ReservaService } from '../../services/reservas.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalles-sala',
   templateUrl: './detalle-sala.component.html',
   styleUrls: ['./detalle-sala.component.css']
-  // Si tu archivo se llama detalle-sala (sin s), recuerda corregir arriba
 })
 export class DetalleSalaComponent implements OnInit {
 
-  // 1. Aquí guardaremos la sala que encuentre el "espía"
+  // 1. Objeto alineado con el Backend
   sala: any = {
-    id: null,
-    nombre: 'Cargando...',
+    idSala: null,
+    nombreSala: 'Cargando...',
     ubicacion: '',
     tipo: '',
     capacidad: 0,
     equipamiento: ''
   };
 
-  // 2. Base de datos simulada (Mock data) alineada con tu modal y tu compañero
+  // 2. Mock data
   private salasFalsas = [
-    { id: 1, nombre: 'Sala de Estudio A', ubicacion: 'Aulario A - Piso 2', tipo: 'Sala de Estudio', capacidad: 6, equipamiento: 'Pizarra acrílica, 4 Sillas, Climatizador' },
-    { id: 2, nombre: 'Sala de Estudio B', ubicacion: 'Aulario A - Piso 2', tipo: 'Sala de Estudio', capacidad: 4, equipamiento: 'Pizarra acrílica, Monitor HDMI' },
-    { id: 3, nombre: 'Sala de Estudio C', ubicacion: 'Aulario C - Piso 1', tipo: 'Sala de Estudio', capacidad: 8, equipamiento: 'Proyector, Pizarra acrílica grande' },
-    { id: 4, nombre: 'Auditorio Principal', ubicacion: 'Facultad de Ingeniería', tipo: 'Auditorio', capacidad: 50, equipamiento: 'Sistema de audio, Proyector Pro, 50 Butacas' },
-    { id: 5, nombre: 'Auditorio Tecnológico', ubicacion: 'Edificio de Ciencias', tipo: 'Auditorio', capacidad: 30, equipamiento: 'Telón motorizado, Micrófono inalámbrico' }
+    { idSala: 1, nombreSala: 'Sala de Estudio A', ubicacion: 'Aulario A', tipo: 'Estudio', capacidad: 6, equipamiento: 'Pizarra acrílica, 4 Sillas, Climatizador' },
+    { idSala: 2, nombreSala: 'Sala de Estudio B', ubicacion: 'Aulario A', tipo: 'Estudio', capacidad: 4, equipamiento: 'Pizarra acrílica, Monitor HDMI' },
+    { idSala: 3, nombreSala: 'Sala de Estudio C', ubicacion: 'Aulario C', tipo: 'Estudio', capacidad: 8, equipamiento: 'Proyector, Pizarra acrílica grande' },
+    { idSala: 4, nombreSala: 'Auditorio Principal', ubicacion: 'Auditorio', tipo: 'Auditorio', capacidad: 50, equipamiento: 'Sistema de audio, Proyector Pro, 50 Butacas' },
+    { idSala: 5, nombreSala: 'Auditorio Tecnológico', ubicacion: 'Auditorio', tipo: 'Auditorio', capacidad: 30, equipamiento: 'Telón motorizado, Micrófono inalámbrico' }
   ];
 
-  // 3. Inyectamos ActivatedRoute para espiar la URL y Router por si necesitamos salir de aquí
+  horarioReserva: any = null
+
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+private reservaService: ReservaService
   ) { }
 
   ngOnInit(): void {
-    // 4. El espía entra en acción apenas carga la página
-    // Buscamos el parámetro llamado 'id' que configuramos en las rutas
     const idUrl = this.route.snapshot.paramMap.get('id');
     
     if (idUrl) {
-      const idBuscado = Number(idUrl); // Convertimos el texto "3" a número 3
-      
-      // Buscamos en nuestra lista la sala que tenga ese mismo ID
-      const salaEncontrada = this.salasFalsas.find(s => s.id === idBuscado);
+      const idBuscado = Number(idUrl); 
+      const salaEncontrada = this.salasFalsas.find(s => s.idSala === idBuscado);
       
       if (salaEncontrada) {
-        this.sala = salaEncontrada; // ¡La encontramos! Se la pasamos al HTML
+        this.sala = salaEncontrada; 
       } else {
         console.log('No existe esa sala, devolviendo a horarios...');
         this.router.navigate(['/nueva-reserva']);
       }
     }
+    this.horarioReserva = this.reservaService.obtenerHorario(); 
+    console.log("Horario recuperado en detalles:", this.horarioReserva);
   }
-
-  // 5. Esta es la función que maneja los colores dinámicos (como el catálogo de libros de tu compañero)
   getColorFondo(tipo: string): string {
     if (tipo === 'Sala de Estudio') {
-      // Un gradiente morado elegante estilo universidad
       return 'linear-gradient(145deg, #57068C, #8E2DE2)';
     } else if (tipo === 'Auditorio') {
-      // Un gradiente verde/turquesa vivo para diferenciarlo al tiro
       return 'linear-gradient(145deg, #008080, #00ced1)';
     }
-    // Color por defecto por si acaso
     return 'linear-gradient(145deg, #6B7280, #9CA3AF)';
   }
 
-  // 6. El botón definitivo de confirmación
-  confirmarReservaFinal() {
-    alert(`¡Reserva confirmada con éxito para la ${this.sala.nombre}!`);
-    // Aquí es donde en el futuro llamaremos al servicio de tu compañero para hacer el POST a la base de datos.
-    // Por ahora, devolvemos al alumno a la página principal
-    this.router.navigate(['/nueva-reserva']);
+confirmarReservaFinal() {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#F0FDF4', 
+      color: '#065F46',      
+      iconColor: '#10B981',  
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      },
+      customClass: {
+        popup: 'mi-alerta'
+      }
+    });
+
+
+    Toast.fire({
+      icon: 'success',
+      title: '¡Reserva Exitosa!',
+      text: `Tu sala ${this.sala.nombreSala} fue reservada para el ${this.horarioReserva.dia} a las ${this.horarioReserva.rango}.`
+    }).then(() => {
+      this.router.navigate(['/nueva-reserva']);
+    });
   }
 }

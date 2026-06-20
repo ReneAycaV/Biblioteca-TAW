@@ -15,7 +15,6 @@ export class NuevaReservaComponent {
   };
 
   // --- FUNCIONES PARA AVANZAR ---
-
   avanzarASalas(horario: any) {
     this.datosReserva.horarioElegido = horario;
     console.log("Horario guardado:", this.datosReserva.horarioElegido);

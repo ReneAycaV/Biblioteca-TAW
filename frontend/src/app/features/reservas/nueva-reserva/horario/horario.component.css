@@ -168,7 +168,7 @@
 
 /* Color para Auditorios */
 .room-action-pill-teal {
-    background-color: rgba(0, 155, 138, 0.1); /* Fondo transparente tipo teal */
+    background-color: rgba(0, 155, 138, 0.1);
     color: var(--color-teal);
 }
 
@@ -181,4 +181,11 @@
 .room-btn:hover .room-action-pill-teal {
     background-color: var(--color-teal);
     color: var(--color-white);
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;                      
+    width: 100%;                   
 }

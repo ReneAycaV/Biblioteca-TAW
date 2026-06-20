@@ -25,6 +25,7 @@
   color: #57068C;
   text-decoration: none;
   font-weight: 500;
+  cursor: pointer;
 }
 .detalle-breadcrumb__link:hover {
   text-decoration: underline;
@@ -117,7 +118,7 @@
   font-weight: 500;
 }
 .status-disponible {
-  color: #10B981; /* Verde */
+  color: #10B981;
   font-weight: 700;
 }
 
@@ -134,7 +135,7 @@
   border: 1px solid #BAE6FD;
 }
 .btn-solicitar {
-  background: #57068C; /* Morado de la U */
+  background: #57068C;
   color: #ffffff;
   border: none;
   padding: 12px 24px;
@@ -145,4 +146,18 @@
 }
 .btn-solicitar:hover {
   background: #3c0461;
+}
+
+/*pop-up de SweetAlert */
+::ng-deep .mi-alerta {
+  border: 1px solid #A7F3D0 !important; 
+  border-radius: 12px !important;
+  font-family: 'Montserrat', sans-serif !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  padding: 12px !important;
+}
+
+/* barrita de tiempo que va bajando */
+::ng-deep .swal2-timer-progress-bar {
+  background-color: #10B981 !important; 
 }
