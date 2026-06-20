@@ -9,17 +9,21 @@ import { MenuPrincipalAdminComponent } from './features/menu-principal/menu-prin
 import { CrearPrestamoComponent } from './features/prestamos/crear-prestamo/crear-prestamo.component';
 import { HistorialPrestamosComponent } from './features/prestamos/historial-prestamos/historial-prestamos.component';
 import { LoginComponent } from './features/auth/login/login.component';
+import { NuevaReservaComponent } from './features/reservas/nueva-reserva/nueva-reserva.component';
+import { DetalleSalaComponent } from './features/reservas/nueva-reserva/detalle-sala/detalle-sala.component';
 
 const routes: Routes = [
-  { path: '',              component: MenuPrincipalUsuarioComponent },
-  { path: 'catalogo',      component: ListaLibrosComponent },
-  { path: 'catalogo/:id',  component: DetalleLibroComponent },
-  { path: 'multas',        component: ListaMultasComponent },
-  { path: 'inicio',        component: MenuPrincipalUsuarioComponent },
-  { path: 'menu-admin',    component: MenuPrincipalAdminComponent },
-  { path: 'crear-prestamo', component: CrearPrestamoComponent },
-  { path: 'historial',     component: HistorialPrestamosComponent },
-  { path: 'login',         component: LoginComponent },
+  { path: '',                component: MenuPrincipalUsuarioComponent },
+  { path: 'inicio',          component: MenuPrincipalUsuarioComponent },
+  { path: 'catalogo',        component: ListaLibrosComponent },
+  { path: 'catalogo/:id',    component: DetalleLibroComponent },
+  { path: 'multas',          component: ListaMultasComponent },
+  { path: 'historial',       component: HistorialPrestamosComponent },
+  { path: 'crear-prestamo',  component: CrearPrestamoComponent },
+  { path: 'nueva-reserva',   component: NuevaReservaComponent },
+  { path: 'detalle-sala/:id', component: DetalleSalaComponent },
+  { path: 'menu-admin',      component: MenuPrincipalAdminComponent },
+  { path: 'login',           component: LoginComponent },
 ];
 
 @NgModule({
