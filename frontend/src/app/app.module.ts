@@ -7,25 +7,26 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
 import { MultasModule } from './features/multas/multas.module';
+import { MenuPrincipalModule } from './features/menu-principal/menu-principal.module';
+import { PrestamosModule } from './features/prestamos/prestamos.module';
 import { LoginComponent } from './features/auth/login/login.component';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoginComponent
-  ],
+  declarations: [AppComponent, LoginComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     CatalogoModule,
     MultasModule,
-    FormsModule
+    MenuPrincipalModule,
+    PrestamosModule,
+    FormsModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

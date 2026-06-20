@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ILoginRequestDTO } from '../../shared/dtos/auth/login-request.dto';
@@ -10,35 +10,68 @@ import { ILoginResponseDTO } from '../../shared/dtos/auth/login-response.dto';
   providedIn: 'root'
 })
 export class AuthService {
-
   private apiUrl = `${environment.apiUrl}/auth`;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
-  // Llama al endpoint POST /auth/login del backend
   login(credenciales: ILoginRequestDTO): Observable<ILoginResponseDTO> {
-    return this.http.post<ILoginResponseDTO>(`${this.apiUrl}/login`, credenciales);
+    return this.http
+      .post<ILoginResponseDTO>(`${this.apiUrl}/login`, credenciales)
+      .pipe(
+        tap((response) => {
+          this.guardarToken(response.accessToken);
+          this.guardarUsuario(response.usuario);
+        })
+      );
   }
 
-  // Guarda el JWT y los datos del usuario recibidos del backend
   guardarToken(token: string): void {
     localStorage.setItem('token', token);
+  }
+
+  guardarUsuario(usuario: ILoginResponseDTO['usuario']): void {
+    localStorage.setItem('usuario', JSON.stringify(usuario));
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  isLoggedIn(): boolean {
-    return localStorage.getItem('token') !== null;
+  getUsuario(): ILoginResponseDTO['usuario'] | null {
+    const usuario = localStorage.getItem('usuario');
+    return usuario ? JSON.parse(usuario) : null;
   }
 
-  // Decodifica el payload del JWT para obtener el rol
+  isLoggedIn(): boolean {
+    return this.getToken() !== null;
+  }
+
   getRol(): string {
+    const usuario = this.getUsuario();
+
+    if (usuario?.rol) {
+      return usuario.rol;
+    }
+
     const token = this.getToken();
-    if (!token) return '';
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.rol;
+
+    if (!token) {
+      return '';
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.rol ?? '';
+    } catch {
+      return '';
+    }
+  }
+
+  esAdmin(): boolean {
+    return this.getRol() === 'ADMIN';
   }
 
   logout(): void {
