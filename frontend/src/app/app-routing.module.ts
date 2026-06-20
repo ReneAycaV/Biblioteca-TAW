@@ -8,6 +8,8 @@ import { MenuPrincipalAdminComponent } from './features/menu-principal/menu-prin
 import { CrearPrestamoComponent } from './features/prestamos/crear-prestamo/crear-prestamo.component';
 import { HistorialPrestamosComponent } from './features/prestamos/historial-prestamos/historial-prestamos.component';
 import { LoginComponent } from './features/auth/login/login.component';
+import { NuevaReservaComponent } from './features/reservas/nueva-reserva/nueva-reserva.component';
+import { DetalleSalaComponent } from './features/reservas/nueva-reserva/detalle-sala/detalle-sala.component';
 
 const routes: Routes = [
   { path: '', component: MenuPrincipalUsuarioComponent },
@@ -18,6 +20,8 @@ const routes: Routes = [
   { path: 'crear-prestamo', component: CrearPrestamoComponent },
   { path: 'historial', component: HistorialPrestamosComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'detalle-sala/:id', component: DetalleSalaComponent },
+  { path: 'nueva-reserva', component: NuevaReservaComponent }
 ];
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

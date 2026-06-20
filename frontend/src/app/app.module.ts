@@ -10,17 +10,22 @@ import { LoginComponent } from './features/auth/login/login.component';
 import { MenuPrincipalModule } from './features/menu-principal/menu-principal.module';
 import { PrestamosModule } from './features/prestamos/prestamos.module';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { ReservasModule } from './features/reservas/reservas.module';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent],
+  declarations: [
+    AppComponent,
+    LoginComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     CatalogoModule,
+    FormsModule,
+    ReservasModule,
     MenuPrincipalModule,
     PrestamosModule,
-    FormsModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
