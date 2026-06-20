@@ -1,44 +1,113 @@
 <app-navbar></app-navbar>
 
 <main class="historial__page">
-  <!-- Encabezado -->
+
+  <!-- ── Encabezado con estadísticas y filtros ── -->
   <header class="historial-header">
     <div class="historial-header__inner">
-      <h1 class="historial-header__title">Historial de préstamos y reservas</h1>
+
+      <div class="historial-header__top">
+        <div>
+          <h1 class="historial-header__title">Historial de préstamos y reservas</h1>
+          <p class="historial-header__subtitle">
+            {{ cantidadPrestamos }} préstamo{{ cantidadPrestamos !== 1 ? 's' : '' }} &nbsp;·&nbsp;
+            {{ cantidadReservas }} reserva{{ cantidadReservas !== 1 ? 's' : '' }} &nbsp;·&nbsp;
+            {{ cantidadActivos }} activo{{ cantidadActivos !== 1 ? 's' : '' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Chips de filtro -->
+      <div class="historial-filters">
+        <button
+          class="historial-filters__chip"
+          [class.active]="filtroActivo === 'todos'"
+          (click)="setFiltro('todos')">
+          Todos ({{ todosLosItems.length }})
+        </button>
+        <button
+          class="historial-filters__chip"
+          [class.active]="filtroActivo === 'prestamos'"
+          (click)="setFiltro('prestamos')">
+          <i class="bi bi-book"></i> Préstamos ({{ cantidadPrestamos }})
+        </button>
+        <button
+          class="historial-filters__chip"
+          [class.active]="filtroActivo === 'reservas'"
+          (click)="setFiltro('reservas')">
+          <i class="bi bi-door-open"></i> Reservas ({{ cantidadReservas }})
+        </button>
+      </div>
+
     </div>
   </header>
-  <!-- Tabla de historial -->
-  <div class="historial-table-container">
-    <table
-      *ngIf="prestamos.length > 0; else noPrestamos"
-      class="historial-table"
-    >
-      <thead class="historial-table__header">
-        <tr>
-          <th class="historial-table__cell">ID</th>
-          <th class="historial-table__cell">Tipo</th>
-          <th class="historial-table__cell">Fecha de retiro</th>
-          <th class="historial-table__cell">Fecha de devolución</th>
-          <th class="historial-table__cell">Estado</th>
-        </tr>
-      </thead>
-      <tbody class="historial-table__body">
-        <tr *ngFor="let prestamo of prestamos">
-          <td class="historial-table__cell">{{ prestamo.id }}</td>
-          <td class="historial-table__cell">{{ prestamo.tipo }}</td>
-          <td class="historial-table__cell">
-            {{ prestamo.fechaRetiro | date: "dd/MM/yyyy" }}
-          </td>
-          <td class="historial-table__cell">
-            {{ prestamo.fechaDevolucion | date: "dd/MM/yyyy" }}
-          </td>
-          <td class="historial-table__cell">{{ prestamo.estado }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- Mensaje cuando no hay préstamos o reservas -->
-    <ng-template #noPrestamos>
-      <p class="historial__empty-text">No tienes préstamos registrados.</p>
-    </ng-template>
-  </div>
+
+  <!-- ── Lista de cards ── -->
+  <section class="historial-content">
+    <div class="historial-content__inner">
+
+      <!-- Cards -->
+      <div *ngIf="itemsFiltrados.length > 0; else sinItems" class="historial-list">
+
+        <div
+          *ngFor="let item of itemsFiltrados"
+          class="historial-card"
+          [class.historial-card--prestamo]="item.tipo === 'prestamo'"
+          [class.historial-card--reserva]="item.tipo === 'reserva'">
+
+          <!-- Ícono del tipo -->
+          <div class="historial-card__icon-wrap"
+               [class.historial-card__icon-wrap--prestamo]="item.tipo === 'prestamo'"
+               [class.historial-card__icon-wrap--reserva]="item.tipo === 'reserva'">
+            <i class="bi"
+               [class.bi-book-fill]="item.tipo === 'prestamo'"
+               [class.bi-door-open-fill]="item.tipo === 'reserva'"></i>
+          </div>
+
+          <!-- Información principal -->
+          <div class="historial-card__body">
+            <div class="historial-card__header-row">
+              <span class="historial-card__tipo-badge"
+                    [class.historial-card__tipo-badge--prestamo]="item.tipo === 'prestamo'"
+                    [class.historial-card__tipo-badge--reserva]="item.tipo === 'reserva'">
+                {{ item.tipo === 'prestamo' ? 'Préstamo' : 'Reserva' }}
+              </span>
+
+              <span class="historial-card__estado-badge"
+                    [class.historial-card__estado-badge--activo]="item.estado === 'activo'"
+                    [class.historial-card__estado-badge--finalizado]="item.estado === 'finalizado'">
+                <span class="historial-card__estado-dot"></span>
+                {{ item.estado === 'activo' ? 'Activo' : 'Finalizado' }}
+              </span>
+            </div>
+
+            <h2 class="historial-card__titulo">{{ item.titulo }}</h2>
+
+            <div class="historial-card__fechas">
+              <span class="historial-card__fecha">
+                <i class="bi bi-calendar3"></i>
+                Inicio: {{ item.fechaRetiro | date: 'dd/MM/yyyy' }}
+              </span>
+              <span class="historial-card__fecha-sep">—</span>
+              <span class="historial-card__fecha">
+                <i class="bi bi-calendar3-event"></i>
+                Devolución: {{ item.fechaDevolucion | date: 'dd/MM/yyyy' }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <ng-template #sinItems>
+        <div class="historial-empty">
+          <i class="bi bi-inbox historial-empty__icon"></i>
+          <p class="historial-empty__texto">No tienes registros en este historial.</p>
+        </div>
+      </ng-template>
+
+    </div>
+  </section>
+
 </main>
