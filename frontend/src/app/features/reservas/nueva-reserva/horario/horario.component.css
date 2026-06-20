@@ -71,3 +71,114 @@
     cursor: not-allowed;
     opacity: 0.6;
 }
+
+/* ==========================================
+   ESTILOS DEL MODAL (POPUP)
+   ========================================== */
+
+.custom-modal {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.custom-header {
+    background: linear-gradient(135deg, var(--color-violet) 0%, var(--color-deep-violet) 100%);
+    color: var(--color-white);
+    border-bottom: none;
+    padding: 20px 25px;
+}
+
+.category-title {
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+    font-size: 16px;
+}
+
+.text-violet {
+    color: var(--color-violet);
+}
+
+.text-teal {
+    color: var(--color-teal);
+}
+
+/* --- LISTA DE SALAS (BOTONES) --- */
+.room-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.room-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: var(--color-white);
+    border: 2px solid var(--color-light-violet-3);
+    border-radius: 15px;
+    padding: 15px 20px;
+    text-align: left;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.room-btn:hover {
+    background-color: var(--color-light-violet-3);
+    border-color: var(--color-light-violet-2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* --- TEXTOS INTERNOS DEL BOTÓN --- */
+.room-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.room-name {
+    font-weight: 700;
+    color: var(--color-black);
+    font-size: 15px;
+}
+
+.room-location {
+    font-size: 12px;
+    color: var(--color-gray-mid-1);
+    margin-top: 4px;
+}
+
+/* --- PÍLDORAS DE ACCIÓN ("Reservar") --- */
+.room-action-pill, .room-action-pill-teal {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Color para Salas de Estudio */
+.room-action-pill {
+    background-color: var(--color-light-violet-3);
+    color: var(--color-violet);
+}
+
+/* Color para Auditorios */
+.room-action-pill-teal {
+    background-color: rgba(0, 155, 138, 0.1); /* Fondo transparente tipo teal */
+    color: var(--color-teal);
+}
+
+/* Efectos Hover */
+.room-btn:hover .room-action-pill {
+    background-color: var(--color-violet);
+    color: var(--color-white);
+}
+
+.room-btn:hover .room-action-pill-teal {
+    background-color: var(--color-teal);
+    color: var(--color-white);
+}

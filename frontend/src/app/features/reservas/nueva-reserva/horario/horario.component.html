@@ -1,5 +1,4 @@
 <div class="horario-card-wrapper">
-
     <div class="table-responsive">
         <table class="horario-table">
             
@@ -19,15 +18,73 @@
                         [class.agotado]="esAgotado(dia, hora)"
                         [class.seleccionado]="esSeleccionado(dia, hora)"
                         [class.disponible]="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)"
-                        (click)="seleccionarCelda(dia, hora)">
+                        (click)="seleccionarCelda(dia, hora)"
+                        [attr.data-bs-toggle]="esAgotado(dia, hora) ? null : 'modal'" 
+                        [attr.data-bs-target]="esAgotado(dia, hora) ? null : '#modalSalas'">
                         
                         <span class="status-text" *ngIf="esAgotado(dia, hora)">Sin cupo</span>
                         <span class="status-text" *ngIf="esSeleccionado(dia, hora)">Seleccionado</span>
                         <span class="status-text" *ngIf="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)">Salas Disponibles</span>
+
+                        <div *ngIf="!esAgotado(dia, hora) && !esSeleccionado(dia, hora)" class="d-flex flex-column gap-1 align-items-center mt-1">
+                            <span class="badge bg-light text-violet border border-violet rounded-pill tag-sala"> Estudio: 5</span>
+                            <span class="badge bg-light text-teal border border-teal rounded-pill tag-sala"> Auditorio: 3</span>
+                        </div>
                         
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="modal fade" id="modalSalas" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content custom-modal">
+      
+      <div class="modal-header custom-header">
+        <h5 class="modal-title fw-bold">Salas Disponibles</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body p-4">
+        <div class="row g-4">
+          
+          <div class="col-md-6">
+            <h6 class="category-title text-violet"> Salas de Estudio</h6>
+            <div class="room-list">
+              <button *ngFor="let sala of salasDisponibles.estudio" 
+                      class="room-btn"
+                      data-bs-dismiss="modal" 
+                      (click)="irADetalles(sala)">
+                <div class="room-info">
+                  <span class="room-name">{{ sala.nombre }}</span>
+                  <span class="room-location">{{ sala.ubicacion }}</span>
+                </div>
+                <span class="room-action-pill">Reservar</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h6 class="category-title text-teal">Auditorios</h6>
+            <div class="room-list">
+              <button *ngFor="let sala of salasDisponibles.auditorio" 
+                      class="room-btn"
+                      data-bs-dismiss="modal" 
+                      (click)="irADetalles(sala)">
+                <div class="room-info">
+                  <span class="room-name">{{ sala.nombre }}</span>
+                  <span class="room-location">{{ sala.ubicacion }}</span>
+                </div>
+                <span class="room-action-pill-teal">Reservar</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+    </div>
+  </div>
 </div>

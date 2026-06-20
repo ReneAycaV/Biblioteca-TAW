@@ -9,7 +9,7 @@ export class ReservaService {
     dia: '',
     hora: '',
     salaSeleccionada: null,
-    filtroActivo: 'Todos' 
+    filtroActivo: 'Todos'
   };
 
   guardarBloque(dia: string, hora: string) {
