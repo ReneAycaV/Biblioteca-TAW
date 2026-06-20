@@ -82,7 +82,7 @@ export class PrestamosService {
     prestamo.fechaDevolucionReal = new Date();
 
     const libro = await this.libroRepository.findOne({
-      where: { idLibro: prestamo.idLibro },
+      where: { idLibro: prestamo.libro.idLibro },
     });
 
     if (libro) {

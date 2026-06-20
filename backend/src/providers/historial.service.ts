@@ -30,7 +30,7 @@ export class HistorialService {
   async obtenerMisPrestamos(idUsuario: number) {
     return this.prestamoRepository.find({
       where: {
-        idUsuario,
+        usuario: { idUsuario },
       },
       relations: {
         libro: true,
@@ -44,7 +44,7 @@ export class HistorialService {
   async obtenerMisReservas(idUsuario: number) {
     return this.reservaRepository.find({
       where: {
-        idUsuario,
+        idUsuario: { idUsuario },
       },
       order: {
         fechaReserva: 'DESC',
