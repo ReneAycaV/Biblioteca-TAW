@@ -59,9 +59,9 @@ export class LoginComponent implements OnInit {
         }
 
         if (rolUsuario === 'ADMIN') {
-          this.router.navigate(['/catalogo']);
+          this.router.navigate(['/menu-admin']);
         } else {
-          this.router.navigate(['/catalogo']);
+          this.router.navigate(['/inicio']);
         }
 
         this.cargando = false;
