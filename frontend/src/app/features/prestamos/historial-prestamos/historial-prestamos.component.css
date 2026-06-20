@@ -49,12 +49,12 @@
 
 .historial-filters__chip {
   padding: 7px 18px;
-  border-radius: 20px;
-  border: 1.5px solid #d5b8f0;
+  border-radius: 24px;
+  border: 1.5px solid #D6D6D6;
   background: #ffffff;
-  color: #57068C;
+  color: #330662;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: 'Montserrat', sans-serif;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -64,14 +64,16 @@
 }
 
 .historial-filters__chip:hover {
-  border-color: #57068C;
-  background-color: #f4edfb;
+  border-color: #7B5AA6;
+  color: #57068C;
+  background: #f8f4fc;
 }
 
 .historial-filters__chip.active {
   background-color: #57068C;
   color: #ffffff;
   border-color: #57068C;
+  box-shadow: 0 2px 8px rgba(87, 6, 140, 0.25);
 }
 
 /* ── Sección de contenido ── */
@@ -225,12 +227,11 @@
   text-overflow: ellipsis;
 }
 
-/* Fechas */
+/* Fechas apiladas verticalmente */
 .historial-card__fechas {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .historial-card__fecha {
@@ -243,11 +244,6 @@
 
 .historial-card__fecha i {
   color: #9b7bbf;
-}
-
-.historial-card__fecha-sep {
-  color: #c4b0d8;
-  font-size: 14px;
 }
 
 /* ── Estado vacío ── */

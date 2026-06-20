@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 import { MultasService } from '../services/multas.service';
 import { IMultaHistorial } from '../../../shared/interfaces/imulta-historial';
 
@@ -8,7 +7,7 @@ import { IMultaHistorial } from '../../../shared/interfaces/imulta-historial';
   templateUrl: './lista-multas.component.html',
   styleUrls: ['./lista-multas.component.css']
 })
-export class ListaMultasComponent implements OnInit, OnDestroy {
+export class ListaMultasComponent implements OnInit {
 
   // Lista completa recibida del backend (o mock)
   todasLasMultas: IMultaHistorial[] = [];
@@ -33,10 +32,6 @@ export class ListaMultasComponent implements OnInit, OnDestroy {
   // Guarda el id de la multa que se está pagando para deshabilitar su botón
   pagandoId: number | null = null;
 
-  // El ! le dice a TypeScript que esta variable será asignada antes de usarse (en ngOnInit),
-  // evitando el error de "variable no inicializada" sin ponerla en null
-  private sub!: Subscription;
-
   // Constructor: SOLO inyección de dependencias, la lógica va en ngOnInit
   constructor(private multasService: MultasService) {}
 
@@ -44,40 +39,12 @@ export class ListaMultasComponent implements OnInit, OnDestroy {
     this.cargarDatos();
   }
 
-  // Se cancela la suscripción al destruir el componente para evitar memory leaks
-  ngOnDestroy(): void {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
-  }
-
-  // Llama al endpoint /multas/resumen que devuelve historial + conteos en una sola petición
+  // Carga datos mock mientras no se conecta con el backend real
   cargarDatos(): void {
     this.cargando = true;
     this.mensajeError = '';
-
-    this.sub = this.multasService.getResumen().subscribe({
-      next: (resumen) => {
-        this.todasLasMultas     = resumen.historialMultas;
-        this.totalPendiente     = resumen.resumen.totalPendiente;
-        this.totalPagado        = resumen.resumen.totalPagado;
-        this.cantidadPendientes = resumen.resumen.multasPendientes;
-        this.cantidadPagadas    = resumen.resumen.multasPagadas;
-        this.cargando = false;
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.mensajeError = 'No estás autorizado. Inicia sesión nuevamente.';
-        } else if (err.status === 0) {
-          // Sin backend activo: carga datos mock para poder mostrar la UI en desarrollo
-          this.usarDatosMock();
-        } else {
-          this.mensajeError = 'Error al cargar las multas. Intenta más tarde.';
-        }
-        this.cargando = false;
-        console.error('Error al cargar multas:', err);
-      }
-    });
+    this.usarDatosMock();
+    this.cargando = false;
   }
 
   // Datos de demostración que simulan la respuesta real del backend de Yazuska.
