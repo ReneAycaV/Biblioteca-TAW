@@ -176,7 +176,7 @@
           <i class="bi bi-calendar3"></i> Fecha de inicio
         </span>
         <span class="modal-detalle__valor">
-          {{ itemSeleccionado?.fechaRetiro | date: 'dd \'de\' MMMM \'de\' yyyy' : '' : 'es-CL' }}
+          {{ itemSeleccionado?.fechaRetiro | date: 'dd/MM/yyyy' }}
         </span>
       </div>
 
@@ -186,7 +186,7 @@
           <i class="bi bi-calendar3-event"></i> Fecha de devolución
         </span>
         <span class="modal-detalle__valor">
-          {{ itemSeleccionado?.fechaDevolucion | date: 'dd \'de\' MMMM \'de\' yyyy' : '' : 'es-CL' }}
+          {{ itemSeleccionado?.fechaDevolucion | date: 'dd/MM/yyyy' }}
         </span>
       </div>
 
@@ -197,7 +197,7 @@
             <i class="bi bi-calendar3-event"></i> Fecha de la reserva
           </span>
           <span class="modal-detalle__valor">
-            {{ itemSeleccionado?.fechaRetiro | date: 'dd \'de\' MMMM \'de\' yyyy' : '' : 'es-CL' }}
+            {{ itemSeleccionado?.fechaRetiro | date: 'dd/MM/yyyy' }}
           </span>
         </div>
         <div class="modal-detalle__fila" *ngIf="itemSeleccionado?.bloqueHorario">

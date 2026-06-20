@@ -263,7 +263,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 24px;
-  animation: fadeInOverlay 0.2s ease;
+  animation: fadeInOverlay 0.1s ease;
 }
 
 @keyframes fadeInOverlay {
@@ -279,12 +279,12 @@
   max-width: 520px;
   box-shadow: 0 20px 60px rgba(87, 6, 140, 0.22);
   overflow: hidden;
-  animation: slideUpModal 0.22s ease;
+  animation: fadeInPanel 0.1s ease;
 }
 
-@keyframes slideUpModal {
-  from { transform: translateY(24px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+@keyframes fadeInPanel {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Cabecera del modal con color según tipo */
@@ -297,7 +297,7 @@
 }
 
 .modal-panel__header--prestamo { background: linear-gradient(135deg, #f8f2ff 0%, #EEE6F3 100%); }
-.modal-panel__header--reserva  { background: linear-gradient(135deg, #edf7fc 0%, #d6edf7 100%); }
+.modal-panel__header--reserva  { background: linear-gradient(135deg, #edf7fc 0%, #c8e9f5 100%); }
 
 .modal-panel__header-icon {
   width: 50px;
@@ -315,15 +315,18 @@
 
 .modal-panel__header-info { flex: 1; min-width: 0; }
 
+/* Color del subtítulo según tipo de header */
 .modal-panel__tipo {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: #7b5ea7;
   display: block;
   margin-bottom: 4px;
 }
+
+.modal-panel__header--prestamo .modal-panel__tipo { color: #7b5ea7; }
+.modal-panel__header--reserva  .modal-panel__tipo { color: #2278a0; }
 
 .modal-panel__titulo {
   font-size: 17px;
@@ -340,8 +343,6 @@
   height: 34px;
   border-radius: 50%;
   border: none;
-  background: rgba(87, 6, 140, 0.08);
-  color: #57068C;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -351,7 +352,17 @@
   transition: background 0.15s;
 }
 
-.modal-panel__close:hover { background: rgba(87, 6, 140, 0.16); }
+.modal-panel__header--prestamo .modal-panel__close {
+  background: rgba(87, 6, 140, 0.08);
+  color: #57068C;
+}
+.modal-panel__header--prestamo .modal-panel__close:hover { background: rgba(87, 6, 140, 0.16); }
+
+.modal-panel__header--reserva .modal-panel__close {
+  background: rgba(46, 145, 182, 0.1);
+  color: #2278a0;
+}
+.modal-panel__header--reserva .modal-panel__close:hover { background: rgba(46, 145, 182, 0.2); }
 
 /* Cuerpo del modal */
 .modal-panel__body {
