@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { PrestamosService } from '../services/prestamos.service';
+import { IPrestamo } from '../../../shared/interfaces/iprestamo';
+import { IReserva } from '../../../shared/interfaces/ireserva';
 
+// Interfaz interna para unificar préstamos y reservas en la vista del historial
 export interface IHistorialItem {
   id: number;
   tipo: 'prestamo' | 'reserva';
@@ -7,11 +12,10 @@ export interface IHistorialItem {
   fechaRetiro: Date;
   fechaDevolucion: Date;
   estado: 'activo' | 'finalizado' | 'cancelado' | 'vencido';
-  // Solo aplica para reservas
-  bloqueHorario?: string;
+  bloqueHorario?: string; // Solo para reservas
 }
 
-// Mapa de bloque letra a rango horario (A-K, del backend)
+// Mapa de bloque letra a rango horario (A-K del backend)
 const BLOQUES_HORARIO: Record<string, string> = {
   A: '08:00 - 09:00',
   B: '09:00 - 10:00',
@@ -31,10 +35,14 @@ const BLOQUES_HORARIO: Record<string, string> = {
   templateUrl: './historial-prestamos.component.html',
   styleUrls: ['./historial-prestamos.component.css']
 })
-export class HistorialPrestamosComponent implements OnInit {
+export class HistorialPrestamosComponent implements OnInit, OnDestroy {
 
   todosLosItems: IHistorialItem[] = [];
   filtroActivo: 'todos' | 'prestamos' | 'reservas' = 'todos';
+
+  // Estado de carga general
+  cargando = false;
+  mensajeCargaError = '';
 
   // Estado del modal de detalle
   modalVisible = false;
@@ -44,57 +52,82 @@ export class HistorialPrestamosComponent implements OnInit {
   mensajeModalExito = '';
   mensajeModalError = '';
 
-  constructor() {}
+  private sub!: Subscription;
+
+  constructor(private prestamosService: PrestamosService) {}
 
   ngOnInit(): void {
     this.cargarDatos();
   }
 
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
   cargarDatos(): void {
-    this.todosLosItems = [
-      {
-        id: 1,
-        tipo: 'prestamo',
-        titulo: 'Cien años de soledad',
-        fechaRetiro: new Date('2026-04-30'),
-        fechaDevolucion: new Date('2026-05-14'),
-        estado: 'finalizado'
+    this.cargando = true;
+    this.mensajeCargaError = '';
+    this.sub = this.prestamosService.getMiHistorial().subscribe({
+      next: (data) => {
+        const prestamosItems = data.prestamos.map(p => this.mapearPrestamo(p));
+        const reservasItems = data.reservas.map(r => this.mapearReserva(r));
+        // Combina y ordena por fecha de retiro descendente
+        this.todosLosItems = [...prestamosItems, ...reservasItems].sort(
+          (a, b) => b.fechaRetiro.getTime() - a.fechaRetiro.getTime()
+        );
+        this.cargando = false;
       },
-      {
-        id: 2,
-        tipo: 'reserva',
-        titulo: 'Sala de estudio A-201',
-        fechaRetiro: new Date('2026-06-25'),
-        fechaDevolucion: new Date('2026-06-25'),
-        estado: 'activo',
-        bloqueHorario: 'C'
-      },
-      {
-        id: 3,
-        tipo: 'prestamo',
-        titulo: 'El Principito',
-        fechaRetiro: new Date('2026-04-09'),
-        fechaDevolucion: new Date('2026-04-19'),
-        estado: 'finalizado'
-      },
-      {
-        id: 4,
-        tipo: 'reserva',
-        titulo: 'Sala de reuniones B-105',
-        fechaRetiro: new Date('2026-07-02'),
-        fechaDevolucion: new Date('2026-07-02'),
-        estado: 'cancelado',
-        bloqueHorario: 'G'
-      },
-      {
-        id: 5,
-        tipo: 'prestamo',
-        titulo: 'Breve historia del tiempo',
-        fechaRetiro: new Date('2026-05-10'),
-        fechaDevolucion: new Date('2026-05-24'),
-        estado: 'vencido'
+      error: (err) => {
+        if (err.status === 401) {
+          this.mensajeCargaError = 'No estás autorizado. Inicia sesión nuevamente.';
+        } else {
+          this.mensajeCargaError = 'Error al cargar el historial. Intenta más tarde.';
+        }
+        this.cargando = false;
+        console.error('Error al cargar historial:', err);
       }
-    ];
+    });
+  }
+
+  // Convierte una IPrestamo del backend a IHistorialItem para la vista
+  private mapearPrestamo(p: IPrestamo): IHistorialItem {
+    return {
+      id: p.idPrestamo,
+      tipo: 'prestamo',
+      titulo: p.libro?.titulo ?? 'Libro sin título',
+      fechaRetiro: new Date(p.fechaPrestamo),
+      fechaDevolucion: new Date(p.fechaDevolucionEsperada),
+      estado: this.mapearEstadoPrestamo(p.estado)
+    };
+  }
+
+  // Convierte una IReserva del backend a IHistorialItem para la vista
+  private mapearReserva(r: IReserva): IHistorialItem {
+    return {
+      id: r.idReserva,
+      tipo: 'reserva',
+      titulo: 'Sala de estudio',
+      fechaRetiro: new Date(r.fechaReserva),
+      fechaDevolucion: new Date(r.fechaReserva),
+      estado: this.mapearEstadoReserva(r.estado),
+      bloqueHorario: r.bloqueHorario
+    };
+  }
+
+  // 1=ACTIVO, 2=DEVUELTO, 3=VENCIDO, 4=PERDIDO → estado de la vista
+  private mapearEstadoPrestamo(estado: number): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
+    if (estado === 1) return 'activo';
+    if (estado === 2) return 'finalizado';
+    if (estado === 3) return 'vencido';
+    return 'vencido';
+  }
+
+  // 'Activa' / 'Cancelada' / 'Finalizada' → estado de la vista
+  private mapearEstadoReserva(estado: string): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
+    if (estado === 'Activa') return 'activo';
+    if (estado === 'Cancelada') return 'cancelado';
+    if (estado === 'Finalizada') return 'finalizado';
+    return 'finalizado';
   }
 
   get itemsFiltrados(): IHistorialItem[] {
@@ -123,12 +156,10 @@ export class HistorialPrestamosComponent implements OnInit {
     this.filtroActivo = filtro;
   }
 
-  // Devuelve el rango horario legible dado el bloque letra (A, B, C...)
   getBloqueTexto(bloque: string): string {
     return BLOQUES_HORARIO[bloque] ?? bloque;
   }
 
-  // Abre el modal con el ítem seleccionado y limpia el estado previo
   abrirModal(item: IHistorialItem): void {
     this.itemSeleccionado = item;
     this.motivoCancelacion = '';
@@ -143,37 +174,44 @@ export class HistorialPrestamosComponent implements OnInit {
     this.itemSeleccionado = null;
   }
 
-  // Cancela la reserva activa (simulado con mock; cuando se conecte el backend
-  // se reemplaza por: this.reservaService.cancelar(item.id, motivo).subscribe(...)
+  // Cancela la reserva activa llamando a PATCH /reserve/:id/cancel
   cancelarReserva(): void {
     if (!this.itemSeleccionado) return;
 
     this.cancelando = true;
     this.mensajeModalError = '';
 
-    // Simula el delay de la petición HTTP
-    setTimeout(() => {
-      const index = this.todosLosItems.findIndex(i => i.id === this.itemSeleccionado!.id);
-      if (index !== -1) {
-        this.todosLosItems[index] = {
-          ...this.todosLosItems[index],
-          estado: 'cancelado'
-        };
-        // Actualiza también la referencia del ítem seleccionado para reflejar el cambio en el modal
-        this.itemSeleccionado = { ...this.todosLosItems[index] };
+    this.prestamosService.cancelarReserva(this.itemSeleccionado.id, this.motivoCancelacion).subscribe({
+      next: () => {
+        // Actualiza el estado localmente para reflejar el cambio sin recargar
+        const index = this.todosLosItems.findIndex(i => i.id === this.itemSeleccionado!.id);
+        if (index !== -1) {
+          this.todosLosItems[index] = { ...this.todosLosItems[index], estado: 'cancelado' };
+          this.itemSeleccionado = { ...this.todosLosItems[index] };
+        }
+        this.cancelando = false;
+        this.mensajeModalExito = 'Reserva cancelada correctamente.';
+      },
+      error: (err) => {
+        this.cancelando = false;
+        if (err.status === 400) {
+          this.mensajeModalError = 'No se puede cancelar esta reserva.';
+        } else if (err.status === 403) {
+          this.mensajeModalError = 'No tienes permiso para cancelar esta reserva.';
+        } else {
+          this.mensajeModalError = 'Error al cancelar. Intenta más tarde.';
+        }
+        console.error('Error al cancelar reserva:', err);
       }
-      this.cancelando = false;
-      this.mensajeModalExito = 'Reserva cancelada correctamente.';
-    }, 600);
+    });
   }
 
-  // Devuelve el texto de estado visible según el valor interno
   getTextoEstado(estado: string): string {
     const textos: Record<string, string> = {
-      activo:    'Activo',
-      finalizado:'Finalizado',
-      cancelado: 'Cancelado',
-      vencido:   'Vencido'
+      activo:     'Activo',
+      finalizado: 'Finalizado',
+      cancelado:  'Cancelado',
+      vencido:    'Vencido'
     };
     return textos[estado] ?? estado;
   }

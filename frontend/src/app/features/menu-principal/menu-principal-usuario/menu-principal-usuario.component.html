@@ -19,29 +19,31 @@
       <h2 class="seccion__titulo">
         Revisa y solicita algunos de nuestros libros disponibles en el catálogo
       </h2>
-      <div class="seccion-grilla">
+
+      <!-- Estado de carga de libros -->
+      <p *ngIf="cargandoLibros" class="seccion__cargando">Cargando libros...</p>
+
+      <div *ngIf="!cargandoLibros" class="seccion-grilla">
         <ng-container *ngFor="let libro of librosDisponibles; let i = index">
           <article
             *ngIf="i < 4"
             class="book-card"
-            [routerLink]="['/catalogo', libro.id]"
-            [attr.aria-label]="libro.titulo + ' por ' + libro.autor"
+            [routerLink]="['/catalogo', libro.idLibro]"
+            [attr.aria-label]="(libro.titulo ?? '') + ' por ' + (libro.autor ?? '')"
           >
-            <!-- Portada con gradiente según género -->
+            <!-- Portada con gradiente según categoría -->
             <div
               class="book-card__cover"
               [style.background]="
                 'linear-gradient(145deg, ' +
-                getCoverColor(libro.genero) +
+                getCoverColor(libro.categoria) +
                 ', ' +
-                getCoverAccent(libro.genero) +
+                getCoverAccent(libro.categoria) +
                 ')'
               "
             >
-              <span class="book-card__genre-tag">{{ libro.genero }}</span>
-              <span class="book-card__initial">{{
-                getInitial(libro.titulo)
-              }}</span>
+              <span class="book-card__genre-tag">{{ libro.categoria }}</span>
+              <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
               <svg
                 class="book-card__cover-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -64,32 +66,13 @@
             <div class="book-card__info">
               <h3 class="book-card__title">{{ libro.titulo }}</h3>
               <p class="book-card__author">{{ libro.autor }}</p>
-              <p class="book-card__year">
-                {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + " a.C." }}
-              </p>
               <div class="book-card__footer">
-                <span
-                  class="book-card__badge"
-                  [ngClass]="{
-                    'badge--available': libro.disponibilidad === 'disponible',
-                    'badge--checked-out': libro.disponibilidad === 'prestado',
-                    'badge--reserved': libro.disponibilidad === 'reservado',
-                  }"
-                >
+                <span class="book-card__badge badge--available">
                   <span class="badge__dot"></span>
-                  <span *ngIf="libro.disponibilidad === 'disponible'"
-                    >Disponible</span
-                  >
-                  <span *ngIf="libro.disponibilidad === 'prestado'"
-                    >Prestado</span
-                  >
-                  <span *ngIf="libro.disponibilidad === 'reservado'"
-                    >Reservado</span
-                  >
+                  <span>Disponible</span>
                 </span>
                 <button
                   class="book-card__cta"
-                  [disabled]="libro.disponibilidad !== 'disponible'"
                   [attr.aria-label]="'Solicitar préstamo de ' + libro.titulo"
                 >
                   Solicitar
@@ -98,7 +81,13 @@
             </div>
           </article>
         </ng-container>
+
+        <!-- Sin libros disponibles -->
+        <p *ngIf="librosDisponibles.length === 0" style="color: #7b5ea7; padding: 16px 0;">
+          No hay libros disponibles en este momento.
+        </p>
       </div>
+
       <a
         routerLink="/catalogo"
         class="seccion-nav-link seccion-nav-link--oscura"
@@ -109,7 +98,7 @@
     </div>
   </section>
 
-  <!-- ── Sección de salas de estudio ── -->
+  <!-- ── Sección de salas de estudio (mock) ── -->
   <section class="seccion-clara">
     <div class="seccion__inner">
       <h2 class="seccion-clara__titulo">
@@ -120,35 +109,28 @@
           <article
             *ngIf="i < 4"
             class="book-card"
-            [routerLink]=""
-            [attr.aria-label]="sala.nombre + ' - ' + sala.disponibilidad"
+            [routerLink]="['/nueva-reserva']"
+            [attr.aria-label]="sala.nombre"
           >
-            <!-- Portada de la sala con gradiente violeta -->
+            <!-- Portada de la sala -->
             <div
               class="book-card__cover"
               [style.background]="'linear-gradient(145deg, #7B5AA6, #9B75C0)'"
             >
-              <span class="book-card__initial">{{
-                getInitial(sala.nombre)
-              }}</span>
+              <span class="book-card__initial">{{ getInitial(sala.nombre) }}</span>
             </div>
 
             <!-- Información textual de la sala -->
             <div class="room-card__info">
               <h3 class="room-card__title">{{ sala.nombre }}</h3>
               <div class="book-card__footer">
-                <span
-                  class="book-card__badge"
-                  [ngClass]="{
-                    'badge--available': sala.disponibilidad === 'disponible',
-                  }"
-                >
+                <span class="book-card__badge badge--available">
                   <span class="badge__dot"></span>
                   <span>Disponible</span>
                 </span>
                 <button
                   class="book-card__cta"
-                  [attr.aria-label]="'Solicitar reserva de ' + sala.nombre"
+                  [attr.aria-label]="'Reservar ' + sala.nombre"
                 >
                   Reservar
                 </button>
@@ -158,7 +140,7 @@
         </ng-container>
       </div>
       <a
-        routerLink=""
+        routerLink="/nueva-reserva"
         class="seccion-nav-link seccion-nav-link--clara"
         aria-label="Ir a reservar una sala"
       >
@@ -167,7 +149,7 @@
     </div>
   </section>
 
-  <!-- ── Sección de accesos rápidos (historial y multas) ── -->
+  <!-- ── Sección de accesos rápidos ── -->
   <section class="seccion-oscura">
     <div class="seccion__inner seccion-accesos">
       <article class="seccion-acceso-item">
@@ -187,7 +169,7 @@
           Revisa qué multa pendiente queda por pagar
         </h2>
         <a
-          routerLink=""
+          routerLink="/multas"
           class="seccion-nav-link seccion-nav-link--oscura"
           aria-label="Ir a historial de multas"
         >

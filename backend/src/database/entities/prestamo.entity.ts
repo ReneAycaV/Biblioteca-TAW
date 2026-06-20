@@ -29,7 +29,7 @@ export class PrestamoEntity {
   usuario!: UsuarioEntity;
 
   @ManyToOne(() => LibroEntity)
-  @JoinColumn({ name: 'id_libro' })
+  @JoinColumn({ name: 'id_libros' })
   libro!: LibroEntity;
 
   @OneToOne(() => MultaEntity, (multa) => multa.prestamo, { nullable: true })

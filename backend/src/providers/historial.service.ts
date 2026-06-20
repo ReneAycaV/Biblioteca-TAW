@@ -44,7 +44,7 @@ export class HistorialService {
   async obtenerMisReservas(idUsuario: number) {
     return this.reservaRepository.find({
       where: {
-        idUsuario: { idUsuario },
+        idUsuario: idUsuario as any,
       },
       order: {
         fechaReserva: 'DESC',
