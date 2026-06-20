@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ILoginRequestDTO } from '../../../shared/dtos/auth/login-request.dto';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -8,38 +9,67 @@ import { ILoginRequestDTO } from '../../../shared/dtos/auth/login-request.dto';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-
-  // Rol seleccionado por el usuario en la UI
   rolActivo: string = 'estudiante';
 
-  // Modelo del formulario de login
   loginData: ILoginRequestDTO = {
-    email: '',
+    correo: '',
     password: ''
   };
 
-  // Mensaje de error de validación de la UI
   mensajeError: string = '';
+  cargando: boolean = false;
 
-  // Constructor: solo inyección de dependencias
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {}
 
-  // Cambia el rol activo y limpia el formulario y errores
   cambiarRol(rol: string): void {
     this.rolActivo = rol;
-    this.loginData = { email: '', password: '' };
+    this.loginData = { correo: '', password: '' };
     this.mensajeError = '';
   }
 
-  // Valida el formulario y navega al catálogo
-  // TODO: integrar llamada a la API de autenticación cuando el backend esté disponible
   onSubmit(form: any): void {
     if (form.invalid) {
       return;
     }
-    console.log(`Ingresando como ${this.rolActivo}:`, this.loginData);
-    this.router.navigate(['/catalogo']);
+
+    this.cargando = true;
+    this.mensajeError = '';
+
+    this.authService.login(this.loginData).subscribe({
+      next: (response) => {
+        const rolUsuario = response.usuario.rol;
+
+        if (this.rolActivo === 'administrador' && rolUsuario !== 'ADMIN') {
+          this.mensajeError = 'Este usuario no tiene permisos de administrador.';
+          this.authService.logout();
+          this.cargando = false;
+          return;
+        }
+
+        if (this.rolActivo === 'estudiante' && rolUsuario === 'ADMIN') {
+          this.mensajeError = 'Selecciona el rol administrador para ingresar.';
+          this.authService.logout();
+          this.cargando = false;
+          return;
+        }
+
+        if (rolUsuario === 'ADMIN') {
+          this.router.navigate(['/catalogo']);
+        } else {
+          this.router.navigate(['/catalogo']);
+        }
+
+        this.cargando = false;
+      },
+      error: () => {
+        this.mensajeError = 'Correo o contraseña incorrectos.';
+        this.cargando = false;
+      }
+    });
   }
 }

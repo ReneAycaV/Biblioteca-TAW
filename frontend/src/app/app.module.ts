@@ -7,6 +7,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
 import { LoginComponent } from './features/auth/login/login.component';
+import { MenuPrincipalModule } from './features/menu-principal/menu-principal.module';
+import { PrestamosModule } from './features/prestamos/prestamos.module';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ReservasModule } from './features/reservas/reservas.module';
 
@@ -21,11 +23,13 @@ import { ReservasModule } from './features/reservas/reservas.module';
     HttpClientModule,
     CatalogoModule,
     FormsModule,
-    ReservasModule
+    ReservasModule,
+    MenuPrincipalModule,
+    PrestamosModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
