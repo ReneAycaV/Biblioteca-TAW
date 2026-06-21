@@ -12,14 +12,14 @@
           class="book-card__cover"
           [style.background]="
             'linear-gradient(145deg, ' +
-            getCoverColor(libro.genero) +
+            getCoverColor(libro.categoria ?? null) +
             ', ' +
-            getCoverAccent(libro.genero) +
+            getCoverAccent(libro.categoria ?? null) +
             ')'
           "
         >
-          <span class="book-card__genre-tag">{{ libro.genero }}</span>
-          <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
+          <span class="book-card__genre-tag">{{ libro.categoria }}</span>
+          <span class="book-card__initial">{{ getInitial(libro.titulo ?? null) }}</span>
           <svg
             class="book-card__cover-icon"
             xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@
           <h3 class="book-card__title">{{ libro.titulo }}</h3>
           <p class="book-card__author">{{ libro.autor }}</p>
           <p class="book-card__year">
-            {{ libro.anio > 0 ? libro.anio : libro.anio * -1 + " a.C." }}
+            {{ libro.anio ? (libro.anio | slice:0:4) : '' }}
           </p>
         </div>
       </div>

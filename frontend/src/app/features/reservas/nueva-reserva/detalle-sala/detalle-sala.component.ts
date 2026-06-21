@@ -73,7 +73,7 @@ confirmarReservaFinal() {
       background: '#F0FDF4', 
       color: '#065F46',      
       iconColor: '#10B981',  
-      didOpen: (toast) => {
+      didOpen: (toast: HTMLElement) => {
         toast.addEventListener('mouseenter', Swal.stopTimer)
         toast.addEventListener('mouseleave', Swal.resumeTimer)
       },

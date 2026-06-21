@@ -1,14 +1,17 @@
-// Interfaz para el detalle completo de un libro — incluye campos que no muestra la tarjeta del catálogo
-export interface ILibroDetalle {
-  id: number;
-  titulo: string;
-  autor: string;
-  anio: number;
-  isbn: string;
-  genero: string;
-  descripcion: string;
-  stockTotal: number;
+// Interfaz que refleja exactamente los campos que devuelve LibroEntity del backend
+export interface ILibro {
+  idLibro: number;
+  titulo: string | null;
+  autor: string | null;
+  isbn: string | null;
+  editorial: string | null;
+  categoria: string | null;
+  anio: string | null; // El backend usa tipo date, llega como string 'YYYY-MM-DD'
+  descripcion: string | null;
   stockDisponible: number;
-  estado: 'disponible' | 'prestado' | 'reservado';
-  ubicacionFisica: string;
+  stockTotal: number;
+  valorLibro: number;
+  estado: number; // EstadoLibro: 1=DISPONIBLE, 2=PRESTADO, 3=MANTENIMIENTO, 4=EXTRAVIADO
+  ubicacionFisica: string | null;
+  disponible: boolean;
 }
