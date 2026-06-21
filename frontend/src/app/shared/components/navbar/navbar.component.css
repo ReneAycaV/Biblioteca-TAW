@@ -1,6 +1,6 @@
 /* ── NYU Navbar ── */
 .nyu-navbar {
-  background-color: #56068C;
+  background-color: #56068c;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -9,6 +9,7 @@
 
 .nyu-navbar__container {
   max-width: 1280px;
+  min-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
   height: 64px;
@@ -47,12 +48,14 @@
   display: inline-block;
   padding: 8px 12px;
   color: rgba(255, 255, 255, 0.82);
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   border-radius: 6px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -69,7 +72,7 @@
 }
 
 .nyu-navbar__link.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 12px;
@@ -87,15 +90,14 @@
   flex-shrink: 0;
 }
 
-
 .nyu-navbar__avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #702B9D;
+  background-color: #702b9d;
   border: 2px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -109,13 +111,15 @@
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.65);
   color: #ffffff;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 13px;
   font-weight: 500;
   padding: 7px 16px;
   border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
   white-space: nowrap;
 }
 
@@ -123,4 +127,3 @@
   background-color: rgba(255, 255, 255, 0.12);
   border-color: #ffffff;
 }
-

@@ -9,7 +9,7 @@ export enum EstadoLibro {
   DISPONIBLE = 1,
   PRESTADO = 2,
   MANTENIMIENTO = 3,
-  EXTRAVIADO = 4
+  EXTRAVIADO = 4,
 }
 
 @Entity('libros')
@@ -17,49 +17,51 @@ export class LibroEntity {
   @PrimaryGeneratedColumn({ name: 'id_libros' })
   idLibro!: number;
 
-  @Column({ length: 255 })
-  titulo!: string;
+  @Column({ name: 'titulo', type: 'varchar', nullable: true })
+  titulo!: string | null;
 
-  @Column({ length: 255 })
-  autor!: string;
+  @Column({ name: 'autor', type: 'varchar', nullable: true })
+  autor!: string | null;
 
-  @Column({ length: 13, unique: true })
-  isbn!: string;
+  @Column({ name: 'isbn', type: 'varchar', nullable: true })
+  isbn!: string | null;
 
-  @Column({ length: 150, nullable: true })
-  editorial?: string;
+  @Column({ name: 'editorial', type: 'varchar', nullable: true })
+  editorial!: string | null;
 
-  @Column({ length: 100, nullable: true })
-  categoria?: string;
+  @Column({ name: 'categoria', type: 'varchar', nullable: true })
+  categoria!: string | null;
 
   @Column({ name: 'anio', type: 'date', nullable: true })
-  anio?: Date;
+  anio!: string | null;
 
-  @Column({ type: 'text', nullable: true })
-  descripcion?: string;
+  @Column({ name: 'descripcion', type: 'text', nullable: true })
+  descripcion!: string | null;
 
-  @Column({ name: 'stock_disponible', type: 'int', default: 0 })
+  @Column({ name: 'stock_disponible', type: 'int' })
   stockDisponible!: number;
 
-  @Column({ name: 'stock_total', type: 'int', default: 0 })
+  @Column({ name: 'stock_total', type: 'int' })
   stockTotal!: number;
 
-  @Column({ name: 'valor_libro', type: 'decimal', precision: 10, scale: 2,default: 25000, })
+  @Column({
+    name: 'valor_libro',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 25000,
+  })
   valorLibro!: number;
 
-  @Column({
-    type: 'smallint',
-    enum: EstadoLibro,
-    default: EstadoLibro.DISPONIBLE,
-  })
-  estado!: EstadoLibro;
+  @Column({ name: 'estado', type: 'int2' })
+  estado!: number;
 
-  @Column({ name: 'ubicacion_fisica', length: 120, nullable: true })
-  ubicacionFisica?: string;
+  @Column({ name: 'ubicacion_fisica', type: 'varchar', nullable: true })
+  ubicacionFisica!: string | null;
 
-  @Column({ name: 'disponible', default: true })
+  @Column({ name: 'disponible', type: 'bool' })
   disponible!: boolean;
 
-  @CreateDateColumn({ name: 'fecha_creacion' })
+  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamp' })
   fechaCreacion!: Date;
 }

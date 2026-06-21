@@ -1,1 +1,44 @@
-<p>historial-prestamos works!</p>
+<app-navbar></app-navbar>
+
+<main class="historial__page">
+  <!-- Encabezado -->
+  <header class="historial-header">
+    <div class="historial-header__inner">
+      <h1 class="historial-header__title">Historial de préstamos y reservas</h1>
+    </div>
+  </header>
+  <!-- Tabla de historial -->
+  <div class="historial-table-container">
+    <table
+      *ngIf="prestamos.length > 0; else noPrestamos"
+      class="historial-table"
+    >
+      <thead class="historial-table__header">
+        <tr>
+          <th class="historial-table__cell">ID</th>
+          <th class="historial-table__cell">Tipo</th>
+          <th class="historial-table__cell">Fecha de retiro</th>
+          <th class="historial-table__cell">Fecha de devolución</th>
+          <th class="historial-table__cell">Estado</th>
+        </tr>
+      </thead>
+      <tbody class="historial-table__body">
+        <tr *ngFor="let prestamo of prestamos">
+          <td class="historial-table__cell">{{ prestamo.id }}</td>
+          <td class="historial-table__cell">{{ prestamo.tipo }}</td>
+          <td class="historial-table__cell">
+            {{ prestamo.fechaRetiro | date: "dd/MM/yyyy" }}
+          </td>
+          <td class="historial-table__cell">
+            {{ prestamo.fechaDevolucion | date: "dd/MM/yyyy" }}
+          </td>
+          <td class="historial-table__cell">{{ prestamo.estado }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- Mensaje cuando no hay préstamos o reservas -->
+    <ng-template #noPrestamos>
+      <p class="historial__empty-text">No tienes préstamos registrados.</p>
+    </ng-template>
+  </div>
+</main>
