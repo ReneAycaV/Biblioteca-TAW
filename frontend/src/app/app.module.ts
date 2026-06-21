@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CatalogoModule } from './features/catalogo/catalogo.module';
-import { LoginComponent } from './features/auth/login/login.component';
+import { MultasModule } from './features/multas/multas.module';
 import { MenuPrincipalModule } from './features/menu-principal/menu-principal.module';
 import { PrestamosModule } from './features/prestamos/prestamos.module';
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ReservasModule } from './features/reservas/reservas.module';
+import { LoginComponent } from './features/auth/login/login.component';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -19,10 +20,11 @@ import { ReservasModule } from './features/reservas/reservas.module';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     HttpClientModule,
-    CatalogoModule,
     FormsModule,
+    AppRoutingModule,
+    CatalogoModule,
+    MultasModule,
     ReservasModule,
     MenuPrincipalModule,
     PrestamosModule,

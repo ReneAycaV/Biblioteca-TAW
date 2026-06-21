@@ -41,7 +41,7 @@ export class MultasService {
   }
 
   private calcularDiasAtraso(
-    fechaEsperada: Date,
+    fechaEsperada: Date | string,
     fechaActual: Date = new Date(),
   ): number {
     const hoySinHora = new Date(
@@ -49,10 +49,12 @@ export class MultasService {
       fechaActual.getMonth(),
       fechaActual.getDate(),
     );
+    // PostgreSQL tipo 'date' devuelve string — asegurar conversión a Date
+    const fe = new Date(fechaEsperada);
     const fechaEsperadaSinHora = new Date(
-      fechaEsperada.getFullYear(),
-      fechaEsperada.getMonth(),
-      fechaEsperada.getDate(),
+      fe.getFullYear(),
+      fe.getMonth(),
+      fe.getDate(),
     );
 
     if (hoySinHora <= fechaEsperadaSinHora) return 0;

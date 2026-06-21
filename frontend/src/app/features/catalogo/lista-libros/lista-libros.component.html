@@ -27,7 +27,7 @@
         <input
           type="search"
           class="catalogo-search__input"
-          placeholder="Buscar por título, autor o ISBN..."
+          placeholder="Buscar por título o autor..."
           [(ngModel)]="searchQuery"
           aria-label="Buscar libros"
         />
@@ -58,12 +58,23 @@
     </div>
   </header>
 
-  <!-- ── Grilla de libros ── -->
+  <!-- ── Contenido ── -->
   <section class="catalogo-content">
     <div class="catalogo-content__inner">
 
-      <!-- Estado vacío: se muestra cuando no hay resultados -->
-      <div *ngIf="librosFiltrados.length === 0" class="catalogo-empty">
+      <!-- Estado de carga -->
+      <div *ngIf="cargando" class="catalogo-empty">
+        <p class="catalogo-empty__text">Cargando catálogo...</p>
+      </div>
+
+      <!-- Error de carga -->
+      <div *ngIf="mensajeError && !cargando" class="catalogo-empty">
+        <p class="catalogo-empty__text" style="color: #c0392b;">{{ mensajeError }}</p>
+        <button class="catalogo-empty__reset" (click)="cargarLibros()">Reintentar</button>
+      </div>
+
+      <!-- Estado vacío: no hay resultados con el filtro activo -->
+      <div *ngIf="!cargando && !mensajeError && librosFiltrados.length === 0" class="catalogo-empty">
         <div class="catalogo-empty__icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none"
             viewBox="0 0 24 24" stroke="#AB82C5" stroke-width="1.2">
@@ -78,25 +89,20 @@
       </div>
 
       <!-- Grilla de tarjetas de libros -->
-      <div *ngIf="librosFiltrados.length > 0" class="catalogo-grid">
+      <div *ngIf="!cargando && !mensajeError && librosFiltrados.length > 0" class="catalogo-grid">
         <article
           *ngFor="let libro of librosFiltrados"
           class="book-card"
-          [routerLink]="['/catalogo', libro.id]"
-          [attr.aria-label]="libro.titulo + ' por ' + libro.autor"
+          [routerLink]="['/catalogo', libro.idLibro]"
+          [attr.aria-label]="(libro.titulo ?? '') + ' por ' + (libro.autor ?? '')"
         >
-          <!-- Portada del libro con gradiente según género -->
+          <!-- Portada del libro con gradiente según categoría -->
           <div
             class="book-card__cover"
-            [style.background]="'linear-gradient(145deg, ' + getCoverColor(libro.genero) + ', ' + getCoverAccent(libro.genero) + ')'"
+            [style.background]="'linear-gradient(145deg, ' + getCoverColor(libro.categoria) + ', ' + getCoverAccent(libro.categoria) + ')'"
           >
-            <!-- Etiqueta de género sobre la portada -->
-            <span class="book-card__genre-tag">{{ libro.genero }}</span>
-
-            <!-- Letra inicial grande del título -->
+            <span class="book-card__genre-tag">{{ libro.categoria }}</span>
             <span class="book-card__initial">{{ getInitial(libro.titulo) }}</span>
-
-            <!-- Ícono decorativo del libro (semitransparente) -->
             <svg class="book-card__cover-icon" xmlns="http://www.w3.org/2000/svg"
               width="40" height="40" fill="none" viewBox="0 0 24 24"
               stroke="rgba(255,255,255,0.18)" stroke-width="1.2">
@@ -109,28 +115,25 @@
           <div class="book-card__info">
             <h3 class="book-card__title">{{ libro.titulo }}</h3>
             <p class="book-card__author">{{ libro.autor }}</p>
-            <p class="book-card__year">{{ libro.anio > 0 ? libro.anio : (libro.anio * -1) + ' a.C.' }}</p>
+            <p class="book-card__year">{{ getAnio(libro.anio) }}</p>
 
             <div class="book-card__footer">
-              <!-- Insignia de disponibilidad con color según estado -->
+              <!-- Badge de disponibilidad -->
               <span
                 class="book-card__badge"
                 [ngClass]="{
-                  'badge--available':  libro.disponibilidad === 'disponible',
-                  'badge--checked-out':libro.disponibilidad === 'prestado',
-                  'badge--reserved':   libro.disponibilidad === 'reservado'
+                  'badge--available':   libro.disponible,
+                  'badge--checked-out': !libro.disponible
                 }"
               >
                 <span class="badge__dot"></span>
-                <span *ngIf="libro.disponibilidad === 'disponible'">Disponible</span>
-                <span *ngIf="libro.disponibilidad === 'prestado'">Prestado</span>
-                <span *ngIf="libro.disponibilidad === 'reservado'">Reservado</span>
+                <span>{{ getTextoEstadoLibro(libro) }}</span>
               </span>
 
-              <!-- Botón de acción: se desactiva si el libro no está disponible -->
+              <!-- Botón deshabilitado si no hay stock -->
               <button
                 class="book-card__cta"
-                [disabled]="libro.disponibilidad !== 'disponible'"
+                [disabled]="!libro.disponible"
                 [attr.aria-label]="'Solicitar préstamo de ' + libro.titulo"
               >
                 Solicitar
@@ -139,6 +142,7 @@
           </div>
         </article>
       </div>
+
     </div>
   </section>
 
