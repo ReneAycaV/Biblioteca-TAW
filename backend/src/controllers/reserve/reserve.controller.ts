@@ -13,6 +13,7 @@ import {
   UseGuards,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -96,6 +97,31 @@ export class ReservationsController {
     return this.reserveRoomService.getMostFrequentBlock();
   }
 
+  // Rutas para consultar salas (estáticas deben ir antes de ':id')
+  @Get('salas')
+  @ApiOperation({
+    summary: 'Listar salas disponibles',
+    description: 'Devuelve la lista de salas registradas',
+  })
+  async getAllSalas() {
+    return this.reserveRoomService.getAllSalas();
+  }
+
+  @Get('salas/:id')
+  @ApiOperation({
+    summary: 'Obtener sala por ID',
+    description: 'Devuelve los datos de una sala específica',
+  })
+  async getSalaById(@Param('id') id: string) {
+    const parsed = Number(id);
+    if (Number.isNaN(parsed)) {
+      throw new BadRequestException('ID de sala inválido');
+    }
+    const sala = await this.reserveRoomService.getSalaById(parsed);
+    if (!sala) throw new NotFoundException(`Sala con ID ${id} no encontrada`);
+    return sala;
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Obtener una reserva por ID',
@@ -123,8 +149,13 @@ export class ReservationsController {
     console.log('ID recibido:', id);
     const usuarioId = req.user.id;
 
+    const parsedId = Number(id);
+    if (Number.isNaN(parsedId)) {
+      throw new BadRequestException('ID de reserva inválido');
+    }
+
     // Usar método privado para validación
-    const reserva = await this.reserveRoomService.findEntityById(+id);
+    const reserva = await this.reserveRoomService.findEntityById(parsedId);
 
     if (!reserva) {
       throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
@@ -136,7 +167,7 @@ export class ReservationsController {
     }
 
     // Retornar usando el DTO
-    return this.reserveRoomService.findById(+id);
+    return this.reserveRoomService.findById(parsedId);
   }
 
   @Patch(':id/cancel')
