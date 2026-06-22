@@ -18,7 +18,7 @@ import {
   EstadoPrestamo,
 } from 'src/database/entities/prestamo.entity';
 import { UsuarioEntity } from 'src/database/entities/usuario.entity';
-import { EstadoLibro, LibroEntity } from 'src/database/entities/libro.entity';
+import { LibroEntity } from 'src/database/entities/libro.entity';
 
 @Injectable()
 export class MultasService {
@@ -49,7 +49,6 @@ export class MultasService {
       fechaActual.getMonth(),
       fechaActual.getDate(),
     );
-    // PostgreSQL tipo 'date' devuelve string — asegurar conversión a Date
     const fe = new Date(fechaEsperada);
     const fechaEsperadaSinHora = new Date(
       fe.getFullYear(),

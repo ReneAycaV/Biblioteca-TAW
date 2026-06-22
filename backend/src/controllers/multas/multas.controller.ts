@@ -1,17 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Req,
-  UseGuards,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards, Body } from '@nestjs/common';
 import {
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
-  ApiParam,
   ApiResponse,
   ApiBody,
 } from '@nestjs/swagger';
