@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { ApiProperty } from '@nestjs/swagger/dist/decorators/api-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class LoginRequestDto {
   @ApiProperty({
-    example: 'yazuska@gmail.com',
+    example: 'rene@duoc.cl',
     description: 'Correo electrónico del usuario',
     required: true,
     type: String,
@@ -13,7 +13,7 @@ export class LoginRequestDto {
   correo!: string;
 
   @ApiProperty({
-    example: 'contraseña',
+    example: '123456',
     description: 'Contraseña del usuario',
     required: true,
     type: String,

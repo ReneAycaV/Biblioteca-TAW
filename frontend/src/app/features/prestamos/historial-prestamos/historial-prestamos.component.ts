@@ -30,6 +30,19 @@ const BLOQUES_HORARIO: Record<string, string> = {
   K: '18:00 - 19:00',
 };
 
+function crearFechaLocal(fecha: string | Date): Date {
+  if (fecha instanceof Date) return fecha;
+
+  const [soloFecha] = fecha.split('T');
+  const [year, month, day] = soloFecha.split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return new Date(fecha);
+  }
+
+  return new Date(year, month - 1, day);
+}
+
 @Component({
   selector: 'app-historial-prestamos',
   templateUrl: './historial-prestamos.component.html',
@@ -95,8 +108,8 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
       id: p.idPrestamo,
       tipo: 'prestamo',
       titulo: p.libro?.titulo ?? 'Libro sin título',
-      fechaRetiro: new Date(p.fechaPrestamo),
-      fechaDevolucion: new Date(p.fechaDevolucionEsperada),
+      fechaRetiro: crearFechaLocal(p.fechaPrestamo),
+      fechaDevolucion: crearFechaLocal(p.fechaDevolucionEsperada),
       estado: this.mapearEstadoPrestamo(p.estado)
     };
   }
@@ -107,8 +120,8 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
       id: r.idReserva,
       tipo: 'reserva',
       titulo: 'Sala de estudio',
-      fechaRetiro: new Date(r.fechaReserva),
-      fechaDevolucion: new Date(r.fechaReserva),
+      fechaRetiro: crearFechaLocal(r.fechaReserva),
+      fechaDevolucion: crearFechaLocal(r.fechaReserva),
       estado: this.mapearEstadoReserva(r.estado),
       bloqueHorario: r.bloqueHorario
     };

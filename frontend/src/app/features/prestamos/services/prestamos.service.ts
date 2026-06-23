@@ -16,10 +16,9 @@ export interface ISolicitarPrestamoResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PrestamosService {
-
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
@@ -28,20 +27,29 @@ export class PrestamosService {
   solicitarPrestamo(idLibro: number): Observable<ISolicitarPrestamoResponse> {
     return this.http.post<ISolicitarPrestamoResponse>(
       `${this.apiUrl}/prestamos/solicitar`,
-      { idLibro }
+      { idLibro },
     );
   }
 
   // GET /historial/mi-historial — devuelve préstamos y reservas del usuario
   getMiHistorial(): Observable<IHistorialResponse> {
-    return this.http.get<IHistorialResponse>(`${this.apiUrl}/historial/mi-historial`);
+    return this.http.get<IHistorialResponse>(
+      `${this.apiUrl}/historial/mi-historial`,
+    );
   }
 
   // PATCH /reserve/:id/cancel — cancela una reserva activa del usuario
-  cancelarReserva(idReserva: number, motivoCancelacion?: string): Observable<any> {
-    return this.http.patch(
-      `${this.apiUrl}/reserve/${idReserva}/cancel`,
-      { motivoCancelacion }
-    );
+  cancelarReserva(
+    idReserva: number,
+    motivoCancelacion?: string,
+  ): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/reserve/${idReserva}/cancel`, {
+      motivoCancelacion,
+    });
+  }
+
+  // GET /multas/pendientes — obtiene multas pendientes del usuario
+  getMultasPendientes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/multas/pendientes`);
   }
 }
