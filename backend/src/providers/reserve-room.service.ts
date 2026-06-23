@@ -357,4 +357,14 @@ export class ReserveRoomService {
       return `Los bloques ${mensajeBloques} son los más frecuentes`;
     }
   }
+
+  // Devuelve todas las salas registradas
+  async getAllSalas(): Promise<SalaEntity[]> {
+    return this.salaRepository.find();
+  }
+
+  // Devuelve una sala por su ID
+  async getSalaById(idSala: number): Promise<SalaEntity | null> {
+    return this.salaRepository.findOne({ where: { idSala } });
+  }
 }
