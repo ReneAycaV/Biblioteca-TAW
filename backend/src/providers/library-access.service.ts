@@ -6,6 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LibroEntity } from '../database/entities/libro.entity';
+import { PrestamoEntity } from '../database/entities/prestamo.entity';
+import { EstadoPagoMulta } from '../database/entities/multa.entity';
 import {
   EstadoReserva,
   ReservaEntity,
@@ -54,7 +56,26 @@ export class LibraryAccessService {
   async validateNoPendingFines(userId: number): Promise<UsuarioEntity> {
     const usuario = await this.validateAcademicStatus(userId);
 
-    if (usuario.tieneMultaImpaga) {
+    const multasPendientes = await this.usuarioRepository.manager
+      .getRepository(PrestamoEntity)
+      .count({
+        where: {
+          usuario: { idUsuario: userId },
+          multa: { estadoPago: EstadoPagoMulta.PENDIENTE },
+        },
+        relations: ['multa'],
+      });
+
+    const tieneMulta = multasPendientes > 0;
+    if (usuario.tieneMultaImpaga !== tieneMulta) {
+      await this.usuarioRepository.update(
+        { idUsuario: userId },
+        { tieneMultaImpaga: tieneMulta },
+      );
+      usuario.tieneMultaImpaga = tieneMulta;
+    }
+
+    if (tieneMulta) {
       throw new ForbiddenException('El usuario tiene multas impagas');
     }
 
