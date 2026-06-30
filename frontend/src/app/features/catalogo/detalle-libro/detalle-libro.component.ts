@@ -109,6 +109,7 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
         next: (resp) => {
           this.mensajeExito = `Préstamo solicitado exitosamente. Fecha de devolución: ${this.formatearFecha(resp.prestamo.fechaDevolucionEsperada)}.`;
           this.solicitando = false;
+          // Actualiza el stock localmente para reflejar el cambio en la UI
           if (this.libroDetalle) {
             this.libroDetalle = {
               ...this.libroDetalle,
@@ -136,6 +137,7 @@ export class DetalleLibroComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Convierte 'YYYY-MM-DD' a 'DD/MM/YYYY' para mostrarlo en pantalla
   formatearFecha(fecha: string): string {
     if (!fecha) return '';
     const [anio, mes, dia] = fecha.substring(0, 10).split('-');

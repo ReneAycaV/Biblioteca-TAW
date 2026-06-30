@@ -24,7 +24,7 @@ export class ReserveResponseDto {
   fechaReserva!: string;
 
   @ApiProperty({
-    example: 'A',
+    example: '10:00-11:00',
     description: 'Bloque horario reservado',
   })
   @IsString()
