@@ -24,6 +24,8 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
+import { RolesGuard } from '../../security/guards/roles.guard';
+import { Roles } from '../../security/decorators/roles.decorator';
 import { ReserveRoomService } from '../../providers/reserve-room.service';
 import { ReserveCreateDto } from '../../dto/reserve-create.dto';
 import { ReserveResponseDto } from '../../dto/reserve-response.dto';
@@ -171,10 +173,11 @@ export class ReservationsController {
   }
 
   @Patch(':id/cancel')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({
     summary: 'Cancelar una reserva',
-    description:
-      'Cancela una reserva activa (solo si pertenece al usuario o es ADMIN)',
+    description: 'Cancela una reserva activa (solo ADMIN)',
   })
   @ApiParam({
     name: 'id',
@@ -213,15 +216,13 @@ export class ReservationsController {
   @ApiResponse({ status: 401, description: 'No autorizado' })
   @ApiResponse({
     status: 403,
-    description: 'No puedes cancelar reservas de otro usuario',
+    description: 'Solo un administrador puede cancelar reservas',
   })
   @ApiResponse({ status: 404, description: 'Reserva no encontrada' })
   cancelReservation(
     @Param('id') id: string,
     @Body('motivoCancelacion') motivoCancelacion: string,
-    @Req() req: any,
   ) {
-    const usuarioId = req.user.id;
-    return this.reserveRoomService.cancel(+id, usuarioId, motivoCancelacion);
+    return this.reserveRoomService.cancel(+id, motivoCancelacion);
   }
 }
