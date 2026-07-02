@@ -1,1 +1,202 @@
-<p>menu-principal-admin works!</p>
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+
+    <div class="sidebar-brand">
+      <img
+        src="assets/logos/nyu-logo-imagen.svg"
+        alt="NYU"
+        class="sidebar-brand__icon"
+      />
+      <span class="sidebar-brand__text">NYU Libraries</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        routerLink="/menu-admin"
+        routerLinkActive="sidebar-nav__item--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="sidebar-nav__item"
+      >
+        <i class="bi bi-speedometer2"></i>
+        <span>Inicio</span>
+      </a>
+
+      <a
+        routerLink="/admin/libros"
+        routerLinkActive="sidebar-nav__item--active"
+        class="sidebar-nav__item"
+      >
+        <i class="bi bi-book"></i>
+        <span>Libros</span>
+      </a>
+
+      <a
+        routerLink="/admin/usuarios"
+        routerLinkActive="sidebar-nav__item--active"
+        class="sidebar-nav__item"
+      >
+        <i class="bi bi-people"></i>
+        <span>Usuarios</span>
+      </a>
+
+      <!-- Salas y Multas: rutas pendientes, el equipo las implementará -->
+      <span class="sidebar-nav__item sidebar-nav__item--disabled">
+        <i class="bi bi-door-open"></i>
+        <span>Salas</span>
+        <span class="sidebar-nav__badge">Próximamente</span>
+      </span>
+
+      <span class="sidebar-nav__item sidebar-nav__item--disabled">
+        <i class="bi bi-cash-stack"></i>
+        <span>Multas</span>
+        <span class="sidebar-nav__badge">Próximamente</span>
+      </span>
+    </nav>
+
+    <!-- Botón de cierre de sesión al fondo del sidebar -->
+    <div class="sidebar-footer">
+      <button class="sidebar-logout" (click)="cerrarSesion()">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="admin-main">
+
+    <!-- Barra superior de la página -->
+    <div class="admin-topbar">
+      <div class="admin-topbar__info">
+        <h1 class="admin-topbar__title">Panel de Administración</h1>
+        <p class="admin-topbar__sub">Bienvenido, {{ nombreAdmin }}</p>
+      </div>
+      <div class="admin-topbar__avatar" [title]="nombreAdmin">
+        {{ iniciales }}
+      </div>
+    </div>
+
+    <h2 class="section-title">Resumen del sistema</h2>
+
+    <div class="row g-3 mb-4">
+
+      <!-- Total de libros -->
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-card__icon stat-card__icon--purple">
+            <i class="bi bi-book-fill"></i>
+          </div>
+          <div class="stat-card__body">
+            <p class="stat-card__label">Total de libros</p>
+            <span class="stat-card__value" *ngIf="!cargandoLibros">{{ totalLibros }}</span>
+            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoLibros">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Préstamos activos -->
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-card__icon stat-card__icon--green">
+            <i class="bi bi-arrow-left-right"></i>
+          </div>
+          <div class="stat-card__body">
+            <p class="stat-card__label">Préstamos activos</p>
+            <span class="stat-card__value" *ngIf="!cargandoPrestamos">{{ prestamosActivos }}</span>
+            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoPrestamos">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Préstamos atrasados -->
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-card__icon stat-card__icon--red">
+            <i class="bi bi-exclamation-circle-fill"></i>
+          </div>
+          <div class="stat-card__body">
+            <p class="stat-card__label">Préstamos atrasados</p>
+            <span class="stat-card__value" *ngIf="!cargandoAtrasados">{{ prestamosAtrasados }}</span>
+            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoAtrasados">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total de salas -->
+      <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-card__icon stat-card__icon--blue">
+            <i class="bi bi-door-closed-fill"></i>
+          </div>
+          <div class="stat-card__body">
+            <p class="stat-card__label">Salas de estudio</p>
+            <span class="stat-card__value" *ngIf="!cargandoSalas">{{ totalSalas }}</span>
+            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoSalas">--</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h2 class="section-title">Préstamos atrasados recientes</h2>
+
+    <div class="content-card">
+
+      <!-- Estado de carga -->
+      <div class="content-card__loading" *ngIf="cargandoAtrasados">
+        <div class="spinner-border spinner-border-sm text-secondary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <span class="ms-2 text-muted">Cargando préstamos atrasados...</span>
+      </div>
+
+      <!-- Sin datos -->
+      <div class="content-card__empty" *ngIf="!cargandoAtrasados && ultimosAtrasados.length === 0">
+        <i class="bi bi-check-circle text-success"></i>
+        <p class="mb-0">No hay préstamos atrasados actualmente.</p>
+      </div>
+
+      <!-- Tabla de datos -->
+      <div class="table-responsive" *ngIf="!cargandoAtrasados && ultimosAtrasados.length > 0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Usuario</th>
+              <th>Libro</th>
+              <th>Fecha límite</th>
+              <th>Días de atraso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of ultimosAtrasados">
+              <td>
+                <div class="user-cell">
+                  <div class="user-cell__avatar">
+                    {{ (p.usuario?.nombre?.[0] ?? '') + (p.usuario?.apellido?.[0] ?? '') }}
+                  </div>
+                  <span>{{ p.usuario?.nombre }} {{ p.usuario?.apellido }}</span>
+                </div>
+              </td>
+              <td>{{ p.libro?.titulo }}</td>
+              <td>
+                <span class="badge-fecha-vencida">
+                  {{ p.fechaDevolucionEsperada | date: 'dd/MM/yyyy' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-danger fw-semibold px-2 py-1 rounded-pill">
+                  {{ calcularDiasAtraso(p.fechaDevolucionEsperada) }} días
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+</div>
