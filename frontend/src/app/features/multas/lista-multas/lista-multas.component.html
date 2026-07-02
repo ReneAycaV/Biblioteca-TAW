@@ -146,11 +146,8 @@
         <span>{{ mensajeExito }}</span>
       </div>
 
-      <!-- ── Estado de carga ── -->
-      <div *ngIf="cargando" class="multas-loading">
-        <div class="multas-loading__spinner"></div>
-        <p class="multas-loading__texto">Cargando multas...</p>
-      </div>
+      <!-- Estado de carga -->
+      <app-loading-spinner *ngIf="cargando" texto="Cargando multas..."></app-loading-spinner>
 
       <!-- ── Estado vacío ── -->
       <div *ngIf="!cargando && multasFiltradas.length === 0" class="multas-vacio">
