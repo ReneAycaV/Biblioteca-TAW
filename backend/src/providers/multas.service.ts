@@ -310,7 +310,7 @@ export class MultasService {
         prestamo.libro.estado =
           prestamo.libro.stockDisponible > 0
             ? EstadoLibro.DISPONIBLE
-            : EstadoLibro.PRESTADO;
+            : EstadoLibro.SIN_STOCK;
         prestamo.libro.disponible =
           prestamo.libro.estado === EstadoLibro.DISPONIBLE;
         await this.libroRepository.save(prestamo.libro);
