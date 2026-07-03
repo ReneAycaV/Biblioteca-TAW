@@ -213,6 +213,7 @@ export class ReserveRoomService {
   // cancelar reserva
   async cancel(
     id: number,
+    usuarioId: number,
     motivoCancelacion?: string,
   ): Promise<{ message: string; idReserva: number }> {
     // Busca una reserva cuyo idReserva coincida
@@ -224,6 +225,13 @@ export class ReserveRoomService {
     // mensaje si no hay reserva HTTP 404 (Not Found)
     if (!reserva) {
       throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
+    }
+
+     // valida que el usuario es el dueño de la reserva HTTP 403 (Forbidden)
+    if (reserva.idUsuario.idUsuario !== usuarioId) {
+      throw new ForbiddenException(
+        'No puedes cancelar reservas de otro usuario',
+      );
     }
 
     // valida que la reserva no esté ya cancelada HTTP 400
