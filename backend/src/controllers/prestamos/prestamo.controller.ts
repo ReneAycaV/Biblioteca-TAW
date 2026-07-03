@@ -31,6 +31,7 @@ export class PrestamoController {
       prestamo: {
         idPrestamo: prestamo.idPrestamo,
         fechaPrestamo: prestamo.fechaPrestamo,
+        fechaRetiro: prestamo.fechaRetiro,
         fechaDevolucionEsperada: prestamo.fechaDevolucionEsperada,
         estado: prestamo.estado,
       },
@@ -52,6 +53,7 @@ export class PrestamoController {
       message: 'Libro devuelto exitosamente',
       prestamo: {
         idPrestamo: prestamo.idPrestamo,
+        fechaRetiro: prestamo.fechaRetiro,
         fechaDevolucionReal: prestamo.fechaDevolucionReal,
         estado: prestamo.estado,
       },

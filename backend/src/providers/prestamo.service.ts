@@ -125,6 +125,12 @@ export class PrestamoService {
         throw new NotFoundException('Libro no encontrado');
       }
 
+      if (!prestamo.fechaRetiro) {
+        throw new ForbiddenException(
+          'No puedes devolver un libro que no ha sido retirado',
+        );
+      }
+
       prestamo.estado = EstadoPrestamo.DEVUELTO;
       prestamo.fechaDevolucionReal = new Date();
 
