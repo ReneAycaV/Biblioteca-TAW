@@ -222,7 +222,8 @@ export class ReservationsController {
   cancelReservation(
     @Param('id') id: string,
     @Body('motivoCancelacion') motivoCancelacion: string,
+    @Req() req: any,
   ) {
-    return this.reserveRoomService.cancel(+id, motivoCancelacion);
+    return this.reserveRoomService.cancel(+id, req.user.id, motivoCancelacion);
   }
 }
