@@ -252,7 +252,7 @@ export class ReserveRoomService {
       throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
     }
 
-    // valida que el usuario es el dueño de la reserva HTTP 403 (Forbidden)
+     // valida que el usuario es el dueño de la reserva HTTP 403 (Forbidden)
     if (reserva.idUsuario.idUsuario !== usuarioId) {
       throw new ForbiddenException(
         'No puedes cancelar reservas de otro usuario',

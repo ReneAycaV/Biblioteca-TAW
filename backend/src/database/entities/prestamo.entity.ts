@@ -39,6 +39,9 @@ export class PrestamoEntity {
   @Column({ name: 'fecha_prestamo', type: 'date' })
   fechaPrestamo!: Date;
 
+  @Column({ name: 'fecha_retiro', type: 'date', nullable: true })
+  fechaRetiro?: Date | null;
+
   @Column({ name: 'fecha_devolucion_esperada', type: 'date' })
   fechaDevolucionEsperada!: Date;
 

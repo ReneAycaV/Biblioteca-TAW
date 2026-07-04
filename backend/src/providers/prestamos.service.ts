@@ -64,6 +64,10 @@ export class PrestamosService {
 
     prestamo.estado = ESTADO_PRESTAMO.ENTREGADO;
 
+    if (!prestamo.fechaRetiro) {
+      prestamo.fechaRetiro = new Date();
+    }
+
     if (!prestamo.fechaPrestamo) {
       prestamo.fechaPrestamo = new Date();
     }
@@ -135,6 +139,7 @@ export class PrestamosService {
       idPrestamo: prestamo.idPrestamo,
       estado: prestamo.estado,
       fechaPrestamo: prestamo.fechaPrestamo,
+      fechaRetiro: prestamo.fechaRetiro,
       fechaDevolucionEsperada: prestamo.fechaDevolucionEsperada,
       fechaDevolucionReal: prestamo.fechaDevolucionReal,
     };

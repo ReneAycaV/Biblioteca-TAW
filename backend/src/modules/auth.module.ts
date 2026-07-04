@@ -25,6 +25,7 @@ import { LibraryAccessService } from '../providers/library-access.service';
 
 //Seguridad
 import { JwtStrategy } from '../security/strategies/jwt.strategy';
+import { RolesGuard } from '../security/guards/roles.guard';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { JwtStrategy } from '../security/strategies/jwt.strategy';
     ValidacionesService,
     LibraryAccessService,
     JwtStrategy,
+    RolesGuard,
   ],
   exports: [AuthService],
 })
