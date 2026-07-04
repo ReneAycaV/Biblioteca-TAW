@@ -46,10 +46,9 @@ function crearFechaLocal(fecha: string | Date): Date {
 @Component({
   selector: 'app-historial-prestamos',
   templateUrl: './historial-prestamos.component.html',
-  styleUrls: ['./historial-prestamos.component.css']
+  styleUrls: ['./historial-prestamos.component.css'],
 })
 export class HistorialPrestamosComponent implements OnInit, OnDestroy {
-
   todosLosItems: IHistorialItem[] = [];
   filtroActivo: 'todos' | 'prestamos' | 'reservas' = 'todos';
 
@@ -82,23 +81,27 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
     this.mensajeCargaError = '';
     this.sub = this.prestamosService.getMiHistorial().subscribe({
       next: (data) => {
-        const prestamosItems = data.prestamos.map(p => this.mapearPrestamo(p));
-        const reservasItems = data.reservas.map(r => this.mapearReserva(r));
+        const prestamos = Array.isArray(data?.prestamos) ? data.prestamos : [];
+        const reservas = Array.isArray(data?.reservas) ? data.reservas : [];
+        const prestamosItems = prestamos.map((p) => this.mapearPrestamo(p));
+        const reservasItems = reservas.map((r) => this.mapearReserva(r));
         // Combina y ordena por fecha de retiro descendente
         this.todosLosItems = [...prestamosItems, ...reservasItems].sort(
-          (a, b) => b.fechaRetiro.getTime() - a.fechaRetiro.getTime()
+          (a, b) => b.fechaRetiro.getTime() - a.fechaRetiro.getTime(),
         );
         this.cargando = false;
       },
       error: (err) => {
         if (err.status === 401) {
-          this.mensajeCargaError = 'No estás autorizado. Inicia sesión nuevamente.';
+          this.mensajeCargaError =
+            'No estás autorizado. Inicia sesión nuevamente.';
         } else {
-          this.mensajeCargaError = 'Error al cargar el historial. Intenta más tarde.';
+          this.mensajeCargaError =
+            'Error al cargar el historial. Intenta más tarde.';
         }
         this.cargando = false;
         console.error('Error al cargar historial:', err);
-      }
+      },
     });
   }
 
@@ -110,7 +113,7 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
       titulo: p.libro?.titulo ?? 'Libro sin título',
       fechaRetiro: crearFechaLocal(p.fechaPrestamo),
       fechaDevolucion: crearFechaLocal(p.fechaDevolucionEsperada),
-      estado: this.mapearEstadoPrestamo(p.estado)
+      estado: this.mapearEstadoPrestamo(p.estado),
     };
   }
 
@@ -123,12 +126,14 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
       fechaRetiro: crearFechaLocal(r.fechaReserva),
       fechaDevolucion: crearFechaLocal(r.fechaReserva),
       estado: this.mapearEstadoReserva(r.estado),
-      bloqueHorario: r.bloqueHorario
+      bloqueHorario: r.bloqueHorario,
     };
   }
 
   // 1=ACTIVO, 2=DEVUELTO, 3=VENCIDO, 4=PERDIDO → estado de la vista
-  private mapearEstadoPrestamo(estado: number): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
+  private mapearEstadoPrestamo(
+    estado: number,
+  ): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
     if (estado === 1) return 'activo';
     if (estado === 2) return 'finalizado';
     if (estado === 3) return 'vencido';
@@ -136,7 +141,9 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
   }
 
   // 'Activa' / 'Cancelada' / 'Finalizada' → estado de la vista
-  private mapearEstadoReserva(estado: string): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
+  private mapearEstadoReserva(
+    estado: string,
+  ): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
     if (estado === 'Activa') return 'activo';
     if (estado === 'Cancelada') return 'cancelado';
     if (estado === 'Finalizada') return 'finalizado';
@@ -145,24 +152,24 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
 
   get itemsFiltrados(): IHistorialItem[] {
     if (this.filtroActivo === 'prestamos') {
-      return this.todosLosItems.filter(i => i.tipo === 'prestamo');
+      return this.todosLosItems.filter((i) => i.tipo === 'prestamo');
     }
     if (this.filtroActivo === 'reservas') {
-      return this.todosLosItems.filter(i => i.tipo === 'reserva');
+      return this.todosLosItems.filter((i) => i.tipo === 'reserva');
     }
     return this.todosLosItems;
   }
 
   get cantidadPrestamos(): number {
-    return this.todosLosItems.filter(i => i.tipo === 'prestamo').length;
+    return this.todosLosItems.filter((i) => i.tipo === 'prestamo').length;
   }
 
   get cantidadReservas(): number {
-    return this.todosLosItems.filter(i => i.tipo === 'reserva').length;
+    return this.todosLosItems.filter((i) => i.tipo === 'reserva').length;
   }
 
   get cantidadActivos(): number {
-    return this.todosLosItems.filter(i => i.estado === 'activo').length;
+    return this.todosLosItems.filter((i) => i.estado === 'activo').length;
   }
 
   setFiltro(filtro: 'todos' | 'prestamos' | 'reservas'): void {
@@ -194,37 +201,45 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
     this.cancelando = true;
     this.mensajeModalError = '';
 
-    this.prestamosService.cancelarReserva(this.itemSeleccionado.id, this.motivoCancelacion).subscribe({
-      next: () => {
-        // Actualiza el estado localmente para reflejar el cambio sin recargar
-        const index = this.todosLosItems.findIndex(i => i.id === this.itemSeleccionado!.id);
-        if (index !== -1) {
-          this.todosLosItems[index] = { ...this.todosLosItems[index], estado: 'cancelado' };
-          this.itemSeleccionado = { ...this.todosLosItems[index] };
-        }
-        this.cancelando = false;
-        this.mensajeModalExito = 'Reserva cancelada correctamente.';
-      },
-      error: (err) => {
-        this.cancelando = false;
-        if (err.status === 400) {
-          this.mensajeModalError = 'No se puede cancelar esta reserva.';
-        } else if (err.status === 403) {
-          this.mensajeModalError = 'No tienes permiso para cancelar esta reserva.';
-        } else {
-          this.mensajeModalError = 'Error al cancelar. Intenta más tarde.';
-        }
-        console.error('Error al cancelar reserva:', err);
-      }
-    });
+    this.prestamosService
+      .cancelarReserva(this.itemSeleccionado.id, this.motivoCancelacion)
+      .subscribe({
+        next: () => {
+          // Actualiza el estado localmente para reflejar el cambio sin recargar
+          const index = this.todosLosItems.findIndex(
+            (i) => i.id === this.itemSeleccionado!.id,
+          );
+          if (index !== -1) {
+            this.todosLosItems[index] = {
+              ...this.todosLosItems[index],
+              estado: 'cancelado',
+            };
+            this.itemSeleccionado = { ...this.todosLosItems[index] };
+          }
+          this.cancelando = false;
+          this.mensajeModalExito = 'Reserva cancelada correctamente.';
+        },
+        error: (err) => {
+          this.cancelando = false;
+          if (err.status === 400) {
+            this.mensajeModalError = 'No se puede cancelar esta reserva.';
+          } else if (err.status === 403) {
+            this.mensajeModalError =
+              'No tienes permiso para cancelar esta reserva.';
+          } else {
+            this.mensajeModalError = 'Error al cancelar. Intenta más tarde.';
+          }
+          console.error('Error al cancelar reserva:', err);
+        },
+      });
   }
 
   getTextoEstado(estado: string): string {
     const textos: Record<string, string> = {
-      activo:     'Activo',
+      activo: 'Activo',
       finalizado: 'Finalizado',
-      cancelado:  'Cancelado',
-      vencido:    'Vencido'
+      cancelado: 'Cancelado',
+      vencido: 'Vencido',
     };
     return textos[estado] ?? estado;
   }

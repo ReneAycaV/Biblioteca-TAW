@@ -12,7 +12,6 @@ import { AppService } from './app.service';
 import { LibrosModule } from './modules/libros.module';
 import { PrestamosModule } from './modules/prestamos.module';
 import { HistorialModule } from './modules/historial.module';
-import { PrestamoModule } from './modules/prestamo.module';
 
 @Module({
   imports: [
@@ -40,7 +39,6 @@ import { PrestamoModule } from './modules/prestamo.module';
     PrestamosModule,
     HistorialModule,
     ReserveModule,
-    PrestamoModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

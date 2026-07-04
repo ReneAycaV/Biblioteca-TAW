@@ -9,12 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { LibrosService } from '../providers/libros.service';
-import { CreateLibroDto } from '../dto/create-libro.dto';
-import { UpdateLibroDto } from '../dto/update-libro.dto';
-import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
-import { RolesGuard } from '../security/guards/roles.guard';
-import { Roles } from '../security/decorators/roles.decorator';
+import { LibrosService } from '../../providers/libros.service';
+import { CreateLibroDto } from '../../dto/create-libro.dto';
+import { UpdateLibroDto } from '../../dto/update-libro.dto';
+import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
+import { RolesGuard } from '../../security/guards/roles.guard';
+import { Roles } from '../../security/decorators/roles.decorator';
 
 @Controller('libros')
 export class LibrosController {
@@ -40,10 +40,7 @@ export class LibrosController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateLibroDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateLibroDto) {
     return this.librosService.update(id, dto);
   }
 
