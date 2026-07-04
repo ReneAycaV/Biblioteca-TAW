@@ -72,20 +72,6 @@ export class ReserveRoomService {
       throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
 
-    // validar que no se puede reservar en fecha pasada
-    // new Date(): obtiene la fecha y hora actual
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    const fechaReservaDate = new Date(dto.fechaReserva);
-
-    // si fecha reserva < hoy lanza error HTTP 400 (Bad Request) problemas lado cliente
-    if (fechaReservaDate < hoy) {
-      throw new BadRequestException(
-        `No se puede reservar en fechas pasadas. Fecha solicitada: ${dto.fechaReserva}`,
-      );
-    }
-
     // validar no choque de horario
     // diccionario bloques de horarios
     const bloqueHorarios: Record<string, { inicio: string; fin: string }> = {
@@ -109,6 +95,41 @@ export class ReserveRoomService {
       throw new BadRequestException(
         `El bloque horario ${dto.bloqueHorario} no es válido. Debe ser de la A a la K`,
       );
+    }
+
+    // validar que la fecha de reserva sea hoy
+    const hoy = new Date();
+    const hoyStr = hoy.toISOString().split('T')[0]; // "2026-07-04"
+
+    const fechaReservaStr = dto.fechaReserva; // "2026-07-04"
+
+    if (fechaReservaStr !== hoyStr) {
+      throw new BadRequestException(
+        `Solo se pueden reservar salas para el día de hoy (${hoyStr})`,
+      );
+    }
+
+    // busca si el usuario tiene alguna reserva que aun no haya terminado
+    const reservaActivaUsuario = await this.reservaRepository
+      .createQueryBuilder('reserva')
+      .where('reserva.idUsuario = :usuarioId', { usuarioId })
+      .andWhere('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
+      .getOne();
+
+    if (reservaActivaUsuario) {
+      // Obtener el rango horario del bloque de esa reserva
+      const rangoActivo = bloqueHorarios[reservaActivaUsuario.bloqueHorario];
+
+      // Hora actual
+      const ahora = new Date();
+      const horaActual = ahora.toTimeString().slice(0, 8); // "HH:MM:SS"
+
+      // Si la hora actual es menor que la hora de fin de su reserva activa
+      if (horaActual < rangoActivo.fin) {
+        throw new ForbiddenException(
+          `Ya tienes una reserva activa en el bloque ${reservaActivaUsuario.bloqueHorario} (${rangoActivo.inicio} - ${rangoActivo.fin}). No puedes reservar otra sala hasta que termine tu reserva actual.`,
+        );
+      }
     }
 
     // buscar reservas existentes en la misma sala, fecha y activas
@@ -148,6 +169,7 @@ export class ReserveRoomService {
       fechaReserva: dto.fechaReserva,
       bloqueHorario: dto.bloqueHorario as BloqueHorario,
       estado: EstadoReserva.ACTIVA,
+      nombreSala: sala.nombreSala,
     });
 
     const reservaGuardada = await this.reservaRepository.save(nuevaReserva);
@@ -160,6 +182,7 @@ export class ReserveRoomService {
       bloqueHorario: reservaGuardada.bloqueHorario,
       estado: reservaGuardada.estado,
       motivoCancelacion: reservaGuardada.motivoCancelacion,
+      nombreSala: reservaGuardada.nombreSala,
     };
   }
 
@@ -184,6 +207,7 @@ export class ReserveRoomService {
       bloqueHorario: reserva.bloqueHorario,
       estado: reserva.estado,
       motivoCancelacion: reserva.motivoCancelacion,
+      nombreSala: reserva.nombreSala,
     }));
   }
 
@@ -207,6 +231,7 @@ export class ReserveRoomService {
       bloqueHorario: reserva.bloqueHorario,
       estado: reserva.estado,
       motivoCancelacion: reserva.motivoCancelacion,
+      nombreSala: reserva.nombreSala,
     };
   }
 

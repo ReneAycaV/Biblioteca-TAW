@@ -90,7 +90,7 @@ export class ReservationsController {
     status: 200,
     description: 'Bloque horario más frecuente',
     schema: {
-      example: { bloqueHorario: '10:00-12:00', totalReservas: 15 },
+      example: { bloqueHorario: 'B', totalReservas: 15 },
     },
   })
   async getMostFrequentBlock() {
