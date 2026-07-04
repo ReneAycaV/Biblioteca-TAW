@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 @NgModule({
   declarations: [
-    NavbarComponent
+    NavbarComponent,
+    LoadingSpinnerComponent,
   ],
   imports: [
     CommonModule,
@@ -14,6 +16,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   ],
   exports: [
     NavbarComponent,
+    LoadingSpinnerComponent,
     CommonModule
   ]
 })

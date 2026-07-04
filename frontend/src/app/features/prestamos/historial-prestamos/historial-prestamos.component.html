@@ -46,7 +46,7 @@
   <section class="historial-content">
     <div class="historial-content__inner">
 
-      <div *ngIf="itemsFiltrados.length > 0; else sinItems" class="historial-list">
+      <div *ngIf="!cargando && itemsFiltrados.length > 0; else sinItems" class="historial-list">
 
         <div
           *ngFor="let item of itemsFiltrados"
@@ -109,9 +109,10 @@
         </div>
       </div>
 
-      <!-- Estado vacío -->
+      <!-- Estado de carga / vacío -->
       <ng-template #sinItems>
-        <div class="historial-empty">
+        <app-loading-spinner *ngIf="cargando" texto="Cargando historial..."></app-loading-spinner>
+        <div class="historial-empty" *ngIf="!cargando">
           <i class="bi bi-inbox historial-empty__icon"></i>
           <p class="historial-empty__texto">No tienes registros en este historial.</p>
         </div>

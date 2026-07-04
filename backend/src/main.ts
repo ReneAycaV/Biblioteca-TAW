@@ -14,7 +14,10 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:4200', 'https://biblioteca-taw.vercel.app'],
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('API Biblioteca')
