@@ -15,6 +15,7 @@ import { GestionLibrosComponent } from './features/admin/gestion-libros/gestion-
 import { GestionUsuariosComponent } from './features/admin/gestion-usuarios/gestion-usuarios.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
+import { GestionSalasComponent } from './features/admin/gestion-salas/gestion-salas.component';
 
 const routes: Routes = [
   { path: '',              component: MenuPrincipalUsuarioComponent, canActivate: [AuthGuard] },
@@ -26,9 +27,10 @@ const routes: Routes = [
   { path: 'crear-prestamo', component: CrearPrestamoComponent,       canActivate: [AuthGuard] },
   { path: 'nueva-reserva', component: NuevaReservaComponent,         canActivate: [AuthGuard] },
   { path: 'detalle-sala/:id', component: DetalleSalaComponent,       canActivate: [AuthGuard] },
-  { path: 'menu-admin',       component: MenuPrincipalAdminComponent,  canActivate: [AuthGuard, RoleGuard] },
+  { path: 'menu-admin',       component: MenuPrincipalAdminComponent,  },
   // Rutas del panel admin — los demás compañeros agregan sus componentes aquí
   { path: 'admin/libros',     component: GestionLibrosComponent,       canActivate: [AuthGuard, RoleGuard] },
+  { path: 'admin/salas',      component: GestionSalasComponent,         },
   { path: 'admin/usuarios',   component: GestionUsuariosComponent,     canActivate: [AuthGuard, RoleGuard] },
   { path: 'login',            component: LoginComponent },
 ];

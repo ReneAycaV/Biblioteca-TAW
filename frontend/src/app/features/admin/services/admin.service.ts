@@ -72,4 +72,19 @@ export class AdminService {
   getSalas(): Observable<ISalaAdmin[]> {
     return this.http.get<ISalaAdmin[]>(`${this.apiUrl}/reserve/salas`);
   }
+
+  // Crear una nueva sala (POST)
+  crearSala(sala: any): Observable<ISalaAdmin> {
+    return this.http.post<ISalaAdmin>(`${this.apiUrl}/reserve/salas`, sala);
+  }
+
+  // Actualizar una sala existente (PUT)
+  actualizarSala(id: number, sala: any): Observable<ISalaAdmin> {
+    return this.http.put<ISalaAdmin>(`${this.apiUrl}/reserve/salas/${id}`, sala);
+  }
+
+  // Eliminar una sala (DELETE)
+  eliminarSala(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/reserve/salas/${id}`);
+  }
 }
