@@ -2,18 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PrestamosService } from '/Users/winston/Desktop/biblio_repo/Biblioteca-TAW/frontend/src/app/features/prestamos/services/prestamos.service';
 import { IPrestamo } from '../../../shared/interfaces/iprestamo';
-import { IReserva } from '../../../shared/interfaces/ireserva';
-
-// Interfaz interna para unificar préstamos y reservas en la vista del historial
-export interface IHistorialItem {
-  id: number;
-  tipo: 'prestamo' | 'reserva';
-  titulo: string;
-  fechaRetiro: Date;
-  fechaDevolucion: Date;
-  estado: 'activo' | 'finalizado' | 'cancelado' | 'vencido';
-  bloqueHorario?: string; // Solo para reservas
-}
+import { ILibro } from 'src/app/shared/interfaces/ilibro-detalle';
 
 // Mapa de bloque letra a rango horario (A-K del backend)
 const BLOQUES_HORARIO: Record<string, string> = {
@@ -49,8 +38,9 @@ function crearFechaLocal(fecha: string | Date): Date {
   styleUrls: ['./gestion-prestamos.component.css'],
 })
 export class GestionPrestamosComponent {
-  todosLosItems: IHistorialItem[] = [];
-  filtroActivo: 'todos' | 'prestamos' | 'reservas' = 'todos';
+  todosLosItems: IPrestamo[] = [];
+  filtroActivo: 'todos' | 'Activo' | 'Vencido' | 'Devuelto' | 'Perdido' =
+    'todos';
 
   // Estado de carga general
   cargando = false;
@@ -58,7 +48,7 @@ export class GestionPrestamosComponent {
 
   // Estado del modal de detalle
   modalVisible = false;
-  itemSeleccionado: IHistorialItem | null = null;
+  itemSeleccionado: IPrestamo | null = null;
   motivoCancelacion = '';
   cancelando = false;
   mensajeModalExito = '';
@@ -84,10 +74,9 @@ export class GestionPrestamosComponent {
         const prestamosItems = data.prestamos.map((p) =>
           this.mapearPrestamo(p),
         );
-        const reservasItems = data.reservas.map((r) => this.mapearReserva(r));
         // Combina y ordena por fecha de retiro descendente
-        this.todosLosItems = [...prestamosItems, ...reservasItems].sort(
-          (a, b) => b.fechaRetiro.getTime() - a.fechaRetiro.getTime(),
+        this.todosLosItems = [...prestamosItems].sort((a) =>
+          a.fechaPrestamo.getTime(),
         );
         this.cargando = false;
       },
@@ -106,73 +95,65 @@ export class GestionPrestamosComponent {
   }
 
   // Convierte una IPrestamo del backend a IHistorialItem para la vista
-  private mapearPrestamo(p: IPrestamo): IHistorialItem {
+  private mapearPrestamo(p: IPrestamo): IPrestamo {
     return {
-      id: p.idPrestamo,
-      tipo: 'prestamo',
-      titulo: p.libro?.titulo ?? 'Libro sin título',
-      fechaRetiro: crearFechaLocal(p.fechaPrestamo),
-      fechaDevolucion: crearFechaLocal(p.fechaDevolucionEsperada),
-      estado: this.mapearEstadoPrestamo(p.estado),
-    };
-  }
-
-  // Convierte una IReserva del backend a IHistorialItem para la vista
-  private mapearReserva(r: IReserva): IHistorialItem {
-    return {
-      id: r.idReserva,
-      tipo: 'reserva',
-      titulo: 'Sala de estudio',
-      fechaRetiro: crearFechaLocal(r.fechaReserva),
-      fechaDevolucion: crearFechaLocal(r.fechaReserva),
-      estado: this.mapearEstadoReserva(r.estado),
-      bloqueHorario: r.bloqueHorario,
+      idPrestamo: p.idPrestamo,
+      libro: p.libro as ILibro,
+      fechaPrestamo: crearFechaLocal(p.fechaPrestamo),
+      fechaDevolucionEsperada: crearFechaLocal(p.fechaDevolucionEsperada),
+      estado: p.estado,
     };
   }
 
   // 1=ACTIVO, 2=DEVUELTO, 3=VENCIDO, 4=PERDIDO → estado de la vista
-  private mapearEstadoPrestamo(
+  public mapearEstadoPrestamo(
     estado: number,
-  ): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
+  ): 'activo' | 'devuelto' | 'vencido' | 'perdido' {
     if (estado === 1) return 'activo';
-    if (estado === 2) return 'finalizado';
-    if (estado === 3) return 'vencido';
+    if (estado === 2) return 'devuelto';
+    if (estado === 4) return 'perdido';
     return 'vencido';
   }
 
-  // 'Activa' / 'Cancelada' / 'Finalizada' → estado de la vista
-  private mapearEstadoReserva(
-    estado: string,
-  ): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
-    if (estado === 'Activa') return 'activo';
-    if (estado === 'Cancelada') return 'cancelado';
-    if (estado === 'Finalizada') return 'finalizado';
-    return 'finalizado';
-  }
-
-  get itemsFiltrados(): IHistorialItem[] {
-    if (this.filtroActivo === 'prestamos') {
-      return this.todosLosItems.filter((i) => i.tipo === 'prestamo');
+  get itemsFiltrados(): IPrestamo[] {
+    if (this.filtroActivo === 'Activo') {
+      return this.todosLosItems.filter((i) => i.estado === 1);
     }
-    if (this.filtroActivo === 'reservas') {
-      return this.todosLosItems.filter((i) => i.tipo === 'reserva');
+    if (this.filtroActivo === 'Devuelto') {
+      return this.todosLosItems.filter((i) => i.estado === 2);
+    }
+    if (this.filtroActivo === 'Vencido') {
+      return this.todosLosItems.filter((i) => i.estado === 3);
+    }
+    if (this.filtroActivo === 'Perdido') {
+      return this.todosLosItems.filter((i) => i.estado === 4);
     }
     return this.todosLosItems;
   }
 
   get cantidadPrestamos(): number {
-    return this.todosLosItems.filter((i) => i.tipo === 'prestamo').length;
+    return this.todosLosItems.length;
   }
 
-  get cantidadReservas(): number {
-    return this.todosLosItems.filter((i) => i.tipo === 'reserva').length;
+  get cantidadDevueltos(): number {
+    return this.todosLosItems.filter((i) => i.estado === 2).length;
+  }
+
+  get cantidadVencidos(): number {
+    return this.todosLosItems.filter((i) => i.estado === 3).length;
+  }
+
+  get cantidadPerdidos(): number {
+    return this.todosLosItems.filter((i) => i.estado === 4).length;
   }
 
   get cantidadActivos(): number {
-    return this.todosLosItems.filter((i) => i.estado === 'activo').length;
+    return this.todosLosItems.filter((i) => i.estado === 1).length;
   }
 
-  setFiltro(filtro: 'todos' | 'prestamos' | 'reservas'): void {
+  setFiltro(
+    filtro: 'todos' | 'Activo' | 'Devuelto' | 'Vencido' | 'Perdido',
+  ): void {
     this.filtroActivo = filtro;
   }
 
@@ -180,7 +161,7 @@ export class GestionPrestamosComponent {
     return BLOQUES_HORARIO[bloque] ?? bloque;
   }
 
-  abrirModal(item: IHistorialItem): void {
+  abrirModal(item: IPrestamo): void {
     this.itemSeleccionado = item;
     this.motivoCancelacion = '';
     this.mensajeModalExito = '';
@@ -192,46 +173,6 @@ export class GestionPrestamosComponent {
   cerrarModal(): void {
     this.modalVisible = false;
     this.itemSeleccionado = null;
-  }
-
-  // Cancela la reserva activa llamando a PATCH /reserve/:id/cancel
-  cancelarReserva(): void {
-    if (!this.itemSeleccionado) return;
-
-    this.cancelando = true;
-    this.mensajeModalError = '';
-
-    this.prestamosService
-      .cancelarReserva(this.itemSeleccionado.id, this.motivoCancelacion)
-      .subscribe({
-        next: () => {
-          // Actualiza el estado localmente para reflejar el cambio sin recargar
-          const index = this.todosLosItems.findIndex(
-            (i) => i.id === this.itemSeleccionado!.id,
-          );
-          if (index !== -1) {
-            this.todosLosItems[index] = {
-              ...this.todosLosItems[index],
-              estado: 'cancelado',
-            };
-            this.itemSeleccionado = { ...this.todosLosItems[index] };
-          }
-          this.cancelando = false;
-          this.mensajeModalExito = 'Reserva cancelada correctamente.';
-        },
-        error: (err) => {
-          this.cancelando = false;
-          if (err.status === 400) {
-            this.mensajeModalError = 'No se puede cancelar esta reserva.';
-          } else if (err.status === 403) {
-            this.mensajeModalError =
-              'No tienes permiso para cancelar esta reserva.';
-          } else {
-            this.mensajeModalError = 'Error al cancelar. Intenta más tarde.';
-          }
-          console.error('Error al cancelar reserva:', err);
-        },
-      });
   }
 
   getTextoEstado(estado: string): string {

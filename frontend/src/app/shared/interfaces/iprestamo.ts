@@ -4,9 +4,9 @@ import { ILibro } from './ilibro-detalle';
 export interface IPrestamo {
   idPrestamo: number;
   libro: ILibro;
-  fechaPrestamo: string;
-  fechaDevolucionEsperada: string;
-  fechaDevolucionReal?: string;
+  fechaPrestamo: Date;
+  fechaDevolucionEsperada: Date;
+  fechaDevolucionReal?: Date;
   estado: number; // EstadoPrestamo: 1=ACTIVO, 2=DEVUELTO, 3=VENCIDO, 4=PERDIDO
   observacion?: string;
 }
