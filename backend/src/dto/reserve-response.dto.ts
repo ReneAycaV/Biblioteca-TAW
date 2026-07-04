@@ -47,4 +47,11 @@ export class ReserveResponseDto {
   @IsOptional()
   @IsString()
   motivoCancelacion?: string;
+
+  @ApiProperty({
+    example: 'Sala Cafeteria A',
+    description: 'Nombre de la sala',
+  })
+  @IsString()
+  nombreSala!: string;
 }

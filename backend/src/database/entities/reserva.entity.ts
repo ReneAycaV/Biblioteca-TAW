@@ -61,4 +61,7 @@ export class ReservaEntity {
 
   @Column({ name: 'motivo_cancelacion', length: 255, nullable: true })
   motivoCancelacion?: string;
+
+  @Column({ name: 'nombre_sala', length: 100 })
+  nombreSala!: string;
 }
