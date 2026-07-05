@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ISala } from '../../../shared/interfaces/isala';
+import { ICreateReservaDTO } from '../../../shared/dtos/reserva/create-reserva.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -40,11 +41,7 @@ export class ReservaService {
     return this.horarioSeleccionado;
   }
 
-  crearReserva(reserva: {
-    idSala: number;
-    fechaReserva: string;
-    bloqueHorario: string;
-  }): Observable<any> {
+  crearReserva(reserva: ICreateReservaDTO): Observable<any> {
     return this.http.post<any>(this.apiUrl, reserva);
   }
 

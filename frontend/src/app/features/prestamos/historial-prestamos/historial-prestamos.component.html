@@ -10,8 +10,8 @@
         <div>
           <h1 class="historial-header__title">Historial de préstamos y reservas</h1>
           <p class="historial-header__subtitle">
-            {{ cantidadPrestamos }} préstamo{{ cantidadPrestamos !== 1 ? 's' : '' }} &nbsp;·&nbsp;
-            {{ cantidadReservas }} reserva{{ cantidadReservas !== 1 ? 's' : '' }} &nbsp;·&nbsp;
+            {{ cantidadPrestamos }} préstamo{{ cantidadPrestamos !== 1 ? 's' : '' }} ·
+            {{ cantidadReservas }} reserva{{ cantidadReservas !== 1 ? 's' : '' }} ·
             {{ cantidadActivos }} activo{{ cantidadActivos !== 1 ? 's' : '' }}
           </p>
         </div>
@@ -207,7 +207,7 @@
           </span>
           <span class="modal-detalle__valor">
             Bloque {{ itemSeleccionado?.bloqueHorario }}
-            &nbsp;({{ getBloqueTexto(itemSeleccionado?.bloqueHorario ?? '') }})
+            ({{ getBloqueTexto(itemSeleccionado?.bloqueHorario ?? '') }})
           </span>
         </div>
       </ng-container>

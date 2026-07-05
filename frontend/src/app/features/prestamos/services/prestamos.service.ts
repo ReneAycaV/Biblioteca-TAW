@@ -3,17 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { IHistorialResponse } from '../../../shared/interfaces/ihistorial-response';
-
-// Respuesta del backend al solicitar un préstamo
-export interface ISolicitarPrestamoResponse {
-  message: string;
-  prestamo: {
-    idPrestamo: number;
-    fechaPrestamo: string;
-    fechaDevolucionEsperada: string;
-    estado: number;
-  };
-}
+import { ICreatePrestamoDTO } from '../../../shared/dtos/prestamo/create-prestamo.dto';
+import { IPrestamoResponseDTO } from '../../../shared/dtos/prestamo/prestamo-response.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -24,10 +15,11 @@ export class PrestamosService {
   constructor(private http: HttpClient) {}
 
   // POST /prestamos/solicitar — crea un préstamo para el usuario autenticado
-  solicitarPrestamo(idLibro: number): Observable<ISolicitarPrestamoResponse> {
-    return this.http.post<ISolicitarPrestamoResponse>(
+  solicitarPrestamo(idLibro: number): Observable<IPrestamoResponseDTO> {
+    const dto: ICreatePrestamoDTO = { idLibro };
+    return this.http.post<IPrestamoResponseDTO>(
       `${this.apiUrl}/prestamos/solicitar`,
-      { idLibro },
+      dto,
     );
   }
 
