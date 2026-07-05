@@ -14,10 +14,10 @@
             {{ todasLasMultas.length }}
             {{ todasLasMultas.length === 1 ? 'multa registrada' : 'multas registradas' }}
             <span *ngIf="cantidadPagadas > 0">
-              &nbsp;·&nbsp;{{ cantidadPagadas }} pagada{{ cantidadPagadas === 1 ? '' : 's' }}
+              · {{ cantidadPagadas }} pagada{{ cantidadPagadas === 1 ? '' : 's' }}
             </span>
             <span *ngIf="totalPagado > 0">
-              &nbsp;·&nbsp;$ {{ formatearMonto(totalPagado) }} pagados
+              · $ {{ formatearMonto(totalPagado) }} pagados
             </span>
           </p>
         </div>
