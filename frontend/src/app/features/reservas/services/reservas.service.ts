@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { ISala } from '../../../shared/interfaces/isala';
 
 @Injectable({
   providedIn: 'root',
@@ -51,8 +52,8 @@ export class ReservaService {
     return this.http.get<any>(`${this.apiUrl}/my`);
   }
 
-  getSalas(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/salas`);
+  getSalas(): Observable<ISala[]> {
+    return this.http.get<ISala[]>(`${this.apiUrl}/salas`);
   }
 
   getSalaById(idSala: number): Observable<any> {
