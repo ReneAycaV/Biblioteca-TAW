@@ -1,15 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ILibro } from '../../../shared/interfaces/ilibro-detalle';
+import { ISala } from '../../../shared/interfaces/isala';
+import { EstadoSala } from '../../../shared/enums/estado-sala.enum';
 import { CatalogoService } from '../../catalogo/services/catalogo.service';
 import { AuthService } from '../../../core/services/auth.service';
-
-// Sala de estudio — se mantiene en mock porque el backend aún no tiene GET /salas
-export interface ISala {
-  id: number;
-  nombre: string;
-  disponibilidad: 'disponible' | 'reservado';
-}
+import { ReservaService } from '../../reservas/services/reservas.service';
 
 @Component({
   selector: 'app-menu-principal-usuario',
@@ -25,21 +21,17 @@ export class MenuPrincipalUsuarioComponent implements OnInit, OnDestroy {
   libros: ILibro[] = [];
   cargandoLibros = false;
 
-  // Salas en mock (backend aún no tiene endpoint GET /salas)
-  salas: ISala[] = [
-    { id: 1, nombre: 'Parinacota',         disponibilidad: 'disponible' },
-    { id: 2, nombre: 'Sala de Ciencias',   disponibilidad: 'reservado'  },
-    { id: 3, nombre: 'Azufre',             disponibilidad: 'disponible' },
-    { id: 4, nombre: 'Sala de Tecnología', disponibilidad: 'reservado'  },
-    { id: 5, nombre: 'Belen',              disponibilidad: 'disponible' },
-    { id: 6, nombre: 'Guallatire',         disponibilidad: 'disponible' },
-  ];
+  // Salas cargadas desde el backend (GET /reserve/salas)
+  salas: ISala[] = [];
+  cargandoSalas = false;
 
-  private sub!: Subscription;
+  private subLibros!: Subscription;
+  private subSalas!: Subscription;
 
   constructor(
     private catalogoService: CatalogoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private reservaService: ReservaService
   ) {}
 
   ngOnInit(): void {
@@ -48,15 +40,17 @@ export class MenuPrincipalUsuarioComponent implements OnInit, OnDestroy {
     this.userName = usuario ? `${usuario.nombre} ${usuario.apellido}` : 'Usuario';
 
     this.cargarLibros();
+    this.cargarSalas();
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    this.subLibros?.unsubscribe();
+    this.subSalas?.unsubscribe();
   }
 
   cargarLibros(): void {
     this.cargandoLibros = true;
-    this.sub = this.catalogoService.getLibros().subscribe({
+    this.subLibros = this.catalogoService.getLibros().subscribe({
       next: (libros) => {
         this.libros = libros;
         this.cargandoLibros = false;
@@ -68,13 +62,28 @@ export class MenuPrincipalUsuarioComponent implements OnInit, OnDestroy {
     });
   }
 
+  cargarSalas(): void {
+    this.cargandoSalas = true;
+    this.subSalas = this.reservaService.getSalas().subscribe({
+      next: (salas) => {
+        this.salas = salas;
+        this.cargandoSalas = false;
+      },
+      error: (err) => {
+        this.cargandoSalas = false;
+        console.error('Error al cargar salas en inicio:', err);
+      }
+    });
+  }
+
   // Devuelve solo los libros disponibles para mostrar en la sección de inicio
   get librosDisponibles(): ILibro[] {
     return this.libros.filter(libro => libro.disponible);
   }
 
+  // Devuelve solo las salas con estado "Disponible" para mostrar en la sección de inicio
   get salasDisponibles(): ISala[] {
-    return this.salas.filter(sala => sala.disponibilidad === 'disponible');
+    return this.salas.filter(sala => sala.estado === EstadoSala.DISPONIBLE);
   }
 
   getCoverColor(categoria: string | null): string {

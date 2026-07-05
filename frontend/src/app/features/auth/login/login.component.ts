@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ILoginRequestDTO } from '../../../shared/dtos/auth/login-request.dto';
 import { AuthService } from '../../../core/services/auth.service';
+import { RolUsuario } from '../../../shared/enums/rol-usuario.enum';
 
 @Component({
   selector: 'app-login',
@@ -44,21 +45,21 @@ export class LoginComponent implements OnInit {
       next: (response) => {
         const rolUsuario = response.usuario.rol;
 
-        if (this.rolActivo === 'administrador' && rolUsuario !== 'ADMIN') {
+        if (this.rolActivo === 'administrador' && rolUsuario !== RolUsuario.ADMIN) {
           this.mensajeError = 'Este usuario no tiene permisos de administrador.';
           this.authService.logout();
           this.cargando = false;
           return;
         }
 
-        if (this.rolActivo === 'estudiante' && rolUsuario === 'ADMIN') {
+        if (this.rolActivo === 'estudiante' && rolUsuario === RolUsuario.ADMIN) {
           this.mensajeError = 'Selecciona el rol administrador para ingresar.';
           this.authService.logout();
           this.cargando = false;
           return;
         }
 
-        if (rolUsuario === 'ADMIN') {
+        if (rolUsuario === RolUsuario.ADMIN) {
           this.router.navigate(['/menu-admin']);
         } else {
           this.router.navigate(['/inicio']);
