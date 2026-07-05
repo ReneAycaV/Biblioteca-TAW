@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 
 // entidades
 import { ReservaEntity } from '../database/entities/reserva.entity';
@@ -18,7 +19,6 @@ import { LibraryAccessService } from '../providers/library-access.service';
 
 @Module({
   imports: [
-    // entidades
     TypeOrmModule.forFeature([
       ReservaEntity,
       SalaEntity,
@@ -30,6 +30,8 @@ import { LibraryAccessService } from '../providers/library-access.service';
       secret: process.env.JWT_SECRET || 'super_secreto_hu17',
       signOptions: { expiresIn: '1d' },
     }),
+
+    ScheduleModule.forRoot(),
   ],
   controllers: [ReservationsController, SistemaCafeteriaController],
   providers: [ReserveRoomService, LibraryAccessService],

@@ -9,23 +9,23 @@ import { UsuarioEntity } from './usuario.entity';
 import { SalaEntity } from './sala.entity';
 
 export enum EstadoReserva {
-  ACTIVA = 'Activa',
-  CANCELADA = 'Cancelada',
-  FINALIZADA = 'Finalizada',
+  ACTIVA = 1,
+  CANCELADA = 2,
+  FINALIZADA = 3,
 }
 
 export enum BloqueHorario {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-  F = 'F',
-  G = 'G',
-  H = 'H',
-  I = 'I',
-  J = 'J',
-  K = 'K',
+  A = 1,
+  B = 2,
+  C = 3,
+  D = 4,
+  E = 5,
+  F = 6,
+  G = 7,
+  H = 8,
+  I = 9,
+  J = 10,
+  K = 11,
 }
 @Entity('reservas')
 export class ReservaEntity {
@@ -46,15 +46,13 @@ export class ReservaEntity {
   fechaReserva!: Date;
 
   @Column({
-    type: 'enum',
-    enum: BloqueHorario,
+    type: 'smallint',
     name: 'bloque_horario',
   })
   bloqueHorario!: BloqueHorario;
 
   @Column({
-    type: 'enum',
-    enum: EstadoReserva,
+    type: 'smallint',
     default: EstadoReserva.ACTIVA,
   })
   estado!: EstadoReserva;

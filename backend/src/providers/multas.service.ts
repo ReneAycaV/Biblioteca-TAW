@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Not, IsNull, Repository } from 'typeorm';
@@ -19,9 +20,12 @@ import {
 } from '../database/entities/prestamo.entity';
 import { UsuarioEntity } from '../database/entities/usuario.entity';
 import { EstadoLibro, LibroEntity } from '../database/entities/libro.entity';
+import { PagoService } from './pago.service';
 
 @Injectable()
 export class MultasService {
+  private readonly logger = new Logger(MultasService.name);
+
   constructor(
     @InjectRepository(PrestamoEntity)
     private readonly prestamosRepository: Repository<PrestamoEntity>,
@@ -34,6 +38,8 @@ export class MultasService {
 
     @InjectRepository(LibroEntity)
     private readonly libroRepository: Repository<LibroEntity>,
+
+    private readonly pagoService: PagoService,
   ) {}
 
   private calcularMultaPorDia(valorLibro: number): number {
@@ -335,6 +341,10 @@ export class MultasService {
     userId: number,
     condiciones?: 'BUENO' | 'PERDIDO',
   ): Promise<any> {
+    this.logger.log(
+      `[MULTAS] Usuario ${userId} solicito pagar multa ${idMulta}`,
+    );
+
     const prestamo = await this.prestamosRepository.findOne({
       where: { multa: { idMulta: idMulta } },
       relations: ['usuario', 'multa', 'libro'],
@@ -407,12 +417,49 @@ export class MultasService {
       console.log(`Pago sin devolución - Préstamo ID: ${prestamo.idPrestamo}`);
     }
 
+    const referenceId = `BIB-MULTA-${multa.idMulta}`;
+    this.logger.log(
+      `[MULTAS] Preparando orden externa ${referenceId}. Monto=${montoReal.toFixed(2)}, libro="${prestamo.libro.titulo}"`,
+    );
+
+    const pago = await this.pagoService.processPayment({
+      referenceId,
+      amount: Number(montoReal.toFixed(2)),
+      description: `Pago multa biblioteca ${multa.idMulta} - ${prestamo.libro.titulo}`,
+    });
+
+    this.logger.log(
+      `[MULTAS] Resultado sistema de pagos para ${referenceId}: status=${pago.status}, success=${pago.success}, orderId=${pago.orderId}`,
+    );
+
+    if (!pago.success) {
+      this.logger.warn(
+        `[MULTAS] Multa ${multa.idMulta} NO se marca como pagada. Estado externo=${pago.status}`,
+      );
+
+      return {
+        success: false,
+        message: pago.message,
+        data: {
+          idMulta: multa.idMulta,
+          monto: montoReal,
+          diasAtraso: diasAtraso,
+          estadoPagoExterno: pago.status,
+          referenciaPago: referenceId,
+          ordenPagoId: pago.orderId,
+        },
+      };
+    }
+
     multa.monto = montoReal;
     multa.diasAtraso = diasAtraso;
     multa.estadoLibro = estadoLibro;
     multa.estadoPago = EstadoPagoMulta.PAGADA;
     multa.fechaPago = hoy;
     await this.multaRepository.save(multa);
+    this.logger.log(
+      `[MULTAS] Multa ${multa.idMulta} marcada como PAGADA localmente por aprobacion externa ${referenceId}`,
+    );
 
     const otrasMultasPendientes = await this.prestamosRepository.count({
       where: {
@@ -428,6 +475,13 @@ export class MultasService {
         { idUsuario: userId },
         { tieneMultaImpaga: false },
       );
+      this.logger.log(
+        `[MULTAS] Usuario ${userId} desbloqueado: no tiene otras multas pendientes`,
+      );
+    } else {
+      this.logger.log(
+        `[MULTAS] Usuario ${userId} mantiene ${otrasMultasPendientes} multa(s) pendiente(s)`,
+      );
     }
 
     return {
@@ -440,6 +494,9 @@ export class MultasService {
         diasAtraso: diasAtraso,
         estadoPrestamo: prestamo.estado,
         estadoLibro: this.mapearEstadoLibro(estadoLibro),
+        estadoPagoExterno: pago.status,
+        referenciaPago: referenceId,
+        ordenPagoId: pago.orderId,
       },
     };
   }

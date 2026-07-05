@@ -98,31 +98,35 @@
     </div>
   </section>
 
-  <!-- ── Sección de salas de estudio (mock) ── -->
+  <!-- ── Sección de salas de estudio ── -->
   <section class="seccion-clara">
     <div class="seccion__inner">
       <h2 class="seccion-clara__titulo">
         Reserva cualquiera de nuestras salas disponibles para todo uso
       </h2>
-      <div class="seccion-grilla">
+
+      <!-- Estado de carga de salas -->
+      <p *ngIf="cargandoSalas" class="seccion__cargando">Cargando salas...</p>
+
+      <div *ngIf="!cargandoSalas" class="seccion-grilla">
         <ng-container *ngFor="let sala of salasDisponibles; let i = index">
           <article
             *ngIf="i < 4"
             class="book-card"
             [routerLink]="['/nueva-reserva']"
-            [attr.aria-label]="sala.nombre"
+            [attr.aria-label]="sala.nombreSala"
           >
             <!-- Portada de la sala -->
             <div
               class="book-card__cover"
               [style.background]="'linear-gradient(145deg, #7B5AA6, #9B75C0)'"
             >
-              <span class="book-card__initial">{{ getInitial(sala.nombre) }}</span>
+              <span class="book-card__initial">{{ getInitial(sala.nombreSala) }}</span>
             </div>
 
             <!-- Información textual de la sala -->
             <div class="room-card__info">
-              <h3 class="room-card__title">{{ sala.nombre }}</h3>
+              <h3 class="room-card__title">{{ sala.nombreSala }}</h3>
               <div class="book-card__footer">
                 <span class="book-card__badge badge--available">
                   <span class="badge__dot"></span>
@@ -130,7 +134,7 @@
                 </span>
                 <button
                   class="book-card__cta"
-                  [attr.aria-label]="'Reservar ' + sala.nombre"
+                  [attr.aria-label]="'Reservar ' + sala.nombreSala"
                 >
                   Reservar
                 </button>
@@ -138,7 +142,13 @@
             </div>
           </article>
         </ng-container>
+
+        <!-- Sin salas disponibles -->
+        <p *ngIf="salasDisponibles.length === 0" style="color: #7b5ea7; padding: 16px 0;">
+          No hay salas disponibles en este momento.
+        </p>
       </div>
+
       <a
         routerLink="/nueva-reserva"
         class="seccion-nav-link seccion-nav-link--clara"

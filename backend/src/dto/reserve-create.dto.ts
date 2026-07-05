@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsDateString, IsString } from 'class-validator';
+import { IsNumber, IsDateString } from 'class-validator';
 
 export class ReserveCreateDto {
   @ApiProperty({
@@ -17,9 +17,9 @@ export class ReserveCreateDto {
   fechaReserva!: string;
 
   @ApiProperty({
-    example: '10:00-12:00',
-    description: 'Bloque horario (HH:MM-HH:MM)',
+    example: '1',
+    description: 'Bloque horario (1=A, 2=B, 3=C, ... 11=K)',
   })
-  @IsString()
-  bloqueHorario!: string;
+  @IsNumber()
+  bloqueHorario!: number;
 }

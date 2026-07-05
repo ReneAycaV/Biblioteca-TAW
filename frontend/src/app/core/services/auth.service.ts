@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ILoginRequestDTO } from '../../shared/dtos/auth/login-request.dto';
 import { ILoginResponseDTO } from '../../shared/dtos/auth/login-response.dto';
+import { RolUsuario } from '../../shared/enums/rol-usuario.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +72,7 @@ export class AuthService {
   }
 
   esAdmin(): boolean {
-    return this.getRol() === 'ADMIN';
+    return this.getRol() === RolUsuario.ADMIN;
   }
 
   logout(): void {
