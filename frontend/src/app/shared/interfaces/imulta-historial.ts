@@ -57,9 +57,12 @@ export interface IPagarMultaResponse {
   data: {
     idMulta: number;
     monto: number;
-    fechaPago: string;
+    fechaPago?: string;
     diasAtraso: number;
-    estadoPrestamo: string;
-    estadoLibro: string;
+    estadoPrestamo?: string;
+    estadoLibro?: string;
+    estadoPagoExterno?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+    referenciaPago?: string;
+    ordenPagoId?: string;
   };
 }

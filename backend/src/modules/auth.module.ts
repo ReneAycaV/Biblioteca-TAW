@@ -22,6 +22,7 @@ import { AuthService } from '../providers/auth.service';
 import { MultasService } from '../providers/multas.service';
 import { ValidacionesService } from '../providers/validaciones.service';
 import { LibraryAccessService } from '../providers/library-access.service';
+import { PagoService } from '../providers/pago.service';
 
 //Seguridad
 import { JwtStrategy } from '../security/strategies/jwt.strategy';
@@ -53,6 +54,7 @@ import { RolesGuard } from '../security/guards/roles.guard';
   providers: [
     AuthService,
     MultasService,
+    PagoService,
     ValidacionesService,
     LibraryAccessService,
     JwtStrategy,

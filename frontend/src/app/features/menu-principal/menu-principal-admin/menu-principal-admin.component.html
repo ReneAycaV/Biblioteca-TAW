@@ -1,8 +1,6 @@
 <div class="admin-layout">
-
   <!-- Sidebar -->
   <aside class="admin-sidebar">
-
     <div class="sidebar-brand">
       <img
         src="assets/logos/nyu-logo-imagen.svg"
@@ -65,12 +63,10 @@
         <span>Cerrar sesión</span>
       </button>
     </div>
-
   </aside>
 
   <!-- Contenido principal -->
   <main class="admin-main">
-
     <!-- Barra superior de la página -->
     <div class="admin-topbar">
       <div class="admin-topbar__info">
@@ -85,7 +81,6 @@
     <h2 class="section-title">Resumen del sistema</h2>
 
     <div class="row g-3 mb-4">
-
       <!-- Total de libros -->
       <div class="col-md-6 col-lg-3">
         <div class="stat-card">
@@ -94,8 +89,14 @@
           </div>
           <div class="stat-card__body">
             <p class="stat-card__label">Total de libros</p>
-            <span class="stat-card__value" *ngIf="!cargandoLibros">{{ totalLibros }}</span>
-            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoLibros">--</span>
+            <span class="stat-card__value" *ngIf="!cargandoLibros">{{
+              totalLibros
+            }}</span>
+            <span
+              class="stat-card__value stat-card__value--loading"
+              *ngIf="cargandoLibros"
+              >--</span
+            >
           </div>
         </div>
       </div>
@@ -108,8 +109,14 @@
           </div>
           <div class="stat-card__body">
             <p class="stat-card__label">Préstamos activos</p>
-            <span class="stat-card__value" *ngIf="!cargandoPrestamos">{{ prestamosActivos }}</span>
-            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoPrestamos">--</span>
+            <span class="stat-card__value" *ngIf="!cargandoPrestamos">{{
+              prestamosActivos
+            }}</span>
+            <span
+              class="stat-card__value stat-card__value--loading"
+              *ngIf="cargandoPrestamos"
+              >--</span
+            >
           </div>
         </div>
       </div>
@@ -122,8 +129,14 @@
           </div>
           <div class="stat-card__body">
             <p class="stat-card__label">Préstamos atrasados</p>
-            <span class="stat-card__value" *ngIf="!cargandoAtrasados">{{ prestamosAtrasados }}</span>
-            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoAtrasados">--</span>
+            <span class="stat-card__value" *ngIf="!cargandoAtrasados">{{
+              prestamosAtrasados
+            }}</span>
+            <span
+              class="stat-card__value stat-card__value--loading"
+              *ngIf="cargandoAtrasados"
+              >--</span
+            >
           </div>
         </div>
       </div>
@@ -136,41 +149,55 @@
           </div>
           <div class="stat-card__body">
             <p class="stat-card__label">Salas de estudio</p>
-            <span class="stat-card__value" *ngIf="!cargandoSalas">{{ totalSalas }}</span>
-            <span class="stat-card__value stat-card__value--loading" *ngIf="cargandoSalas">--</span>
+            <span class="stat-card__value" *ngIf="!cargandoSalas">{{
+              totalSalas
+            }}</span>
+            <span
+              class="stat-card__value stat-card__value--loading"
+              *ngIf="cargandoSalas"
+              >--</span
+            >
           </div>
         </div>
       </div>
-
     </div>
 
     <h2 class="section-title">Préstamos atrasados recientes</h2>
 
     <div class="content-card">
-
       <!-- Estado de carga -->
       <div class="content-card__loading" *ngIf="cargandoAtrasados">
-        <div class="spinner-border spinner-border-sm text-secondary" role="status">
+        <div
+          class="spinner-border spinner-border-sm text-secondary"
+          role="status"
+        >
           <span class="visually-hidden">Cargando...</span>
         </div>
         <span class="ms-2 text-muted">Cargando préstamos atrasados...</span>
       </div>
 
       <!-- Sin datos -->
-      <div class="content-card__empty" *ngIf="!cargandoAtrasados && ultimosAtrasados.length === 0">
+      <div
+        class="content-card__empty"
+        *ngIf="!cargandoAtrasados && ultimosAtrasados.length === 0"
+      >
         <i class="bi bi-check-circle text-success"></i>
         <p class="mb-0">No hay préstamos atrasados actualmente.</p>
       </div>
 
       <!-- Tabla de datos -->
-      <div class="table-responsive" *ngIf="!cargandoAtrasados && ultimosAtrasados.length > 0">
+      <div
+        class="table-responsive"
+        *ngIf="!cargandoAtrasados && ultimosAtrasados.length > 0"
+      >
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
               <th>Usuario</th>
               <th>Libro</th>
               <th>Fecha límite</th>
-              <th>Días de atraso</th>
+              <th>de atraso</th>
+              Días
             </tr>
           </thead>
           <tbody>
@@ -178,7 +205,10 @@
               <td>
                 <div class="user-cell">
                   <div class="user-cell__avatar">
-                    {{ (p.usuario?.nombre?.[0] ?? '') + (p.usuario?.apellido?.[0] ?? '') }}
+                    {{
+                      (p.usuario?.nombre?.[0] ?? "") +
+                        (p.usuario?.apellido?.[0] ?? "")
+                    }}
                   </div>
                   <span>{{ p.usuario?.nombre }} {{ p.usuario?.apellido }}</span>
                 </div>
@@ -186,11 +216,13 @@
               <td>{{ p.libro?.titulo }}</td>
               <td>
                 <span class="badge-fecha-vencida">
-                  {{ p.fechaDevolucionEsperada | date: 'dd/MM/yyyy' }}
+                  {{ p.fechaDevolucionEsperada | date: "dd/MM/yyyy" }}
                 </span>
               </td>
               <td>
-                <span class="badge bg-danger fw-semibold px-2 py-1 rounded-pill">
+                <span
+                  class="badge bg-danger fw-semibold px-2 py-1 rounded-pill"
+                >
                   {{ calcularDiasAtraso(p.fechaDevolucionEsperada) }} días
                 </span>
               </td>
@@ -198,8 +230,6 @@
           </tbody>
         </table>
       </div>
-
     </div>
-
   </main>
 </div>
