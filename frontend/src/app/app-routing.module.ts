@@ -30,7 +30,7 @@ const routes: Routes = [
   { path: 'menu-admin',       component: MenuPrincipalAdminComponent,  },
   // Rutas del panel admin — los demás compañeros agregan sus componentes aquí
   { path: 'admin/libros',     component: GestionLibrosComponent,       canActivate: [AuthGuard, RoleGuard] },
-  { path: 'admin/salas',      component: GestionSalasComponent,         },
+  { path: 'admin/salas',      component: GestionSalasComponent,        canActivate: [AuthGuard, RoleGuard] },
   { path: 'admin/usuarios',   component: GestionUsuariosComponent,     canActivate: [AuthGuard, RoleGuard] },
   { path: 'login',            component: LoginComponent },
 ];
