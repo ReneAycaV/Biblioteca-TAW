@@ -18,7 +18,7 @@ import {
   EstadoPrestamo,
 } from '../database/entities/prestamo.entity';
 import { UsuarioEntity } from '../database/entities/usuario.entity';
-import { LibroEntity } from '../database/entities/libro.entity';
+import { EstadoLibro, LibroEntity } from '../database/entities/libro.entity';
 
 @Injectable()
 export class MultasService {
@@ -153,6 +153,7 @@ export class MultasService {
         },
         prestamo: {
           fechaPrestamo: p.fechaPrestamo,
+          fechaRetiro: p.fechaRetiro,
           fechaDevolucionEsperada: p.fechaDevolucionEsperada,
           fechaDevolucionReal: p.fechaDevolucionReal,
           estado: p.estado,
@@ -221,6 +222,7 @@ export class MultasService {
         },
         prestamo: {
           fechaPrestamo: p.fechaPrestamo,
+          fechaRetiro: p.fechaRetiro,
           fechaDevolucionEsperada: p.fechaDevolucionEsperada,
           fechaDevolucionReal: p.fechaDevolucionReal,
           estado: p.estado,
@@ -249,7 +251,9 @@ export class MultasService {
               mensajeUsuario:
                 p.estado === EstadoPrestamo.PERDIDO
                   ? 'Libro reportado como perdido/dañado. Debes pagar el valor del libro más la multa por atraso.'
-                  : p.fechaDevolucionReal
+                  : !p.fechaRetiro
+                    ? 'No retiraste el libro dentro del plazo. Debes pagar la multa por bloquear su disponibilidad.'
+                    : p.fechaDevolucionReal
                     ? 'Libro devuelto en buen estado. Debes pagar solo la multa por atraso.'
                     : 'Préstamo vencido. El libro aún no ha sido devuelto.',
             }),
@@ -267,12 +271,16 @@ export class MultasService {
 
     const multaPorDia = this.calcularMultaPorDia(prestamo.libro.valorLibro);
     const nuevoMonto = diasAtraso * multaPorDia;
+    const noFueRetirado = !prestamo.fechaRetiro;
 
     if (prestamo.multa) {
       // Actualizar multa existente
       if (prestamo.multa.diasAtraso !== diasAtraso) {
         prestamo.multa.diasAtraso = diasAtraso;
         prestamo.multa.monto = nuevoMonto;
+        if (noFueRetirado) {
+          prestamo.multa.estadoLibro = EstadoLibroDevuelto.DEVUELTO_BUENO;
+        }
         await this.multaRepository.save(prestamo.multa);
         console.log(
           `Multa ${prestamo.multa.idMulta} actualizada: ${diasAtraso} días - $${nuevoMonto}`,
@@ -284,11 +292,32 @@ export class MultasService {
         monto: nuevoMonto,
         diasAtraso: diasAtraso,
         estadoPago: EstadoPagoMulta.PENDIENTE,
+        estadoLibro: noFueRetirado
+          ? EstadoLibroDevuelto.DEVUELTO_BUENO
+          : null,
         fechaGeneracion: new Date(),
       });
       const multaGuardada = await this.multaRepository.save(multa);
       prestamo.multa = multaGuardada;
-      prestamo.estado = EstadoPrestamo.VENCIDO;
+
+      if (noFueRetirado) {
+        prestamo.estado = EstadoPrestamo.DEVUELTO;
+        prestamo.fechaDevolucionReal = new Date();
+        prestamo.libro.stockDisponible = Math.min(
+          prestamo.libro.stockDisponible + 1,
+          prestamo.libro.stockTotal,
+        );
+        prestamo.libro.estado =
+          prestamo.libro.stockDisponible > 0
+            ? EstadoLibro.DISPONIBLE
+            : EstadoLibro.SIN_STOCK;
+        prestamo.libro.disponible =
+          prestamo.libro.estado === EstadoLibro.DISPONIBLE;
+        await this.libroRepository.save(prestamo.libro);
+      } else {
+        prestamo.estado = EstadoPrestamo.VENCIDO;
+      }
+
       await this.prestamosRepository.save(prestamo);
 
       await this.usuarioRepository.update(

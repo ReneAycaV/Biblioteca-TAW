@@ -63,9 +63,7 @@
     <div class="catalogo-content__inner">
 
       <!-- Estado de carga -->
-      <div *ngIf="cargando" class="catalogo-empty">
-        <p class="catalogo-empty__text">Cargando catálogo...</p>
-      </div>
+      <app-loading-spinner *ngIf="cargando" texto="Cargando catálogo..."></app-loading-spinner>
 
       <!-- Error de carga -->
       <div *ngIf="mensajeError && !cargando" class="catalogo-empty">

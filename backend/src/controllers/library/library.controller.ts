@@ -12,6 +12,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
+import { RolesGuard } from '../../security/guards/roles.guard';
+import { Roles } from '../../security/decorators/roles.decorator';
 import { LibraryAccessService } from '../../providers/library-access.service';
 
 @Controller('library')
@@ -44,15 +46,14 @@ export class LibraryController {
     return this.libraryAccessService.searchBooks(query);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Post('reservations/:id/cancel')
   async cancelReservation(
-    @Req() req: any,
     @Param('id', ParseIntPipe) idReserva: number,
     @Body('motivoCancelacion') motivoCancelacion?: string,
   ) {
     const reserva = await this.libraryAccessService.cancelReservation(
-      req.user.id,
       idReserva,
       motivoCancelacion,
     );

@@ -53,7 +53,7 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
   filtroActivo: 'todos' | 'prestamos' | 'reservas' = 'todos';
 
   // Estado de carga general
-  cargando = false;
+  cargando = true;
   mensajeCargaError = '';
 
   // Estado del modal de detalle

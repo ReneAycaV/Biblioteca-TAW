@@ -1,0 +1,102 @@
+<div class="admin-page-container">
+  <div class="admin-header">
+    <h1 class="page-title">Gestión de Salas</h1>
+    <p class="page-subtitle">Administra los espacios de estudio y reuniones del sistema.</p>
+  </div>
+
+  <div class="admin-content-wrapper">
+    
+    <div class="form-side">
+      <h2 class="section-title">Nueva Sala</h2>
+      
+      <form (ngSubmit)="guardarSala()">
+        
+        <div class="input-group">
+          <label>Nombre de la Sala</label>
+          <div class="input-wrapper">
+            <input type="text" name="nombreSala" [(ngModel)]="nuevaSala.nombreSala" placeholder="Ej: Sala de Estudio 1" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Capacidad (Personas)</label>
+          <div class="input-wrapper">
+            <input type="number" name="capacidad" [(ngModel)]="nuevaSala.capacidad" min="1" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Ubicación</label>
+          <div class="input-wrapper select-wrapper">
+            <select name="ubicacion" [(ngModel)]="nuevaSala.ubicacion">
+              <option *ngFor="let loc of ubicaciones" [value]="loc">{{ loc }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Estado Inicial</label>
+          <div class="input-wrapper select-wrapper">
+            <select name="estado" [(ngModel)]="nuevaSala.estado">
+              <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          Guardar Sala
+        </button>
+      </form>
+    </div>
+
+    <div class="table-side">
+      <div class="table-header">
+        <h2 class="section-title mb-0">Salas Registradas</h2>
+        <span class="badge-total">{{ listaSalas.length }} en total</span>
+      </div>
+
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Capacidad</th>
+              <th>Ubicación</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sala of listaSalas">
+              <td class="id-col">#{{ sala.idSala }}</td>
+              <td class="fw-bold">{{ sala.nombreSala }}</td>
+              <td>{{ sala.capacidad }} pers.</td>
+              <td><span class="tag-ubicacion">{{ sala.ubicacion }}</span></td>
+              <td>
+                <span class="tag-estado" 
+                      [ngClass]="{
+                        'estado-disponible': sala.estado === 'Disponible',
+                        'estado-mantenimiento': sala.estado === 'Mantenimiento',
+                        'estado-bloqueada': sala.estado === 'Bloqueada'
+                      }">
+                  {{ sala.estado }}
+                </span>
+              </td>
+              <td>
+                <button type="button" class="delete-btn" (click)="borrarSala(sala.idSala)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+            
+            <tr *ngIf="listaSalas.length === 0">
+              <td colspan="6" class="empty-state">No hay salas registradas actualmente.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

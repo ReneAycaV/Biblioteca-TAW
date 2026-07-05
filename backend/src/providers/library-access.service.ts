@@ -155,7 +155,6 @@ export class LibraryAccessService {
   }
 
   async cancelReservation(
-    userId: number,
     idReserva: number,
     motivoCancelacion?: string,
   ): Promise<ReservaEntity> {
@@ -164,7 +163,6 @@ export class LibraryAccessService {
       const reserva = await reservaRepository.findOne({
         where: {
           idReserva,
-          idUsuario: { idUsuario: userId },
           estado: EstadoReserva.ACTIVA,
         },
         lock: { mode: 'pessimistic_write' },

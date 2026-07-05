@@ -7,7 +7,7 @@ import {
 
 export enum EstadoLibro {
   DISPONIBLE = 1,
-  PRESTADO = 2,
+  SIN_STOCK = 2,
   MANTENIMIENTO = 3,
   EXTRAVIADO = 4,
 }

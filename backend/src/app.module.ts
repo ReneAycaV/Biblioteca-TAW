@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -12,6 +10,7 @@ import { AppService } from './app.service';
 import { LibrosModule } from './modules/libros.module';
 import { PrestamosModule } from './modules/prestamos.module';
 import { HistorialModule } from './modules/historial.module';
+import { SalasAdminModule } from './modules/salas-admin.module';
 
 @Module({
   imports: [
@@ -39,6 +38,7 @@ import { HistorialModule } from './modules/historial.module';
     PrestamosModule,
     HistorialModule,
     ReserveModule,
+    SalasAdminModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

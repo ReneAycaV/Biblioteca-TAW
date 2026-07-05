@@ -24,6 +24,21 @@ import { ReserveResponseDto } from '../dto/reserve-response.dto';
 import { LibraryAccessService } from './library-access.service';
 import { BloqueHorario } from '../database/entities/reserva.entity';
 
+export interface CafeteriaDemandWindow {
+  dia: string;
+  bloqueHorario: string;
+  inicio: string;
+  fin: string;
+  reservas: number;
+  ranking: number;
+}
+
+export interface CafeteriaDemandPayload {
+  periodo: string;
+  totalReservasConsideradas: number;
+  topBloques: CafeteriaDemandWindow[];
+}
+
 @Injectable()
 export class ReserveRoomService {
   constructor(
@@ -38,6 +53,152 @@ export class ReserveRoomService {
 
     private readonly libraryAccessService: LibraryAccessService,
   ) {}
+
+  private readonly rangosHorarios: Record<
+    string,
+    { inicio: string; fin: string }
+  > = {
+    A: { inicio: '08:00', fin: '09:00' },
+    B: { inicio: '09:00', fin: '10:00' },
+    C: { inicio: '10:00', fin: '11:00' },
+    D: { inicio: '11:00', fin: '12:00' },
+    E: { inicio: '12:00', fin: '13:00' },
+    F: { inicio: '13:00', fin: '14:00' },
+    G: { inicio: '14:00', fin: '15:00' },
+    H: { inicio: '15:00', fin: '16:00' },
+    I: { inicio: '16:00', fin: '17:00' },
+    J: { inicio: '17:00', fin: '18:00' },
+    K: { inicio: '18:00', fin: '19:00' },
+  };
+
+  private readonly ordenDias: Record<string, number> = {
+    domingo: 0,
+    lunes: 1,
+    martes: 2,
+    miércoles: 3,
+    jueves: 4,
+    viernes: 5,
+    sábado: 6,
+  };
+
+  private getBloqueRango(bloqueHorario: string): {
+    inicio: string;
+    fin: string;
+  } {
+    return (
+      this.rangosHorarios[bloqueHorario] ?? { inicio: '00:00', fin: '00:00' }
+    );
+  }
+
+  private getDiaSemana(fecha: Date | string): string {
+    const fechaDate = new Date(fecha);
+    const dias = [
+      'domingo',
+      'lunes',
+      'martes',
+      'miércoles',
+      'jueves',
+      'viernes',
+      'sábado',
+    ];
+    return dias[fechaDate.getDay()];
+  }
+
+  async getCafeteriaDemandData(
+    limit = 5,
+    daysBack = 30,
+  ): Promise<CafeteriaDemandPayload> {
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - daysBack);
+    fechaInicio.setHours(0, 0, 0, 0);
+
+    const salasCafeteria = await this.salaRepository.find({
+      where: [
+        { ubicacion: UbicacionSala.CAFETERIA_A },
+        { ubicacion: UbicacionSala.CAFETERIA_B },
+      ],
+    });
+
+    const idsSalasCafeteria = salasCafeteria.map((sala) => sala.idSala);
+
+    if (idsSalasCafeteria.length === 0) {
+      return {
+        periodo: `ultimos_${daysBack}_dias`,
+        totalReservasConsideradas: 0,
+        topBloques: [],
+      };
+    }
+
+    const reservas = await this.reservaRepository
+      .createQueryBuilder('reserva')
+      .leftJoinAndSelect('reserva.idSala', 'sala')
+      .where('reserva.idSala IN (:...idsSalas)', {
+        idsSalas: idsSalasCafeteria,
+      })
+      .andWhere('reserva.fechaReserva >= :fechaInicio', {
+        fechaInicio: fechaInicio.toISOString().split('T')[0],
+      })
+      .andWhere('reserva.estado IN (:...estados)', {
+        estados: [EstadoReserva.ACTIVA, EstadoReserva.FINALIZADA],
+      })
+      .getMany();
+
+    if (reservas.length === 0) {
+      return {
+        periodo: `ultimos_${daysBack}_dias`,
+        totalReservasConsideradas: 0,
+        topBloques: [],
+      };
+    }
+
+    const contadorPorBloque = new Map<string, number>();
+
+    for (const reserva of reservas) {
+      const dia = this.getDiaSemana(reserva.fechaReserva);
+      const clave = `${dia}|${reserva.bloqueHorario}`;
+      contadorPorBloque.set(clave, (contadorPorBloque.get(clave) ?? 0) + 1);
+    }
+
+    const bloques = Array.from(contadorPorBloque.entries())
+      .map(([clave, reservasCount]) => {
+        const [dia, bloqueHorario] = clave.split('|');
+        const rango = this.getBloqueRango(bloqueHorario);
+
+        return {
+          dia,
+          bloqueHorario,
+          inicio: rango.inicio,
+          fin: rango.fin,
+          reservas: reservasCount,
+        };
+      })
+      .sort((a, b) => {
+        if (b.reservas !== a.reservas) {
+          return b.reservas - a.reservas;
+        }
+
+        const diferenciaDia =
+          (this.ordenDias[a.dia] ?? 99) - (this.ordenDias[b.dia] ?? 99);
+        if (diferenciaDia !== 0) {
+          return diferenciaDia;
+        }
+
+        return a.bloqueHorario.localeCompare(b.bloqueHorario);
+      });
+
+    const topBloques: CafeteriaDemandWindow[] = bloques
+      .slice(0, limit)
+      .map((bloque, index) => ({
+        ...bloque,
+        ranking: index + 1,
+      }));
+
+    return {
+      periodo: `ultimos_${daysBack}_dias`,
+      totalReservasConsideradas: reservas.length,
+      topBloques,
+    };
+  }
 
   // crear reserva
   async create(
