@@ -317,6 +317,7 @@ export class ReserveRoomService {
     return {
       idReserva: reservaGuardada.idReserva,
       idSala: dto.idSala,
+      nombreSala: sala.nombreSala,
       fechaReserva: dto.fechaReserva,
       bloqueHorario: reservaGuardada.bloqueHorario,
       estado: reservaGuardada.estado,
@@ -341,6 +342,7 @@ export class ReserveRoomService {
     return reservas.map((reserva) => ({
       idReserva: reserva.idReserva,
       idSala: reserva.idSala.idSala,
+      nombreSala: reserva.idSala.nombreSala,
       fechaReserva: reserva.fechaReserva as unknown as string,
       bloqueHorario: reserva.bloqueHorario,
       estado: reserva.estado,
@@ -364,6 +366,7 @@ export class ReserveRoomService {
     return {
       idReserva: reserva.idReserva,
       idSala: reserva.idSala.idSala,
+      nombreSala: reserva.idSala.nombreSala,
       fechaReserva: reserva.fechaReserva as unknown as string,
       bloqueHorario: reserva.bloqueHorario,
       estado: reserva.estado,

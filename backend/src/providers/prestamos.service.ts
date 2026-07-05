@@ -90,7 +90,7 @@ export class PrestamosService {
       libro.estado =
         libro.stockDisponible > 0
           ? EstadoLibro.DISPONIBLE
-          : EstadoLibro.PRESTADO;
+          : EstadoLibro.SIN_STOCK;
       libro.disponible = libro.estado === EstadoLibro.DISPONIBLE;
 
       await libroRepository.save(libro);
@@ -142,7 +142,7 @@ export class PrestamosService {
       libro.estado =
         libro.stockDisponible > 0
           ? EstadoLibro.DISPONIBLE
-          : EstadoLibro.PRESTADO;
+          : EstadoLibro.SIN_STOCK;
       libro.disponible = libro.estado === EstadoLibro.DISPONIBLE;
 
       await libroRepository.save(libro);
