@@ -1,13 +1,18 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, LessThan, Repository } from 'typeorm';
+import { In, IsNull, LessThan, Repository } from 'typeorm';
 
-import { PrestamoEntity } from '../database/entities/prestamo.entity';
-import { LibroEntity } from '../database/entities/libro.entity';
+import {
+  PrestamoEntity,
+  EstadoPrestamo,
+} from '../database/entities/prestamo.entity';
+import { EstadoLibro, LibroEntity } from '../database/entities/libro.entity';
+import { LibraryAccessService } from './library-access.service';
 
 const ESTADO_PRESTAMO = {
   ENTREGADO: 1,
@@ -23,7 +28,128 @@ export class PrestamosService {
 
     @InjectRepository(LibroEntity)
     private readonly libroRepository: Repository<LibroEntity>,
+    private readonly libraryAccessService: LibraryAccessService,
   ) {}
+
+  async solicitarPrestamo(
+    userId: number,
+    idLibro: number,
+  ): Promise<PrestamoEntity> {
+    const usuario =
+      await this.libraryAccessService.validateNoPendingFines(userId);
+
+    return this.prestamoRepository.manager.transaction(async (manager) => {
+      const libroRepository = manager.getRepository(LibroEntity);
+      const prestamoRepository = manager.getRepository(PrestamoEntity);
+
+      const libro = await libroRepository.findOne({
+        where: { idLibro },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!libro) {
+        throw new NotFoundException('Libro no encontrado');
+      }
+
+      const libroDisponible =
+        libro.estado === EstadoLibro.DISPONIBLE && libro.stockDisponible > 0;
+
+      if (!libroDisponible) {
+        throw new ForbiddenException(
+          'El libro no está disponible para préstamo',
+        );
+      }
+
+      const prestamoPendiente = await prestamoRepository.findOne({
+        where: {
+          usuario: { idUsuario: userId },
+          libro: { idLibro },
+          estado: In([EstadoPrestamo.ACTIVO, EstadoPrestamo.VENCIDO]),
+        },
+      });
+
+      if (prestamoPendiente) {
+        throw new ForbiddenException(
+          'Ya tienes un préstamo pendiente de este libro',
+        );
+      }
+
+      const fechaPrestamo = new Date();
+      const fechaDevolucionEsperada = new Date();
+      fechaDevolucionEsperada.setDate(fechaPrestamo.getDate() + 14);
+
+      const prestamo = prestamoRepository.create({
+        usuario,
+        libro,
+        fechaPrestamo,
+        fechaDevolucionEsperada,
+        estado: EstadoPrestamo.ACTIVO,
+      });
+
+      libro.stockDisponible -= 1;
+      libro.estado =
+        libro.stockDisponible > 0
+          ? EstadoLibro.DISPONIBLE
+          : EstadoLibro.SIN_STOCK;
+      libro.disponible = libro.estado === EstadoLibro.DISPONIBLE;
+
+      await libroRepository.save(libro);
+
+      return prestamoRepository.save(prestamo);
+    });
+  }
+
+  async devolverPrestamo(
+    userId: number,
+    idPrestamo: number,
+  ): Promise<PrestamoEntity> {
+    return this.prestamoRepository.manager.transaction(async (manager) => {
+      const libroRepository = manager.getRepository(LibroEntity);
+      const prestamoRepository = manager.getRepository(PrestamoEntity);
+
+      const prestamo = await prestamoRepository.findOne({
+        where: {
+          idPrestamo,
+          usuario: { idUsuario: userId },
+          estado: In([EstadoPrestamo.ACTIVO, EstadoPrestamo.VENCIDO]),
+        },
+        relations: {
+          libro: true,
+        },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!prestamo) {
+        throw new NotFoundException('Prestamo activo no encontrado');
+      }
+
+      const libro = await libroRepository.findOne({
+        where: { idLibro: prestamo.libro.idLibro },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!libro) {
+        throw new NotFoundException('Libro no encontrado');
+      }
+
+      prestamo.estado = EstadoPrestamo.DEVUELTO;
+      prestamo.fechaDevolucionReal = new Date();
+
+      libro.stockDisponible = Math.min(
+        libro.stockDisponible + 1,
+        libro.stockTotal,
+      );
+      libro.estado =
+        libro.stockDisponible > 0
+          ? EstadoLibro.DISPONIBLE
+          : EstadoLibro.SIN_STOCK;
+      libro.disponible = libro.estado === EstadoLibro.DISPONIBLE;
+
+      await libroRepository.save(libro);
+
+      return prestamoRepository.save(prestamo);
+    });
+  }
 
   async findAll() {
     return this.prestamoRepository.find({

@@ -1,8 +1,8 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 
-import { HistorialService } from '../providers/historial.service';
-import { JwtAuthGuard } from '../security/guards/jwt-auth.guard';
+import { HistorialService } from '../../providers/historial.service';
+import { JwtAuthGuard } from '../../security/guards/jwt-auth.guard';
 
 interface RequestConUsuario extends Request {
   user: {

@@ -11,6 +11,7 @@ import { LibroEntity } from '../database/entities/libro.entity';
 
 // controladores
 import { ReservationsController } from '../controllers/reserve/reserve.controller';
+import { SistemaCafeteriaController } from '../controllers/reserve/high-demand.controller';
 
 // servicios
 import { ReserveRoomService } from '../providers/reserve-room.service';
@@ -32,7 +33,7 @@ import { LibraryAccessService } from '../providers/library-access.service';
 
     ScheduleModule.forRoot(),
   ],
-  controllers: [ReservationsController],
+  controllers: [ReservationsController, SistemaCafeteriaController],
   providers: [ReserveRoomService, LibraryAccessService],
   exports: [ReserveRoomService],
 })

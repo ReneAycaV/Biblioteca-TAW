@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { LibroEntity } from '../database/entities/libro.entity';
-import { LibrosController } from '../controllers/libros.controller';
+import { LibrosController } from '../controllers/libros/libros.controller';
 import { LibrosService } from '../providers/libros.service';
 
 @Module({
