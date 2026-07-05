@@ -1,7 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReservaService } from '../../services/reservas.service';
+import { ISala } from '../../../../shared/interfaces/isala';
 import Swal from 'sweetalert2';
+
+interface SalaDetalle extends Omit<ISala, 'idSala'> {
+  idSala: number | null;
+  tipo: string;
+  equipamiento: string;
+}
 
 @Component({
   selector: 'app-detalles-sala',
@@ -9,59 +16,15 @@ import Swal from 'sweetalert2';
   styleUrls: ['./detalle-sala.component.css'],
 })
 export class DetalleSalaComponent implements OnInit {
-  // 1. Objeto alineado con el Backend
-  sala: any = {
+  sala: SalaDetalle = {
     idSala: null,
     nombreSala: 'Cargando...',
     ubicacion: '',
     tipo: '',
     capacidad: 0,
+    estado: '' as any,
     equipamiento: '',
   };
-
-  // 2. Mock data
-  private salasFalsas = [
-    {
-      idSala: 1,
-      nombreSala: 'Sala de Estudio A',
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-      capacidad: 6,
-      equipamiento: 'Pizarra acrílica, 4 Sillas, Climatizador',
-    },
-    {
-      idSala: 2,
-      nombreSala: 'Sala de Estudio B',
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-      capacidad: 4,
-      equipamiento: 'Pizarra acrílica, Monitor HDMI',
-    },
-    {
-      idSala: 3,
-      nombreSala: 'Sala de Estudio C',
-      ubicacion: 'Aulario C',
-      tipo: 'Estudio',
-      capacidad: 8,
-      equipamiento: 'Proyector, Pizarra acrílica grande',
-    },
-    {
-      idSala: 4,
-      nombreSala: 'Auditorio Principal',
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-      capacidad: 50,
-      equipamiento: 'Sistema de audio, Proyector Pro, 50 Butacas',
-    },
-    {
-      idSala: 5,
-      nombreSala: 'Auditorio Tecnológico',
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-      capacidad: 30,
-      equipamiento: 'Telón motorizado, Micrófono inalámbrico',
-    },
-  ];
 
   horarioReserva: any = null;
 
@@ -83,21 +46,25 @@ export class DetalleSalaComponent implements OnInit {
     this.horarioReserva = this.reservaService.obtenerHorario();
     console.log('Horario recuperado en detalles:', this.horarioReserva);
 
-    // Intentar cargar sala desde backend; si falla, usar mock local
     this.reservaService.getSalaById(idBuscado).subscribe({
       next: (sala) => {
-        if (sala) this.sala = sala;
+        this.sala = {
+          ...sala,
+          tipo: this.getTipoSala(sala.ubicacion),
+          equipamiento: 'Equipamiento no especificado',
+        };
       },
       error: (err) => {
-        console.warn('Error cargando sala desde backend, usando mock:', err);
-        const salaEncontrada = this.salasFalsas.find(
-          (s) => s.idSala === idBuscado,
-        );
-        if (salaEncontrada) this.sala = salaEncontrada;
-        else this.router.navigate(['/nueva-reserva']);
+        console.warn('Error cargando sala desde backend:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Sala no encontrada',
+          text: 'La sala seleccionada no existe en la base de datos.',
+        }).then(() => this.router.navigate(['/nueva-reserva']));
       },
     });
   }
+
   getColorFondo(tipo: string): string {
     if (tipo === 'Sala de Estudio') {
       return 'linear-gradient(145deg, #57068C, #8E2DE2)';
@@ -125,6 +92,7 @@ export class DetalleSalaComponent implements OnInit {
         popup: 'mi-alerta',
       },
     });
+
     if (!this.horarioReserva || !this.sala?.idSala) {
       Swal.fire({
         icon: 'error',
@@ -142,11 +110,11 @@ export class DetalleSalaComponent implements OnInit {
     };
 
     this.reservaService.crearReserva(payload).subscribe({
-      next: (resp) => {
+      next: () => {
         Toast.fire({
           icon: 'success',
-          title: '¡Reserva Exitosa!',
-          text: `Reserva creada.`,
+          title: 'Reserva exitosa',
+          text: 'Reserva creada.',
         }).then(() => this.router.navigate(['/nueva-reserva']));
       },
       error: (err) => {
@@ -158,15 +126,8 @@ export class DetalleSalaComponent implements OnInit {
   }
 
   private getNextDateForWeekday(dia: string): string {
-    const map: Record<string, number> = {
-      Lunes: 1,
-      Martes: 2,
-      Miércoles: 3,
-      Miercoles: 3,
-      Jueves: 4,
-      Viernes: 5,
-    };
-    const target = map[dia];
+    const diaNormalizado = dia.toLowerCase();
+    const target = this.getWeekdayNumber(diaNormalizado);
     if (target === undefined) return new Date().toISOString().slice(0, 10);
     const hoy = new Date();
     const hoyNum = hoy.getDay();
@@ -175,5 +136,20 @@ export class DetalleSalaComponent implements OnInit {
     const fecha = new Date(hoy);
     fecha.setDate(hoy.getDate() + offset);
     return fecha.toISOString().split('T')[0];
+  }
+
+  private getTipoSala(ubicacion: string): string {
+    return ubicacion.toLowerCase().includes('auditorio')
+      ? 'Auditorio'
+      : 'Sala de Estudio';
+  }
+
+  private getWeekdayNumber(dia: string): number | undefined {
+    if (dia.startsWith('lun')) return 1;
+    if (dia.startsWith('mar')) return 2;
+    if (dia.startsWith('mi')) return 3;
+    if (dia.startsWith('jue')) return 4;
+    if (dia.startsWith('vie')) return 5;
+    return undefined;
   }
 }

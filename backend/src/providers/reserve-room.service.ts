@@ -344,6 +344,7 @@ export class ReserveRoomService {
       fechaReserva: dto.fechaReserva,
       bloqueHorario: dto.bloqueHorario as BloqueHorario,
       estado: EstadoReserva.ACTIVA,
+      nombreSala: sala.nombreSala,
     });
 
     const reservaGuardada = await this.reservaRepository.save(nuevaReserva);

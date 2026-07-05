@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReservaService } from '../../services/reservas.service';
+import { ISala } from '../../../../shared/interfaces/isala';
 
 const BLOQUES_CONFIG = [
   { id: 1, rango: '08:00 - 09:00' },
@@ -15,6 +16,10 @@ const BLOQUES_CONFIG = [
   { id: 10, rango: '17:00 - 18:00' },
   { id: 11, rango: '18:00 - 19:00' },
 ];
+
+interface SalaReserva extends ISala {
+  tipo: 'Estudio' | 'Auditorio';
+}
 
 @Component({
   selector: 'app-horario',
@@ -66,59 +71,17 @@ export class HorarioComponent implements OnInit {
   filtros = ['Todos', 'Estudio', 'Auditorio', 'Computación'];
   filtroActivo = 'Todos';
 
-  allSalas = [
-    {
-      idSala: 1,
-      nombreSala: 'Sala 1-A',
-      capacidad: 6,
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 2,
-      nombreSala: 'Sala 3-A',
-      capacidad: 4,
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 3,
-      nombreSala: 'Sala 1-C',
-      capacidad: 8,
-      ubicacion: 'Aulario C',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 4,
-      nombreSala: 'Auditorio Principal',
-      capacidad: 50,
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-    },
-    {
-      idSala: 5,
-      nombreSala: 'Auditorio Secundario',
-      capacidad: 30,
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-    },
-  ];
+  allSalas: SalaReserva[] = [];
 
   cargarSalas() {
     this.reservaService.getSalas().subscribe({
       next: (salas) => {
-        if (Array.isArray(salas) && salas.length) {
-          this.allSalas = salas.map((s: any) => ({
-            idSala: s.idSala ?? s.id,
-            nombreSala: s.nombreSala ?? s.nombre ?? `Sala ${s.idSala ?? s.id}`,
-            ubicacion: s.ubicacion ?? s.ubicacion_sala ?? '',
-            tipo:
-              s.ubicacion && s.ubicacion.toLowerCase().includes('auditorio')
-                ? 'Auditorio'
-                : (s.tipo ?? 'Estudio'),
-            capacidad: s.capacidad ?? s.capacidad_sala ?? 0,
-          }));
-        }
+        this.allSalas = Array.isArray(salas)
+          ? salas.map((sala) => ({
+              ...sala,
+              tipo: this.getTipoSala(sala.ubicacion),
+            }))
+          : [];
       },
       error: (err) => {
         console.warn('No se pudieron cargar salas desde el backend:', err);
@@ -146,5 +109,11 @@ export class HorarioComponent implements OnInit {
   }
   contarSalas(tipo: string): number {
     return this.allSalas.filter((sala) => sala.tipo === tipo).length;
+  }
+
+  private getTipoSala(ubicacion: string): 'Estudio' | 'Auditorio' {
+    return ubicacion.toLowerCase().includes('auditorio')
+      ? 'Auditorio'
+      : 'Estudio';
   }
 }
