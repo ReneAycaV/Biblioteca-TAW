@@ -1,18 +1,18 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum EstadoSala {
-  DISPONIBLE = 'Disponible',
-  MANTENIMIENTO = 'Mantenimiento',
-  BLOQUEADA = 'Bloqueada',
+  DISPONIBLE = 1,
+  MANTENIMIENTO = 2,
+  BLOQUEADA = 3,
 }
 
 export enum UbicacionSala {
-  BIBLIOTECA = 'Biblioteca',
-  AULARIO_A = 'Aulario A',
-  AULARIO_C = 'Aulario C',
-  CAFETERIA_A = 'Cafeteria A',
-  CAFETERIA_B = 'Cafeteria B',
-  AUDITORIO_INF = 'Auditorio',
+  BIBLIOTECA = 1,
+  AULARIO_A = 2,
+  AULARIO_C = 3,
+  CAFETERIA_A = 4,
+  CAFETERIA_B = 5,
+  AUDITORIO_INF = 6,
 }
 
 @Entity('salas')
@@ -27,17 +27,15 @@ export class SalaEntity {
   capacidad!: number;
 
   @Column({
-    type: 'enum',
-    enum: UbicacionSala,
+    type: 'smallint',
     name: 'ubicacion_sala',
   })
   ubicacion!: UbicacionSala;
 
   @Column({
-    type: 'enum',
-    enum: EstadoSala,
-    default: EstadoSala.DISPONIBLE,
+    type: 'smallint',
     name: 'estado_sala',
+    default: EstadoSala.DISPONIBLE,
   })
   estado!: EstadoSala;
 }

@@ -24,11 +24,11 @@ export class ReserveResponseDto {
   fechaReserva!: string;
 
   @ApiProperty({
-    example: '10:00-11:00',
-    description: 'Bloque horario reservado',
+    example: '1',
+    description: 'Bloque horario (1=A, 2=B, 3=C, ... 11=K)',
   })
-  @IsString()
-  bloqueHorario!: string;
+  @IsNumber()
+  bloqueHorario!: number;
 
   @ApiProperty({
     example: 'Activa',
