@@ -12,7 +12,11 @@ import {
   ReservaEntity,
   EstadoReserva,
 } from '../database/entities/reserva.entity';
-import { SalaEntity, EstadoSala } from '../database/entities/sala.entity';
+import {
+  SalaEntity,
+  EstadoSala,
+  UbicacionSala,
+} from '../database/entities/sala.entity';
 import { UsuarioEntity } from '../database/entities/usuario.entity';
 import { ReserveCreateDto } from '../dto/reserve-create.dto';
 import { ReserveResponseDto } from '../dto/reserve-response.dto';
@@ -268,8 +272,8 @@ export class ReserveRoomService {
     }
 
     // validar que la fecha de reserva sea hoy
-    const hoy = new Date();
-    const hoyStr = hoy.toLocaleDateString('sv-SE', {
+    const fechaActual = new Date();
+    const hoyStr = fechaActual.toLocaleDateString('sv-SE', {
       timeZone: 'America/Santiago',
     }); // "2026-07-04"
 
