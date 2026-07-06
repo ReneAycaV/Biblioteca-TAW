@@ -214,9 +214,8 @@ export class ReserveRoomService {
       throw new NotFoundException(`La sala con ID ${dto.idSala} no existe`);
     }
 
-    // validar estado de la sala = EstadoSala.DISPONIBLE (2=1?)
+    // validar estado de la sala = EstadoSala.DISPONIBLE
     if (sala.estado !== EstadoSala.DISPONIBLE) {
-      // mensaje si no esta disponible HTTP 403 (Forbidden)
       throw new ForbiddenException(
         `La sala no está disponible actualmente. Estado: ${sala.estado}`,
       );
@@ -227,22 +226,13 @@ export class ReserveRoomService {
       where: { idUsuario: usuarioId },
     });
 
-    // mensaje si no hay usuario HTTP 404 (Not Found)
     if (!usuario) {
       throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
 
-    const hoyStr = new Date().toLocaleDateString('sv-SE', {
-      timeZone: 'America/Santiago',
-    });
-    const fechaReservaStr = dto.fechaReserva.slice(0, 10);
-
-    // si fecha reserva < hoy lanza error HTTP 400 (Bad Request) problemas lado cliente
-    if (fechaReservaStr < hoyStr) {
-      throw new BadRequestException(
-        `No se puede reservar en fechas pasadas. Fecha solicitada: ${dto.fechaReserva}`,
-      );
-    }
+    const ahora = new Date();
+    const horaActual = ahora.toTimeString().slice(0, 8);
+    console.log('horaActual:', horaActual);
 
     // validar no choque de horario
     // diccionario bloques de horarios
@@ -269,29 +259,48 @@ export class ReserveRoomService {
       );
     }
 
-    // busca si el usuario ya tiene una reserva activa para la misma fecha
+    // validar que la fecha de reserva sea hoy
+    const fechaActual = new Date();
+    const hoyStr = fechaActual.toLocaleDateString('sv-SE', {
+      timeZone: 'America/Santiago',
+    }); // "2026-07-04"
+
+    const fechaReservaStr = dto.fechaReserva; // "2026-07-04"
+
+    // mensaje si no es la fecha de hoy
+    if (fechaReservaStr !== hoyStr) {
+      throw new BadRequestException(
+        `Solo se pueden reservar salas para el día de hoy (${hoyStr})`,
+      );
+    }
+
+    // busca si el usuario tiene alguna reserva que aun no haya terminado
     const reservaActivaUsuario = await this.reservaRepository
       .createQueryBuilder('reserva')
-      .where('reserva.id_usuario = :usuarioId', { usuarioId })
+      .where('reserva.idUsuario = :usuarioId', { usuarioId })
       .andWhere('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
-      .andWhere('DATE(reserva.fecha_reserva) = :fecha', {
-        fecha: fechaReservaStr,
-      })
+      .andWhere('DATE(reserva.fecha_reserva) = :fecha', { fecha: hoyStr })
       .getOne();
 
     if (reservaActivaUsuario) {
       const rangoActivo = bloqueHorarios[reservaActivaUsuario.bloqueHorario];
-      throw new ForbiddenException(
-        `Ya tienes una reserva activa en el bloque ${reservaActivaUsuario.bloqueHorario} (${rangoActivo.inicio} - ${rangoActivo.fin}) para esta fecha.`,
-      );
+      const ahora = new Date();
+      const horaActual = ahora.toTimeString().slice(0, 8);
+      // const horaActual = '13:00:00'; para probar
+
+      if (horaActual <= rangoActivo.fin) {
+        throw new ForbiddenException(
+          `Ya tienes una reserva activa en el bloque ${reservaActivaUsuario.bloqueHorario} (${rangoActivo.inicio} - ${rangoActivo.fin}). No puedes reservar otra sala hasta que termine tu reserva actual.`,
+        );
+      }
     }
 
     // buscar reservas existentes en la misma sala, fecha y activas
     const reservasExistentes = await this.reservaRepository
       .createQueryBuilder('reserva')
       .leftJoinAndSelect('reserva.idSala', 'sala')
-      .where('reserva.id_sala = :salaId', { salaId: dto.idSala })
-      .andWhere('reserva.fecha_reserva = :fecha', { fecha: fechaReservaStr })
+      .where('reserva.idSala = :salaId', { salaId: dto.idSala })
+      .andWhere('reserva.fechaReserva = :fecha', { fecha: dto.fechaReserva })
       .andWhere('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
       .getMany();
 
@@ -320,10 +329,9 @@ export class ReserveRoomService {
     const nuevaReserva = this.reservaRepository.create({
       idSala: { idSala: dto.idSala },
       idUsuario: { idUsuario: usuarioId },
-      fechaReserva: fechaReservaStr,
+      fechaReserva: dto.fechaReserva,
       bloqueHorario: dto.bloqueHorario as BloqueHorario,
       estado: EstadoReserva.ACTIVA,
-      nombreSala: sala.nombreSala,
     });
 
     const reservaGuardada = await this.reservaRepository.save(nuevaReserva);
@@ -339,7 +347,7 @@ export class ReserveRoomService {
       idReserva: reservaGuardada.idReserva,
       idSala: dto.idSala,
       nombreSala: sala.nombreSala,
-      fechaReserva: fechaReservaStr,
+      fechaReserva: dto.fechaReserva,
       bloqueHorario: reservaGuardada.bloqueHorario,
       estado: estadoMap[reservaGuardada.estado],
       motivoCancelacion: reservaGuardada.motivoCancelacion,

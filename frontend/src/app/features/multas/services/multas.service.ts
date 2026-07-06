@@ -6,14 +6,13 @@ import {
   IMultaHistorial,
   IResumenMultas,
   IPagarMultaRequest,
-  IPagarMultaResponse
+  IPagarMultaResponse,
 } from '../../../shared/interfaces/imulta-historial';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MultasService {
-
   private apiUrl = `${environment.apiUrl}/multas`;
 
   constructor(private http: HttpClient) {}
@@ -36,6 +35,6 @@ export class MultasService {
   // POST /multas/pagar — registra el pago de una multa
   pagarMulta(idMulta: number): Observable<IPagarMultaResponse> {
     const body: IPagarMultaRequest = { idMulta };
-    return this.http.post<IPagarMultaResponse>(`${this.apiUrl}/pagar`, body);
+    return this.http.post<IPagarMultaResponse>(`${this.apiUrl}/pago`, body);
   }
 }

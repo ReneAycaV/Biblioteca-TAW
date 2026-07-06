@@ -42,13 +42,11 @@ export class HistorialService {
   }
 
   async obtenerMisReservas(idUsuario: number) {
-    return this.reservaRepository.find({
-      where: {
-        idUsuario: idUsuario as any,
-      },
-      order: {
-        fechaReserva: 'DESC',
-      },
-    });
+    return this.reservaRepository
+      .createQueryBuilder('reserva')
+      .leftJoinAndSelect('reserva.idSala', 'sala')
+      .where('reserva.id_usuario = :idUsuario', { idUsuario })
+      .orderBy('reserva.fecha_reserva', 'DESC')
+      .getMany();
   }
 }

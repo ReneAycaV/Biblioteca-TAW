@@ -64,7 +64,7 @@ export class MultasController {
     return this.multasService.getResumenMultas(req.user.id);
   }
 
-  @Post('pagar')
+  @Post('pago')
   @ApiOperation({
     summary: 'Pagar una multa',
     description:
@@ -115,12 +115,4 @@ export class MultasController {
       body.condiciones,
     );
   }
-
-  /* Es para realizar pruebas
-  @Post('generar/:prestamoId')
-  @ApiOperation({ summary: 'Generar multa manualmente para un préstamo vencido (solo pruebas)' })
-  async generarMultaManual(@Param('prestamoId') prestamoId: string, @Req() req: any) {
-      // Solo admin puede hacer esto en producción
-      return this.multasService.generarMultaPorVencimientoManual(+prestamoId);
-  } */
 }
