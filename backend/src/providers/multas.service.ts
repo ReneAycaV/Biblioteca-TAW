@@ -260,8 +260,8 @@ export class MultasService {
                   : !p.fechaRetiro
                     ? 'No retiraste el libro dentro del plazo. Debes pagar la multa por bloquear su disponibilidad.'
                     : p.fechaDevolucionReal
-                    ? 'Libro devuelto en buen estado. Debes pagar solo la multa por atraso.'
-                    : 'Préstamo vencido. El libro aún no ha sido devuelto.',
+                      ? 'Libro devuelto en buen estado. Debes pagar solo la multa por atraso.'
+                      : 'Préstamo vencido. El libro aún no ha sido devuelto.',
             }),
         },
       };
@@ -298,9 +298,7 @@ export class MultasService {
         monto: nuevoMonto,
         diasAtraso: diasAtraso,
         estadoPago: EstadoPagoMulta.PENDIENTE,
-        estadoLibro: noFueRetirado
-          ? EstadoLibroDevuelto.DEVUELTO_BUENO
-          : null,
+        estadoLibro: noFueRetirado ? EstadoLibroDevuelto.DEVUELTO_BUENO : null,
         fechaGeneracion: new Date(),
       });
       const multaGuardada = await this.multaRepository.save(multa);
@@ -566,65 +564,4 @@ export class MultasService {
       historialMultas: historial,
     };
   }
-
-  /* Es para realizar pruebas
-    async generarMultaPorVencimientoManual(prestamoId: number): Promise<any> {
-        const prestamo = await this.prestamosRepository.findOne({
-            where: { idPrestamo: prestamoId },
-            relations: ['usuario', 'libro', 'multa']
-        });
-
-        if (!prestamo) {
-            throw new NotFoundException('Préstamo no encontrado');
-        }
-
-        if (prestamo.multa) {
-            throw new BadRequestException('Este préstamo ya tiene una multa');
-        }
-
-        const hoy = new Date();
-        const fechaEsperada = new Date(prestamo.fechaDevolucionEsperada);
-
-        if (hoy <= fechaEsperada) {
-            throw new BadRequestException(`El préstamo no está vencido. Fecha esperada: ${fechaEsperada}`);
-        }
-
-        const diasAtraso = Math.floor((hoy.getTime() - fechaEsperada.getTime()) / (1000 * 3600 * 24));
-        const monto = diasAtraso * 500;
-
-        // Crear multa
-        const multa = this.multaRepository.create({
-            monto,
-            diasAtraso,
-            estadoPago: EstadoPagoMulta.PENDIENTE,
-            fechaGeneracion: hoy
-        });
-
-        const multaGuardada = await this.multaRepository.save(multa);
-
-        prestamo.multa = multaGuardada;
-        prestamo.estado = EstadoPrestamo.VENCIDO;
-        await this.prestamosRepository.save(prestamo);
-
-        await this.usuarioRepository.update(
-            { idUsuario: prestamo.usuario.idUsuario },
-            { tieneMultaImpaga: true }
-        );
-
-        return {
-            message: 'Multa generada exitosamente',
-            prestamo: {
-                id: prestamo.idPrestamo,
-                libro: prestamo.libro.titulo,
-                fechaEsperada: prestamo.fechaDevolucionEsperada,
-                diasAtraso,
-            },
-            multa: {
-                id: multaGuardada.idMulta,
-                monto: multaGuardada.monto,
-                diasAtraso: multaGuardada.diasAtraso,
-                estado: multaGuardada.estadoPago
-            }
-        };
-    } */
 }

@@ -17,6 +17,17 @@ export interface IHistorialItem {
 
 // Mapa de bloque letra a rango horario (A-K del backend)
 const BLOQUES_HORARIO: Record<string, string> = {
+  '1': '08:00 - 09:00',
+  '2': '09:00 - 10:00',
+  '3': '10:00 - 11:00',
+  '4': '11:00 - 12:00',
+  '5': '12:00 - 13:00',
+  '6': '13:00 - 14:00',
+  '7': '14:00 - 15:00',
+  '8': '15:00 - 16:00',
+  '9': '16:00 - 17:00',
+  '10': '17:00 - 18:00',
+  '11': '18:00 - 19:00',
   A: '08:00 - 09:00',
   B: '09:00 - 10:00',
   C: '10:00 - 11:00',
@@ -122,11 +133,11 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
     return {
       id: r.idReserva,
       tipo: 'reserva',
-      titulo: 'Sala de estudio',
+      titulo: r.nombreSala ?? r.idSala?.nombreSala ?? 'Sala sin nombre',
       fechaRetiro: crearFechaLocal(r.fechaReserva),
       fechaDevolucion: crearFechaLocal(r.fechaReserva),
       estado: this.mapearEstadoReserva(r.estado),
-      bloqueHorario: r.bloqueHorario,
+      bloqueHorario: String(r.bloqueHorario),
     };
   }
 

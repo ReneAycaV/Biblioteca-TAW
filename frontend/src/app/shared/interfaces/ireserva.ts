@@ -1,8 +1,13 @@
 // Interfaz que refleja la ReservaEntity del backend
 export interface IReserva {
   idReserva: number;
+  idSala?: {
+    idSala: number;
+    nombreSala: string;
+  };
+  nombreSala?: string;
   fechaReserva: string;
-  bloqueHorario: string; // A-K según BloqueHorario enum del backend
-  estado: string; // EstadoReserva: 'Activa', 'Cancelada', 'Finalizada'
+  bloqueHorario: string | number;
+  estado: string;
   motivoCancelacion?: string;
 }
