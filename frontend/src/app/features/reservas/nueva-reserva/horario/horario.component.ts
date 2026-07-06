@@ -117,12 +117,20 @@ export class HorarioComponent implements OnInit {
   }
 
   irADetalles(sala: SalaReservaView) {
-    this.reservaService.guardarSala(sala);
-    if (this.seleccionActual) {
-      this.reservaService.guardarHorario(this.seleccionActual);
+    if (!this.seleccionActual) {
+      return;
     }
 
-    this.router.navigate(['/detalle-sala', sala.idSala]);
+    this.reservaService.guardarSala(sala);
+    this.reservaService.guardarHorario(this.seleccionActual);
+
+    this.router.navigate(['/detalle-sala', sala.idSala], {
+      queryParams: {
+        dia: this.seleccionActual.dia,
+        idBloque: this.seleccionActual.idBloque,
+        rango: this.seleccionActual.rango,
+      },
+    });
   }
 
   contarSalas(tipo: string): number {

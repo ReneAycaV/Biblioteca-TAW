@@ -10,6 +10,7 @@ import { ICreateReservaDTO } from '../../../shared/dtos/reserva/create-reserva.d
 })
 export class ReservaService {
   private apiUrl = `${environment.apiUrl}/reserve`;
+  private readonly horarioStorageKey = 'reserva.horarioSeleccionado';
 
   // guardado temporal en el flujo de reserva (UI)
   datosTemporales = {
@@ -34,11 +35,24 @@ export class ReservaService {
 
   guardarHorario(horario: any) {
     this.horarioSeleccionado = horario;
+    sessionStorage.setItem(this.horarioStorageKey, JSON.stringify(horario));
     console.log('Horario guardado en el Servicio:', this.horarioSeleccionado);
   }
 
   obtenerHorario() {
+    if (!this.horarioSeleccionado) {
+      const horarioGuardado = sessionStorage.getItem(this.horarioStorageKey);
+      this.horarioSeleccionado = horarioGuardado
+        ? JSON.parse(horarioGuardado)
+        : null;
+    }
+
     return this.horarioSeleccionado;
+  }
+
+  limpiarHorario() {
+    this.horarioSeleccionado = null;
+    sessionStorage.removeItem(this.horarioStorageKey);
   }
 
   crearReserva(reserva: ICreateReservaDTO): Observable<any> {

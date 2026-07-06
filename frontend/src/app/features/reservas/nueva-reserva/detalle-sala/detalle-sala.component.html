@@ -50,8 +50,11 @@
             </p>
 
             <div class="detalle-acciones__botones">
-              <button class="btn-solicitar" (click)="confirmarReservaFinal()">
-                Confirmar Reserva
+              <button
+                class="btn-solicitar"
+                (click)="confirmarReservaFinal()"
+                [disabled]="!sala.idSala || !horarioReserva">
+                {{ sala.idSala && horarioReserva ? 'Confirmar Reserva' : 'Cargando...' }}
               </button>
             </div>
           </div>

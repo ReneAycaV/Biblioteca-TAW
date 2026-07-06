@@ -31,7 +31,11 @@ export class GestionSalasComponent implements OnInit {
   cargarSalas() {
     this.adminService.getSalas().subscribe({
       next: (data: ISalaAdmin[]) => {
-        this.listaSalas = data;
+        this.listaSalas = data.map((sala: any) => ({
+          ...sala,
+          ubicacion: this.formatearUbicacion(sala.ubicacion ?? sala.ubicacion_sala),
+          estado: this.formatearEstado(sala.estado ?? sala.estado_sala),
+        }));
       },
       error: (err) => console.error("Error al cargar salas", err)
     });
@@ -68,5 +72,36 @@ export class GestionSalasComponent implements OnInit {
       ubicacion: 'Biblioteca',
       estado: 'Disponible'
     };
+  }
+
+  private formatearUbicacion(ubicacion: string | number): string {
+    if (typeof ubicacion === 'string' && Number.isNaN(Number(ubicacion))) {
+      return ubicacion;
+    }
+
+    const ubicaciones: Record<number, string> = {
+      1: 'Biblioteca',
+      2: 'Aulario A',
+      3: 'Aulario C',
+      4: 'Cafeteria A',
+      5: 'Cafeteria B',
+      6: 'Auditorio',
+    };
+
+    return ubicaciones[Number(ubicacion)] ?? 'Sin ubicacion';
+  }
+
+  private formatearEstado(estado: string | number): string {
+    if (typeof estado === 'string' && Number.isNaN(Number(estado))) {
+      return estado;
+    }
+
+    const estados: Record<number, string> = {
+      1: 'Disponible',
+      2: 'Mantenimiento',
+      3: 'Bloqueada',
+    };
+
+    return estados[Number(estado)] ?? 'Disponible';
   }
 }
