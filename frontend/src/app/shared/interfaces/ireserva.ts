@@ -7,7 +7,7 @@ export interface IReserva {
   };
   nombreSala?: string;
   fechaReserva: string;
-  bloqueHorario: string | number;
-  estado: string;
+  bloqueHorario: number;
+  estado: number; // 1=ACTIVA, 2=CANCELADA, 3=FINALIZADA
   motivoCancelacion?: string;
 }

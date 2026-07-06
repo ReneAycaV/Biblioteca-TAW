@@ -17,17 +17,6 @@ export interface IHistorialItem {
 
 // Mapa de bloque letra a rango horario (A-K del backend)
 const BLOQUES_HORARIO: Record<string, string> = {
-  '1': '08:00 - 09:00',
-  '2': '09:00 - 10:00',
-  '3': '10:00 - 11:00',
-  '4': '11:00 - 12:00',
-  '5': '12:00 - 13:00',
-  '6': '13:00 - 14:00',
-  '7': '14:00 - 15:00',
-  '8': '15:00 - 16:00',
-  '9': '16:00 - 17:00',
-  '10': '17:00 - 18:00',
-  '11': '18:00 - 19:00',
   A: '08:00 - 09:00',
   B: '09:00 - 10:00',
   C: '10:00 - 11:00',
@@ -39,6 +28,20 @@ const BLOQUES_HORARIO: Record<string, string> = {
   I: '16:00 - 17:00',
   J: '17:00 - 18:00',
   K: '18:00 - 19:00',
+};
+
+const BLOQUE_NUMERO_A_LETRA: Record<number, string> = {
+  1: 'A',
+  2: 'B',
+  3: 'C',
+  4: 'D',
+  5: 'E',
+  6: 'F',
+  7: 'G',
+  8: 'H',
+  9: 'I',
+  10: 'J',
+  11: 'K',
 };
 
 function crearFechaLocal(fecha: string | Date): Date {
@@ -133,11 +136,12 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
     return {
       id: r.idReserva,
       tipo: 'reserva',
-      titulo: r.nombreSala ?? r.idSala?.nombreSala ?? 'Sala sin nombre',
+      titulo: 'Sala de estudio',
       fechaRetiro: crearFechaLocal(r.fechaReserva),
       fechaDevolucion: crearFechaLocal(r.fechaReserva),
       estado: this.mapearEstadoReserva(r.estado),
-      bloqueHorario: String(r.bloqueHorario),
+      bloqueHorario:
+        BLOQUE_NUMERO_A_LETRA[r.bloqueHorario] ?? String(r.bloqueHorario),
     };
   }
 
@@ -151,13 +155,13 @@ export class HistorialPrestamosComponent implements OnInit, OnDestroy {
     return 'vencido';
   }
 
-  // 'Activa' / 'Cancelada' / 'Finalizada' → estado de la vista
+  // El backend envía el estado como número (EstadoReserva): 1=ACTIVA, 2=CANCELADA, 3=FINALIZADA
   private mapearEstadoReserva(
-    estado: string,
+    estado: number,
   ): 'activo' | 'finalizado' | 'cancelado' | 'vencido' {
-    if (estado === 'Activa') return 'activo';
-    if (estado === 'Cancelada') return 'cancelado';
-    if (estado === 'Finalizada') return 'finalizado';
+    if (estado === 1) return 'activo';
+    if (estado === 2) return 'cancelado';
+    if (estado === 3) return 'finalizado';
     return 'finalizado';
   }
 

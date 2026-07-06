@@ -44,8 +44,18 @@ export class DetalleSalaComponent implements OnInit {
     }
 
     const idBuscado = Number(idUrl);
-    this.horarioReserva = this.reservaService.obtenerHorario();
+    this.horarioReserva =
+      this.reservaService.obtenerHorario() ?? this.obtenerHorarioDesdeRuta();
     console.log('Horario recuperado en detalles:', this.horarioReserva);
+
+    if (!this.horarioReserva) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Selecciona un horario',
+        text: 'Debes elegir un bloque antes de confirmar la reserva.',
+      }).then(() => this.router.navigate(['/nueva-reserva']));
+      return;
+    }
 
     this.reservaService.getSalaById(idBuscado).subscribe({
       next: (sala) => {
@@ -91,13 +101,22 @@ export class DetalleSalaComponent implements OnInit {
       },
     });
 
-    if (!this.horarioReserva || !this.sala?.idSala) {
+    if (!this.horarioReserva) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Falta sala o horario.',
+        icon: 'warning',
+        title: 'Selecciona un horario',
+        text: 'Debes elegir un bloque antes de confirmar la reserva.',
       });
       this.router.navigate(['/nueva-reserva']);
+      return;
+    }
+
+    if (!this.sala?.idSala) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sala cargando',
+        text: 'Espera unos segundos e intenta confirmar nuevamente.',
+      });
       return;
     }
 
@@ -113,7 +132,10 @@ export class DetalleSalaComponent implements OnInit {
           icon: 'success',
           title: 'Reserva exitosa',
           text: 'Reserva creada.',
-        }).then(() => this.router.navigate(['/nueva-reserva']));
+        }).then(() => {
+          this.reservaService.limpiarHorario();
+          this.router.navigate(['/nueva-reserva']);
+        });
       },
       error: (err) => {
         const msg =
@@ -162,6 +184,24 @@ export class DetalleSalaComponent implements OnInit {
     const fecha = new Date(hoy);
     fecha.setDate(hoy.getDate() + offset);
     return this.formatLocalDate(fecha);
+  }
+
+  private obtenerHorarioDesdeRuta(): {
+    dia: string;
+    idBloque: number;
+    rango: string;
+  } | null {
+    const dia = this.route.snapshot.queryParamMap.get('dia');
+    const idBloque = Number(this.route.snapshot.queryParamMap.get('idBloque'));
+    const rango = this.route.snapshot.queryParamMap.get('rango') ?? 'Sin rango';
+
+    if (!dia || !Number.isInteger(idBloque) || idBloque < 1) {
+      return null;
+    }
+
+    const horario = { dia, idBloque, rango };
+    this.reservaService.guardarHorario(horario);
+    return horario;
   }
 
   private formatLocalDate(fecha: Date): string {

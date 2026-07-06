@@ -332,6 +332,7 @@ export class ReserveRoomService {
       fechaReserva: dto.fechaReserva,
       bloqueHorario: dto.bloqueHorario as BloqueHorario,
       estado: EstadoReserva.ACTIVA,
+      nombreSala: sala.nombreSala,
     });
 
     const reservaGuardada = await this.reservaRepository.save(nuevaReserva);
@@ -486,55 +487,5 @@ export class ReserveRoomService {
   // entrega una sala por su ID
   async getSalaById(idSala: number): Promise<SalaEntity | null> {
     return this.salaRepository.findOne({ where: { idSala } });
-  }
-
-  // revisa, actualiza y finaliza reservas vencidas
-  async finalizarReservasVencidas(): Promise<void> {
-    // obtiene la hora actual en formato "HH:MM:SS"
-    const ahora = new Date();
-    const horaActual = ahora.toTimeString().slice(0, 8);
-
-    // mapas de bloques a hora fin
-    const bloqueHorarios = {
-      1: '09:00:00',
-      2: '10:00:00',
-      3: '11:00:00',
-      4: '12:00:00',
-      5: '13:00:00',
-      6: '14:00:00',
-      7: '15:00:00',
-      8: '16:00:00',
-      9: '17:00:00',
-      10: '18:00:00',
-      11: '19:00:00',
-    };
-
-    // busca reservas activas que ya finalizaron
-    const reservasActivas = await this.reservaRepository
-      .createQueryBuilder('reserva')
-      .where('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
-      .getMany();
-
-    // filtra las que ya vencieron
-    const reservasAVencer = reservasActivas.filter((reserva) => {
-      const horaFin = bloqueHorarios[reserva.bloqueHorario];
-      return horaActual >= horaFin; // Si la hora actual ya pasó la hora fin
-    });
-
-    // actualizar estado a FINALIZADA
-    for (const reserva of reservasAVencer) {
-      reserva.estado = EstadoReserva.FINALIZADA;
-      await this.reservaRepository.save(reserva);
-    }
-
-    console.log(
-      `${reservasAVencer.length} reservas finalizadas automáticamente.`,
-    );
-  }
-
-  // cron job que se ejecuta cada 5 minutos
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  async handleReservasVencidas() {
-    await this.finalizarReservasVencidas();
   }
 }
