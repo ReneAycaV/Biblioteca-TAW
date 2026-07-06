@@ -232,15 +232,13 @@ export class ReserveRoomService {
       throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
 
-    // validar que no se puede reservar en fecha pasada
-    // new Date(): obtiene la fecha y hora actual
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    const fechaReservaDate = new Date(dto.fechaReserva);
+    const hoyStr = new Date().toLocaleDateString('sv-SE', {
+      timeZone: 'America/Santiago',
+    });
+    const fechaReservaStr = dto.fechaReserva.slice(0, 10);
 
     // si fecha reserva < hoy lanza error HTTP 400 (Bad Request) problemas lado cliente
-    if (fechaReservaDate < hoy) {
+    if (fechaReservaStr < hoyStr) {
       throw new BadRequestException(
         `No se puede reservar en fechas pasadas. Fecha solicitada: ${dto.fechaReserva}`,
       );
@@ -271,48 +269,29 @@ export class ReserveRoomService {
       );
     }
 
-    // validar que la fecha de reserva sea hoy
-    const fechaActual = new Date();
-    const hoyStr = fechaActual.toLocaleDateString('sv-SE', {
-      timeZone: 'America/Santiago',
-    }); // "2026-07-04"
-
-    const fechaReservaStr = dto.fechaReserva; // "2026-07-04"
-
-    // mensaje si no es la fecha de hoy
-    if (fechaReservaStr !== hoyStr) {
-      throw new BadRequestException(
-        `Solo se pueden reservar salas para el día de hoy (${hoyStr})`,
-      );
-    }
-
-    // busca si el usuario tiene alguna reserva que aun no haya terminado
+    // busca si el usuario ya tiene una reserva activa para la misma fecha
     const reservaActivaUsuario = await this.reservaRepository
       .createQueryBuilder('reserva')
-      .where('reserva.idUsuario = :usuarioId', { usuarioId })
+      .where('reserva.id_usuario = :usuarioId', { usuarioId })
       .andWhere('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
-      .andWhere('DATE(reserva.fecha_reserva) = :fecha', { fecha: hoyStr })
+      .andWhere('DATE(reserva.fecha_reserva) = :fecha', {
+        fecha: fechaReservaStr,
+      })
       .getOne();
 
     if (reservaActivaUsuario) {
       const rangoActivo = bloqueHorarios[reservaActivaUsuario.bloqueHorario];
-      const ahora = new Date();
-      const horaActual = ahora.toTimeString().slice(0, 8);
-      // const horaActual = '13:00:00'; para probar
-
-      if (horaActual <= rangoActivo.fin) {
-        throw new ForbiddenException(
-          `Ya tienes una reserva activa en el bloque ${reservaActivaUsuario.bloqueHorario} (${rangoActivo.inicio} - ${rangoActivo.fin}). No puedes reservar otra sala hasta que termine tu reserva actual.`,
-        );
-      }
+      throw new ForbiddenException(
+        `Ya tienes una reserva activa en el bloque ${reservaActivaUsuario.bloqueHorario} (${rangoActivo.inicio} - ${rangoActivo.fin}) para esta fecha.`,
+      );
     }
 
     // buscar reservas existentes en la misma sala, fecha y activas
     const reservasExistentes = await this.reservaRepository
       .createQueryBuilder('reserva')
       .leftJoinAndSelect('reserva.idSala', 'sala')
-      .where('reserva.idSala = :salaId', { salaId: dto.idSala })
-      .andWhere('reserva.fechaReserva = :fecha', { fecha: dto.fechaReserva })
+      .where('reserva.id_sala = :salaId', { salaId: dto.idSala })
+      .andWhere('reserva.fecha_reserva = :fecha', { fecha: fechaReservaStr })
       .andWhere('reserva.estado = :estado', { estado: EstadoReserva.ACTIVA })
       .getMany();
 
@@ -341,9 +320,10 @@ export class ReserveRoomService {
     const nuevaReserva = this.reservaRepository.create({
       idSala: { idSala: dto.idSala },
       idUsuario: { idUsuario: usuarioId },
-      fechaReserva: dto.fechaReserva,
+      fechaReserva: fechaReservaStr,
       bloqueHorario: dto.bloqueHorario as BloqueHorario,
       estado: EstadoReserva.ACTIVA,
+      nombreSala: sala.nombreSala,
     });
 
     const reservaGuardada = await this.reservaRepository.save(nuevaReserva);
@@ -359,7 +339,7 @@ export class ReserveRoomService {
       idReserva: reservaGuardada.idReserva,
       idSala: dto.idSala,
       nombreSala: sala.nombreSala,
-      fechaReserva: dto.fechaReserva,
+      fechaReserva: fechaReservaStr,
       bloqueHorario: reservaGuardada.bloqueHorario,
       estado: estadoMap[reservaGuardada.estado],
       motivoCancelacion: reservaGuardada.motivoCancelacion,

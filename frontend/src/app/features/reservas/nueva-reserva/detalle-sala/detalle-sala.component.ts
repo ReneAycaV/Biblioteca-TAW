@@ -1,7 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ReservaService } from '../../services/reservas.service';
 import Swal from 'sweetalert2';
+import { ReservaService } from '../../services/reservas.service';
+
+interface SalaDetalleView {
+  idSala: number | null;
+  nombreSala: string;
+  ubicacion: string;
+  tipo: 'Estudio' | 'Auditorio' | '';
+  capacidad: number;
+  equipamiento: string;
+  estado?: number;
+}
 
 @Component({
   selector: 'app-detalles-sala',
@@ -9,59 +19,14 @@ import Swal from 'sweetalert2';
   styleUrls: ['./detalle-sala.component.css'],
 })
 export class DetalleSalaComponent implements OnInit {
-  // 1. Objeto alineado con el Backend
-  sala: any = {
+  sala: SalaDetalleView = {
     idSala: null,
     nombreSala: 'Cargando...',
     ubicacion: '',
     tipo: '',
     capacidad: 0,
-    equipamiento: '',
+    equipamiento: 'No especificado',
   };
-
-  // 2. Mock data
-  private salasFalsas = [
-    {
-      idSala: 1,
-      nombreSala: 'Sala de Estudio A',
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-      capacidad: 6,
-      equipamiento: 'Pizarra acrílica, 4 Sillas, Climatizador',
-    },
-    {
-      idSala: 2,
-      nombreSala: 'Sala de Estudio B',
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-      capacidad: 4,
-      equipamiento: 'Pizarra acrílica, Monitor HDMI',
-    },
-    {
-      idSala: 3,
-      nombreSala: 'Sala de Estudio C',
-      ubicacion: 'Aulario C',
-      tipo: 'Estudio',
-      capacidad: 8,
-      equipamiento: 'Proyector, Pizarra acrílica grande',
-    },
-    {
-      idSala: 4,
-      nombreSala: 'Auditorio Principal',
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-      capacidad: 50,
-      equipamiento: 'Sistema de audio, Proyector Pro, 50 Butacas',
-    },
-    {
-      idSala: 5,
-      nombreSala: 'Auditorio Tecnológico',
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-      capacidad: 30,
-      equipamiento: 'Telón motorizado, Micrófono inalámbrico',
-    },
-  ];
 
   horarioReserva: any = null;
 
@@ -74,7 +39,6 @@ export class DetalleSalaComponent implements OnInit {
   ngOnInit(): void {
     const idUrl = this.route.snapshot.paramMap.get('id');
     if (!idUrl) {
-      console.warn('No hay id en la URL, redirigiendo a nueva-reserva');
       this.router.navigate(['/nueva-reserva']);
       return;
     }
@@ -83,23 +47,24 @@ export class DetalleSalaComponent implements OnInit {
     this.horarioReserva = this.reservaService.obtenerHorario();
     console.log('Horario recuperado en detalles:', this.horarioReserva);
 
-    // Intentar cargar sala desde backend; si falla, usar mock local
     this.reservaService.getSalaById(idBuscado).subscribe({
       next: (sala) => {
-        if (sala) this.sala = sala;
+        if (!sala) {
+          this.mostrarErrorCarga();
+          return;
+        }
+
+        this.sala = this.mapearSala(sala);
       },
       error: (err) => {
-        console.warn('Error cargando sala desde backend, usando mock:', err);
-        const salaEncontrada = this.salasFalsas.find(
-          (s) => s.idSala === idBuscado,
-        );
-        if (salaEncontrada) this.sala = salaEncontrada;
-        else this.router.navigate(['/nueva-reserva']);
+        console.warn('Error cargando sala desde backend:', err);
+        this.mostrarErrorCarga();
       },
     });
   }
+
   getColorFondo(tipo: string): string {
-    if (tipo === 'Sala de Estudio') {
+    if (tipo === 'Estudio') {
       return 'linear-gradient(145deg, #57068C, #8E2DE2)';
     } else if (tipo === 'Auditorio') {
       return 'linear-gradient(145deg, #008080, #00ced1)';
@@ -125,6 +90,7 @@ export class DetalleSalaComponent implements OnInit {
         popup: 'mi-alerta',
       },
     });
+
     if (!this.horarioReserva || !this.sala?.idSala) {
       Swal.fire({
         icon: 'error',
@@ -142,11 +108,11 @@ export class DetalleSalaComponent implements OnInit {
     };
 
     this.reservaService.crearReserva(payload).subscribe({
-      next: (resp) => {
+      next: () => {
         Toast.fire({
           icon: 'success',
-          title: '¡Reserva Exitosa!',
-          text: `Reserva creada.`,
+          title: 'Reserva exitosa',
+          text: 'Reserva creada.',
         }).then(() => this.router.navigate(['/nueva-reserva']));
       },
       error: (err) => {
@@ -157,23 +123,64 @@ export class DetalleSalaComponent implements OnInit {
     });
   }
 
+  private mapearSala(sala: any): SalaDetalleView {
+    const ubicacion = Number(sala.ubicacion ?? sala.ubicacion_sala);
+
+    return {
+      idSala: sala.idSala ?? sala.id,
+      nombreSala: sala.nombreSala ?? sala.nombre ?? 'Sala sin nombre',
+      ubicacion: this.formatearUbicacion(ubicacion),
+      tipo: ubicacion === 6 ? 'Auditorio' : 'Estudio',
+      capacidad: sala.capacidad ?? sala.capacidad_sala ?? 0,
+      equipamiento: sala.equipamiento ?? 'No especificado',
+      estado: Number(sala.estado ?? sala.estado_sala),
+    };
+  }
+
+  private mostrarErrorCarga(): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'No se pudo cargar la sala',
+      text: 'La sala no existe o no se pudo obtener desde la base de datos.',
+    }).then(() => this.router.navigate(['/nueva-reserva']));
+  }
+
   private getNextDateForWeekday(dia: string): string {
     const map: Record<string, number> = {
       Lunes: 1,
       Martes: 2,
-      Miércoles: 3,
       Miercoles: 3,
       Jueves: 4,
       Viernes: 5,
     };
     const target = map[dia];
-    if (target === undefined) return new Date().toISOString().slice(0, 10);
     const hoy = new Date();
+    if (target === undefined) return this.formatLocalDate(hoy);
     const hoyNum = hoy.getDay();
     let offset = target - hoyNum;
-    if (offset <= 0) offset += 7;
+    if (offset < 0) offset += 7;
     const fecha = new Date(hoy);
     fecha.setDate(hoy.getDate() + offset);
-    return fecha.toISOString().split('T')[0];
+    return this.formatLocalDate(fecha);
+  }
+
+  private formatLocalDate(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private formatearUbicacion(ubicacion: number): string {
+    const ubicaciones: Record<number, string> = {
+      1: 'Biblioteca',
+      2: 'Aulario A',
+      3: 'Aulario C',
+      4: 'Cafeteria A',
+      5: 'Cafeteria B',
+      6: 'Auditorio INF',
+    };
+
+    return ubicaciones[ubicacion] ?? 'Sin ubicacion';
   }
 }

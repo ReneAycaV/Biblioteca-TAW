@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { EstadoSala } from '../../../../shared/enums/estado-sala.enum';
 import { ReservaService } from '../../services/reservas.service';
 
 const BLOQUES_CONFIG = [
@@ -16,18 +17,33 @@ const BLOQUES_CONFIG = [
   { id: 11, rango: '18:00 - 19:00' },
 ];
 
+interface SalaReservaView {
+  idSala: number;
+  nombreSala: string;
+  capacidad: number;
+  ubicacion: string;
+  tipo: 'Estudio' | 'Auditorio';
+  estado: EstadoSala;
+}
+
 @Component({
   selector: 'app-horario',
   templateUrl: './horario.component.html',
   styleUrls: ['./horario.component.css'],
 })
 export class HorarioComponent implements OnInit {
-  dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+  dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
   bloques = BLOQUES_CONFIG;
-  bloquesAgotados = ['Lunes-1', 'Miércoles-3', 'Jueves-11'];
+  bloquesAgotados = ['Lunes-1', 'Miercoles-3', 'Jueves-11'];
 
   seleccionActual: { dia: string; idBloque: number; rango?: string } | null =
     null;
+
+  filtros = ['Todos', 'Estudio', 'Auditorio'];
+  filtroActivo = 'Todos';
+  allSalas: SalaReservaView[] = [];
+  cargandoSalas = false;
+  errorSalas = '';
 
   constructor(
     private reservaService: ReservaService,
@@ -41,12 +57,11 @@ export class HorarioComponent implements OnInit {
     this.cargarSalas();
   }
 
-  // Lógica de selección
   seleccionarCelda(dia: string, idBloque: number) {
     const bloqueEncontrado = this.bloques.find((b) => Number(b.id) === idBloque);
     this.seleccionActual = {
-      dia: dia,
-      idBloque: idBloque,
+      dia,
+      idBloque,
       rango: bloqueEncontrado ? bloqueEncontrado.rango : 'Sin rango',
     };
   }
@@ -62,81 +77,46 @@ export class HorarioComponent implements OnInit {
     return this.bloquesAgotados.includes(`${dia}-${idBloque}`);
   }
 
-  // 1. Filtros
-  filtros = ['Todos', 'Estudio', 'Auditorio', 'Computación'];
-  filtroActivo = 'Todos';
-
-  allSalas = [
-    {
-      idSala: 1,
-      nombreSala: 'Sala 1-A',
-      capacidad: 6,
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 2,
-      nombreSala: 'Sala 3-A',
-      capacidad: 4,
-      ubicacion: 'Aulario A',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 3,
-      nombreSala: 'Sala 1-C',
-      capacidad: 8,
-      ubicacion: 'Aulario C',
-      tipo: 'Estudio',
-    },
-    {
-      idSala: 4,
-      nombreSala: 'Auditorio Principal',
-      capacidad: 50,
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-    },
-    {
-      idSala: 5,
-      nombreSala: 'Auditorio Secundario',
-      capacidad: 30,
-      ubicacion: 'Auditorio',
-      tipo: 'Auditorio',
-    },
-  ];
-
   cargarSalas() {
+    this.cargandoSalas = true;
+    this.errorSalas = '';
+
     this.reservaService.getSalas().subscribe({
       next: (salas) => {
-        if (Array.isArray(salas) && salas.length) {
-          this.allSalas = salas.map((s: any) => ({
-            idSala: s.idSala ?? s.id,
-            nombreSala: s.nombreSala ?? s.nombre ?? `Sala ${s.idSala ?? s.id}`,
-            ubicacion: s.ubicacion ?? s.ubicacion_sala ?? '',
-            tipo:
-              s.ubicacion && s.ubicacion.toLowerCase().includes('auditorio')
-                ? 'Auditorio'
-                : (s.tipo ?? 'Estudio'),
-            capacidad: s.capacidad ?? s.capacidad_sala ?? 0,
-          }));
-        }
+        this.allSalas = Array.isArray(salas)
+          ? salas
+              .filter((s: any) => this.esSalaDisponible(s))
+              .map((s: any) => this.mapearSala(s))
+          : [];
+        this.cargandoSalas = false;
       },
       error: (err) => {
         console.warn('No se pudieron cargar salas desde el backend:', err);
+        this.allSalas = [];
+        this.errorSalas = 'No se pudieron cargar las salas desde la base de datos.';
+        this.cargandoSalas = false;
       },
     });
   }
 
-  // 3. El filtro automático
   get salasFiltradas() {
     if (this.filtroActivo === 'Todos') return this.allSalas;
     return this.allSalas.filter((s) => s.tipo === this.filtroActivo);
+  }
+
+  get salasEstudio(): SalaReservaView[] {
+    return this.allSalas.filter((sala) => sala.tipo === 'Estudio');
+  }
+
+  get salasAuditorio(): SalaReservaView[] {
+    return this.allSalas.filter((sala) => sala.tipo === 'Auditorio');
   }
 
   setFiltro(filtro: string) {
     this.filtroActivo = filtro;
   }
 
-  irADetalles(sala: any) {
+  irADetalles(sala: SalaReservaView) {
     this.reservaService.guardarSala(sala);
     if (this.seleccionActual) {
       this.reservaService.guardarHorario(this.seleccionActual);
@@ -144,7 +124,39 @@ export class HorarioComponent implements OnInit {
 
     this.router.navigate(['/detalle-sala', sala.idSala]);
   }
+
   contarSalas(tipo: string): number {
     return this.allSalas.filter((sala) => sala.tipo === tipo).length;
+  }
+
+  private mapearSala(sala: any): SalaReservaView {
+    const ubicacion = Number(sala.ubicacion ?? sala.ubicacion_sala);
+    const idSala = sala.idSala ?? sala.id;
+
+    return {
+      idSala,
+      nombreSala: sala.nombreSala ?? sala.nombre ?? `Sala ${idSala}`,
+      capacidad: sala.capacidad ?? sala.capacidad_sala ?? 0,
+      ubicacion: this.formatearUbicacion(ubicacion),
+      tipo: ubicacion === 6 ? 'Auditorio' : 'Estudio',
+      estado: Number(sala.estado),
+    };
+  }
+
+  private esSalaDisponible(sala: any): boolean {
+    return Number(sala.estado ?? sala.estado_sala) === EstadoSala.DISPONIBLE;
+  }
+
+  private formatearUbicacion(ubicacion: number): string {
+    const ubicaciones: Record<number, string> = {
+      1: 'Biblioteca',
+      2: 'Aulario A',
+      3: 'Aulario C',
+      4: 'Cafeteria A',
+      5: 'Cafeteria B',
+      6: 'Auditorio INF',
+    };
+
+    return ubicaciones[ubicacion] ?? 'Sin ubicacion';
   }
 }
