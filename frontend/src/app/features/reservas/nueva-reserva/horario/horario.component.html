@@ -1,5 +1,5 @@
 <div class="alert alert-info mt-3">
-  <strong>Nota:</strong> Actualmente, el sistema permite visualizar la planificación semanal, pero la reserva de salas está habilitada exclusivamente por jornada diaria.
+  <strong>Nota:</strong> Selecciona un bloque disponible de la planificacion semanal para reservar una sala.
 </div>
 <div class="horario-card-wrapper">
     <div class="table-responsive">
@@ -54,41 +54,49 @@
       </div>
       
       <div class="modal-body p-4">
+        <p *ngIf="cargandoSalas" class="mb-0 text-muted">Cargando salas...</p>
+        <p *ngIf="!cargandoSalas && errorSalas" class="mb-0 text-danger">{{ errorSalas }}</p>
+        <p *ngIf="!cargandoSalas && !errorSalas && allSalas.length === 0" class="mb-0 text-muted">
+          No hay salas disponibles registradas en la base de datos.
+        </p>
+
         <div class="row g-4">
           
           <div class="col-md-6">
             <h6 class="category-title text-violet"> Salas de Estudio</h6>
             <div class="room-list">
-              <ng-container *ngFor="let sala of allSalas">
-                <button *ngIf="sala.tipo === 'Estudio'" 
-                        class="room-btn"
-                        data-bs-dismiss="modal" 
-                        (click)="irADetalles(sala)">
-                  <div class="room-info">
-                    <span class="room-name">{{ sala.nombreSala }}</span>
-                    <span class="room-location">{{ sala.ubicacion }}</span>
-                  </div>
-                  <span class="room-action-pill">Reservar</span>
-                </button>
-              </ng-container>
+              <button *ngFor="let sala of salasEstudio"
+                      class="room-btn"
+                      data-bs-dismiss="modal" 
+                      (click)="irADetalles(sala)">
+                <div class="room-info">
+                  <span class="room-name">{{ sala.nombreSala }}</span>
+                  <span class="room-location">{{ sala.ubicacion }}</span>
+                </div>
+                <span class="room-action-pill">Reservar</span>
+              </button>
+              <p *ngIf="!cargandoSalas && salasEstudio.length === 0" class="mb-0 text-muted">
+                No hay salas de estudio disponibles.
+              </p>
             </div>
           </div>
 
           <div class="col-md-6">
             <h6 class="category-title text-teal">Auditorios</h6>
             <div class="room-list">
-              <ng-container *ngFor="let sala of allSalas">
-                <button *ngIf="sala.tipo === 'Auditorio'" 
-                        class="room-btn"
-                        data-bs-dismiss="modal" 
-                        (click)="irADetalles(sala)">
-                  <div class="room-info">
-                    <span class="room-name">{{ sala.nombreSala }}</span>
-                    <span class="room-location">{{ sala.ubicacion }}</span>
-                  </div>
-                  <span class="room-action-pill-teal">Reservar</span>
-                </button>
-              </ng-container>
+              <button *ngFor="let sala of salasAuditorio"
+                      class="room-btn"
+                      data-bs-dismiss="modal" 
+                      (click)="irADetalles(sala)">
+                <div class="room-info">
+                  <span class="room-name">{{ sala.nombreSala }}</span>
+                  <span class="room-location">{{ sala.ubicacion }}</span>
+                </div>
+                <span class="room-action-pill-teal">Reservar</span>
+              </button>
+              <p *ngIf="!cargandoSalas && salasAuditorio.length === 0" class="mb-0 text-muted">
+                No hay auditorios disponibles.
+              </p>
             </div>
           </div>
         </div>
