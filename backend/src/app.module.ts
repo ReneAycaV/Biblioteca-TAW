@@ -11,6 +11,8 @@ import { LibrosModule } from './modules/libros.module';
 import { PrestamosModule } from './modules/prestamos.module';
 import { HistorialModule } from './modules/historial.module';
 import { SalasAdminModule } from './modules/salas-admin.module';
+import { UsuariosModule } from './modules/usuarios.module';
+import { IaModule } from './modules/ia.module';
 
 @Module({
   imports: [
@@ -34,11 +36,16 @@ import { SalasAdminModule } from './modules/salas-admin.module';
 
     AuthModule,
 
+    // Recomendadores con IA: va antes de LibrosModule para que
+    // /libros/recomendaciones no choque con /libros/:id
+    IaModule,
+
     LibrosModule,
     PrestamosModule,
     HistorialModule,
     ReserveModule,
     SalasAdminModule,
+    UsuariosModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

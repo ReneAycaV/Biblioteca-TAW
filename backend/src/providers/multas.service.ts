@@ -55,17 +55,27 @@ export class MultasService {
       fechaActual.getMonth(),
       fechaActual.getDate(),
     );
-    const fe = new Date(fechaEsperada);
-    const fechaEsperadaSinHora = new Date(
-      fe.getFullYear(),
-      fe.getMonth(),
-      fe.getDate(),
-    );
+    const fechaEsperadaSinHora = this.fechaLocalSinHora(fechaEsperada);
 
     if (hoySinHora <= fechaEsperadaSinHora) return 0;
 
+    // Math.round y no Math.floor: con horario de verano un día puede durar 23 o 25 horas
     const diferencia = hoySinHora.getTime() - fechaEsperadaSinHora.getTime();
-    return Math.floor(diferencia / (1000 * 3600 * 24));
+    return Math.round(diferencia / (1000 * 3600 * 24));
+  }
+
+  // Las columnas DATE llegan como texto "YYYY-MM-DD". new Date("YYYY-MM-DD") lo interpreta
+  // como medianoche UTC, que en Chile (UTC-3/-4) cae el día anterior y sumaba un día de
+  // atraso de más. Por eso se arma la fecha con sus partes, en hora local.
+  private fechaLocalSinHora(fecha: Date | string): Date {
+    if (typeof fecha === 'string') {
+      const partes = fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (partes) {
+        return new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+      }
+    }
+    const f = new Date(fecha);
+    return new Date(f.getFullYear(), f.getMonth(), f.getDate());
   }
 
   private mapearEstadoLibro(estadoLibro: EstadoLibroDevuelto | null): string {
@@ -520,6 +530,194 @@ export class MultasService {
     console.log('Verificando préstamos vencidos...');
     await this.verificarPrestamosVencidos();
     console.log('Proceso de verificación de préstamos vencidos completado.');
+  }
+
+  // ===================== ADMIN =====================
+
+  // Lista todas las multas del sistema con su usuario, libro y monto calculado
+  async getTodasMultasAdmin() {
+    const prestamos = await this.prestamosRepository.find({
+      where: { multa: Not(IsNull()) },
+      relations: { multa: true, libro: true, usuario: true },
+      order: { multa: { fechaGeneracion: 'DESC' } },
+    });
+
+    return prestamos.map((p) => {
+      const multa = p.multa!;
+      const montoEnVivo = this.calcularMontoEnVivo(p, multa);
+      const estaPagada = multa.estadoPago === EstadoPagoMulta.PAGADA;
+
+      return {
+        idMulta: multa.idMulta,
+        estadoPago: estaPagada ? 'pagada' : 'pendiente',
+        requiereDecision: !estaPagada && montoEnVivo.requiereDecision,
+        monto: montoEnVivo.monto,
+        diasAtraso: multa.diasAtraso,
+        estadoLibro: this.mapearEstadoLibro(montoEnVivo.estadoLibro),
+        fechaGeneracion: multa.fechaGeneracion,
+        fechaPago: multa.fechaPago,
+        observaciones: multa.observaciones ?? null,
+        prestamo: {
+          idPrestamo: p.idPrestamo,
+          estado: p.estado,
+          fechaPrestamo: p.fechaPrestamo,
+          fechaDevolucionEsperada: p.fechaDevolucionEsperada,
+          fechaDevolucionReal: p.fechaDevolucionReal,
+        },
+        libro: {
+          idLibro: p.libro.idLibro,
+          titulo: p.libro.titulo,
+          autor: p.libro.autor,
+          valorLibro: Number(p.libro.valorLibro),
+        },
+        usuario: {
+          idUsuario: p.usuario.idUsuario,
+          nombre: p.usuario.nombre,
+          apellido: p.usuario.apellido,
+          correo: p.usuario.correo,
+          rut: p.usuario.rut,
+        },
+      };
+    });
+  }
+
+  private async buscarPrestamoPorMulta(idMulta: number) {
+    const prestamo = await this.prestamosRepository.findOne({
+      where: { multa: { idMulta } },
+      relations: ['usuario', 'multa', 'libro'],
+    });
+    if (!prestamo || !prestamo.multa) {
+      throw new NotFoundException(`Multa con ID ${idMulta} no encontrada`);
+    }
+    if (prestamo.multa.estadoPago === EstadoPagoMulta.PAGADA) {
+      throw new BadRequestException('Esta multa ya fue pagada o condonada');
+    }
+    return prestamo;
+  }
+
+  // El admin revisa el libro de un préstamo vencido y decide si volvió en buen
+  // estado o se perdió. Con eso la multa queda con monto y el estudiante puede pagarla.
+  async resolverEstadoLibroAdmin(idMulta: number, estado: 'BUENO' | 'PERDIDO') {
+    const prestamo = await this.buscarPrestamoPorMulta(idMulta);
+    const multa = prestamo.multa!;
+
+    if (
+      prestamo.estado === EstadoPrestamo.DEVUELTO ||
+      prestamo.estado === EstadoPrestamo.PERDIDO
+    ) {
+      throw new BadRequestException(
+        'El estado del libro de esta multa ya fue definido',
+      );
+    }
+
+    const hoy = new Date();
+    const libro = prestamo.libro;
+    const valorLibro = Number(libro.valorLibro);
+    const diasAtraso = this.calcularDiasAtraso(
+      prestamo.fechaDevolucionEsperada,
+      hoy,
+    );
+    const montoAtraso = diasAtraso * this.calcularMultaPorDia(valorLibro);
+
+    if (estado === 'BUENO') {
+      // El libro vuelve a estar disponible en la biblioteca
+      libro.stockDisponible = Math.min(
+        libro.stockDisponible + 1,
+        libro.stockTotal,
+      );
+      prestamo.estado = EstadoPrestamo.DEVUELTO;
+      multa.estadoLibro = EstadoLibroDevuelto.DEVUELTO_BUENO;
+      multa.monto = montoAtraso;
+    } else {
+      // El ejemplar se pierde: sale del inventario
+      libro.stockTotal = Math.max(libro.stockTotal - 1, 0);
+      libro.stockDisponible = Math.min(libro.stockDisponible, libro.stockTotal);
+      prestamo.estado = EstadoPrestamo.PERDIDO;
+      multa.estadoLibro = EstadoLibroDevuelto.PERDIDO_TOTAL;
+      multa.monto = valorLibro + montoAtraso;
+    }
+
+    if (
+      libro.estado === EstadoLibro.DISPONIBLE ||
+      libro.estado === EstadoLibro.SIN_STOCK
+    ) {
+      libro.estado =
+        libro.stockDisponible > 0
+          ? EstadoLibro.DISPONIBLE
+          : EstadoLibro.SIN_STOCK;
+    }
+    libro.disponible =
+      libro.estado === EstadoLibro.DISPONIBLE && libro.stockDisponible > 0;
+
+    prestamo.fechaDevolucionReal = hoy;
+    multa.diasAtraso = diasAtraso;
+
+    await this.libroRepository.save(libro);
+    await this.multaRepository.save(multa);
+    await this.prestamosRepository.save(prestamo);
+
+    this.logger.log(
+      `[MULTAS-ADMIN] Multa ${idMulta}: libro marcado como ${estado}. Monto=${Number(multa.monto).toFixed(2)}`,
+    );
+
+    return {
+      success: true,
+      message:
+        estado === 'BUENO'
+          ? 'Libro registrado como devuelto en buen estado'
+          : 'Libro registrado como perdido',
+      data: {
+        idMulta,
+        monto: Number(multa.monto),
+        diasAtraso,
+        estadoLibro: this.mapearEstadoLibro(multa.estadoLibro),
+      },
+    };
+  }
+
+  // El admin perdona una multa pendiente (queda registrada con el motivo)
+  async condonarMultaAdmin(idMulta: number, motivo: string) {
+    const prestamo = await this.buscarPrestamoPorMulta(idMulta);
+    const multa = prestamo.multa!;
+    const motivoLimpio = motivo?.trim();
+
+    if (!motivoLimpio) {
+      throw new BadRequestException(
+        'Debes indicar el motivo de la condonación',
+      );
+    }
+
+    multa.estadoPago = EstadoPagoMulta.PAGADA;
+    multa.fechaPago = new Date();
+    multa.monto = 0;
+    multa.observaciones = `CONDONADA: ${motivoLimpio}`;
+    await this.multaRepository.save(multa);
+
+    const idUsuario = prestamo.usuario.idUsuario;
+    const pendientes = await this.prestamosRepository.count({
+      where: {
+        usuario: { idUsuario },
+        multa: { estadoPago: EstadoPagoMulta.PENDIENTE },
+      },
+      relations: ['multa'],
+    });
+
+    if (pendientes === 0) {
+      await this.usuarioRepository.update(
+        { idUsuario },
+        { tieneMultaImpaga: false },
+      );
+    }
+
+    this.logger.log(
+      `[MULTAS-ADMIN] Multa ${idMulta} condonada. Usuario ${idUsuario} con ${pendientes} multa(s) pendiente(s)`,
+    );
+
+    return {
+      success: true,
+      message: 'Multa condonada correctamente',
+      data: { idMulta, usuarioDesbloqueado: pendientes === 0 },
+    };
   }
 
   async getResumenMultas(userId: number) {

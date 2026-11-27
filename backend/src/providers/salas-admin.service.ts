@@ -14,6 +14,7 @@ import {
 interface SalaAdminPayload {
   nombreSala?: string;
   capacidad?: number;
+  descripcion?: string | null;
   ubicacion?: UbicacionSala | string;
   estado?: EstadoSala | string;
 }
@@ -29,6 +30,7 @@ export class SalasAdminService {
     const sala = this.salaRepository.create({
       nombreSala: this.validarNombre(dto.nombreSala),
       capacidad: this.validarCapacidad(dto.capacidad),
+      descripcion: this.limpiarDescripcion(dto.descripcion),
       ubicacion: this.mapearUbicacion(dto.ubicacion),
       estado: this.mapearEstado(dto.estado),
     });
@@ -53,6 +55,10 @@ export class SalasAdminService {
       sala.capacidad = this.validarCapacidad(dto.capacidad);
     }
 
+    if (dto.descripcion !== undefined) {
+      sala.descripcion = this.limpiarDescripcion(dto.descripcion);
+    }
+
     if (dto.ubicacion !== undefined) {
       sala.ubicacion = this.mapearUbicacion(dto.ubicacion);
     }
@@ -73,7 +79,17 @@ export class SalasAdminService {
       throw new NotFoundException(`Sala con ID ${id} no encontrada`);
     }
 
-    await this.salaRepository.remove(sala);
+    try {
+      await this.salaRepository.remove(sala);
+    } catch (error: unknown) {
+      // 23503 = violación de llave foránea en PostgreSQL (la sala tiene reservas)
+      if ((error as { code?: string })?.code === '23503') {
+        throw new BadRequestException(
+          'La sala tiene reservas registradas y no se puede eliminar. Cambia su estado a "Bloqueada" para dejar de usarla.',
+        );
+      }
+      throw error;
+    }
     return { message: 'Sala eliminada correctamente', idSala: id };
   }
 
@@ -104,11 +120,27 @@ export class SalasAdminService {
     return nombre;
   }
 
+  private limpiarDescripcion(descripcion?: string | null): string | null {
+    if (descripcion === null || descripcion === undefined) return null;
+    if (typeof descripcion !== 'string') {
+      throw new BadRequestException('La descripción debe ser texto');
+    }
+    const texto = descripcion.trim();
+    if (texto.length > 500) {
+      throw new BadRequestException(
+        'La descripción no puede superar los 500 caracteres',
+      );
+    }
+    return texto || null;
+  }
+
   private validarCapacidad(capacidad?: number): number {
     const capacidadNumerica = Number(capacidad);
 
     if (!Number.isInteger(capacidadNumerica) || capacidadNumerica < 1) {
-      throw new BadRequestException('La capacidad debe ser un numero mayor a 0');
+      throw new BadRequestException(
+        'La capacidad debe ser un numero mayor a 0',
+      );
     }
 
     return capacidadNumerica;

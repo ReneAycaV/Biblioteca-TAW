@@ -14,7 +14,7 @@ export class ValidacionesController {
 
   @Get('estado-academico')
   @ApiOperation({ summary: 'Validar estado academico ' })
-  async validarEstadoAcademico(@Req() req: any) {
+  async validarEstadoAcad1emico(@Req() req: any) {
     const usuario = req.user;
     const estudianteActivo =
       await this.validacionesService.validarEstadoAcademico(usuario);

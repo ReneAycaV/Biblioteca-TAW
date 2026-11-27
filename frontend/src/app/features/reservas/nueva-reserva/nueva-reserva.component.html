@@ -15,6 +15,8 @@
   <div class="reserva-content">
     <div class="reserva-content__inner">
       <div *ngIf="vistaActual === 1">
+        <!-- Propuesta A: recomendador inteligente de salas (IA con modo respaldo) -->
+        <app-recomendador-salas></app-recomendador-salas>
         <app-horario (horarioSeleccionado)="avanzarASalas($event)"></app-horario>
       </div>
     </div>

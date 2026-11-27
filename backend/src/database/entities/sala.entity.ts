@@ -26,6 +26,11 @@ export class SalaEntity {
   @Column({ name: 'capacidad_sala', type: 'int' })
   capacidad!: number;
 
+  // Equipamiento y ambiente de la sala (pizarra, proyector, silencio, etc.).
+  // El recomendador con IA la usa para elegir la sala que mejor calza con lo pedido.
+  @Column({ name: 'descripcion_sala', type: 'text', nullable: true })
+  descripcion!: string | null;
+
   @Column({
     type: 'smallint',
     name: 'ubicacion_sala',

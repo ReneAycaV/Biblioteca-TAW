@@ -14,6 +14,7 @@ import { ReservaEntity } from '../database/entities/reserva.entity';
 import { TestController } from '../controllers/auth/test.controller';
 import { AuthController } from '../controllers/auth/auth.controller';
 import { MultasController } from '../controllers/multas/multas.controller';
+import { MultasAdminController } from '../controllers/multas/multas-admin.controller';
 import { ValidacionesController } from '../controllers/validaciones/validaciones.controller';
 import { LibraryController } from '../controllers/library/library.controller';
 
@@ -48,6 +49,7 @@ import { RolesGuard } from '../security/guards/roles.guard';
     AuthController,
     TestController,
     MultasController,
+    MultasAdminController,
     ValidacionesController,
     LibraryController,
   ],

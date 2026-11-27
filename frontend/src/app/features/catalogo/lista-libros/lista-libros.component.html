@@ -15,6 +15,30 @@
         </div>
       </div>
 
+      <!-- Selector de modo de búsqueda (Propuesta B) -->
+      <div class="busqueda-modo" role="tablist" aria-label="Modo de búsqueda">
+        <button
+          type="button"
+          role="tab"
+          class="busqueda-modo__btn"
+          [class.active]="modoBusqueda === 'normal'"
+          [attr.aria-selected]="modoBusqueda === 'normal'"
+          (click)="setModoBusqueda('normal')"
+        >
+          Búsqueda normal
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="busqueda-modo__btn"
+          [class.active]="modoBusqueda === 'inteligente'"
+          [attr.aria-selected]="modoBusqueda === 'inteligente'"
+          (click)="setModoBusqueda('inteligente')"
+        >
+          ✨ Búsqueda inteligente
+        </button>
+      </div>
+
       <!-- Barra de búsqueda -->
       <div class="catalogo-search">
         <span class="catalogo-search__icon">
@@ -27,14 +51,24 @@
         <input
           type="search"
           class="catalogo-search__input"
-          placeholder="Buscar por título o autor..."
+          [placeholder]="modoBusqueda === 'inteligente'
+            ? 'Describe el tema que necesitas y presiona Enter (ej: algo para aprender a programar desde cero)'
+            : 'Buscar por título o autor...'"
           [(ngModel)]="searchQuery"
+          (keydown.enter)="onBuscar()"
           aria-label="Buscar libros"
         />
         <button
+          *ngIf="modoBusqueda === 'inteligente' && !searchQuery"
+          class="catalogo-search__go"
+          type="button"
+          disabled
+          aria-hidden="true"
+        >Enter ↵</button>
+        <button
           *ngIf="searchQuery"
           class="catalogo-search__clear"
-          (click)="searchQuery=''"
+          (click)="limpiarBusqueda()"
           aria-label="Limpiar búsqueda"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
@@ -61,6 +95,86 @@
   <!-- ── Contenido ── -->
   <section class="catalogo-content">
     <div class="catalogo-content__inner">
+
+      <!-- ── Resultados de la búsqueda inteligente (Propuesta B) ── -->
+      <section *ngIf="modoBusqueda === 'inteligente' && (buscandoIa || busquedaIa || errorBusquedaIa)" class="ia-panel">
+        <div class="ia-panel__head">
+          <h2 class="ia-panel__title">Resultados para “{{ busquedaIa?.consulta || searchQuery }}”</h2>
+          <span *ngIf="busquedaIa" class="ia-badge" [class.ia-badge--ia]="busquedaIa.modo === 'ia'">
+            {{ etiquetaModo(busquedaIa.modo) }}
+          </span>
+        </div>
+        <app-loading-spinner *ngIf="buscandoIa" texto="Buscando libros relevantes..."></app-loading-spinner>
+        <p *ngIf="errorBusquedaIa" class="ia-panel__vacio" style="color: #c0392b;">{{ errorBusquedaIa }}</p>
+        <p *ngIf="busquedaIa && busquedaIa.resultados.length === 0" class="ia-panel__vacio">
+          No encontré libros del catálogo relacionados con ese tema. Prueba describiéndolo de otra forma.
+        </p>
+        <div *ngIf="busquedaIa && busquedaIa.resultados.length > 0" class="ia-lista">
+          <article
+            *ngFor="let r of busquedaIa.resultados; let i = index"
+            class="ia-item"
+            [routerLink]="['/catalogo', r.libro.idLibro]"
+          >
+            <div
+              class="ia-item__cover"
+              [style.background]="'linear-gradient(145deg, ' + getCoverColor(r.libro.categoria) + ', ' + getCoverAccent(r.libro.categoria) + ')'"
+            >{{ getInitial(r.libro.titulo) }}</div>
+            <div class="ia-item__info">
+              <h3 class="ia-item__title">{{ i + 1 }}. {{ r.libro.titulo }}</h3>
+              <p class="ia-item__author">{{ r.libro.autor }} · {{ r.libro.categoria }}</p>
+              <p class="ia-item__motivo">{{ r.motivo }}</p>
+            </div>
+            <span class="ia-item__stock" [class.ia-item__stock--sin]="!r.libro.disponible">
+              {{ r.libro.disponible ? 'Disponible' : getTextoEstadoLibro(r.libro) }}
+            </span>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── Recomendados para ti (Propuesta B) ── -->
+      <section *ngIf="recomendaciones && recomendaciones.recomendaciones.length > 0" class="ia-panel">
+        <div class="ia-panel__head">
+          <div>
+            <h2 class="ia-panel__title">Recomendados para ti</h2>
+            <p class="ia-panel__sub" *ngIf="recomendaciones.tipo === 'historial'">
+              Según tus préstamos: {{ recomendaciones.basadoEn.slice(0, 3).join(', ') }}{{ recomendaciones.basadoEn.length > 3 ? '…' : '' }}
+            </p>
+            <p class="ia-panel__sub" *ngIf="recomendaciones.tipo === 'populares'">
+              Aún no tienes préstamos: estos son los libros más pedidos de la biblioteca.
+              Cuando pidas uno, la IA te recomendará libros según tus intereses.
+            </p>
+          </div>
+          <!-- Sin historial no hay nada que analizar con IA: es un ranking, no un fallo de la IA -->
+          <span class="ia-badge" *ngIf="recomendaciones.tipo === 'populares'">Más pedidos</span>
+          <span
+            class="ia-badge"
+            *ngIf="recomendaciones.tipo !== 'populares'"
+            [class.ia-badge--ia]="recomendaciones.modo === 'ia'"
+          >
+            {{ etiquetaModo(recomendaciones.modo) }}
+          </span>
+        </div>
+        <div class="reco-fila">
+          <article
+            *ngFor="let r of recomendaciones.recomendaciones"
+            class="reco-libro"
+            [routerLink]="['/catalogo', r.libro.idLibro]"
+          >
+            <div
+              class="reco-libro__cover"
+              [style.background]="'linear-gradient(145deg, ' + getCoverColor(r.libro.categoria) + ', ' + getCoverAccent(r.libro.categoria) + ')'"
+            >
+              <span class="reco-libro__initial">{{ getInitial(r.libro.titulo) }}</span>
+              <span class="reco-libro__tag">{{ r.libro.categoria }}</span>
+            </div>
+            <div class="reco-libro__info">
+              <h3 class="reco-libro__title">{{ r.libro.titulo }}</h3>
+              <p class="reco-libro__author">{{ r.libro.autor }}</p>
+              <p class="reco-libro__motivo">{{ r.motivo }}</p>
+            </div>
+          </article>
+        </div>
+      </section>
 
       <!-- Estado de carga -->
       <app-loading-spinner *ngIf="cargando" texto="Cargando catálogo..."></app-loading-spinner>

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ISala } from '../../../shared/interfaces/isala';
 import { ICreateReservaDTO } from '../../../shared/dtos/reserva/create-reserva.dto';
+import { IRecomendacionSalasResponse } from '../../../shared/interfaces/irecomendacion';
 
 @Injectable({
   providedIn: 'root',
@@ -65,6 +66,14 @@ export class ReservaService {
 
   getSalas(): Observable<ISala[]> {
     return this.http.get<ISala[]>(`${this.apiUrl}/salas`);
+  }
+
+  // POST /reserve/recomendar — recomendador inteligente de salas (IA con respaldo)
+  recomendarSalas(consulta: string): Observable<IRecomendacionSalasResponse> {
+    return this.http.post<IRecomendacionSalasResponse>(
+      `${this.apiUrl}/recomendar`,
+      { consulta },
+    );
   }
 
   getSalaById(idSala: number): Observable<any> {

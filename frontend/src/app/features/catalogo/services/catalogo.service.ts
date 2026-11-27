@@ -3,6 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ILibro } from '../../../shared/interfaces/ilibro-detalle';
+import {
+  IBusquedaInteligenteResponse,
+  IRecomendacionesLibrosResponse,
+} from '../../../shared/interfaces/irecomendacion';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +20,19 @@ export class CatalogoService {
   // GET /libros — lista todos los libros (endpoint público, no requiere JWT)
   getLibros(): Observable<ILibro[]> {
     return this.http.get<ILibro[]>(this.apiUrl);
+  }
+
+  // GET /libros/recomendaciones — "Recomendados para ti" según el historial (requiere JWT)
+  getRecomendaciones(): Observable<IRecomendacionesLibrosResponse> {
+    return this.http.get<IRecomendacionesLibrosResponse>(`${this.apiUrl}/recomendaciones`);
+  }
+
+  // POST /libros/busqueda-inteligente — búsqueda por tema en lenguaje natural
+  busquedaInteligente(consulta: string): Observable<IBusquedaInteligenteResponse> {
+    return this.http.post<IBusquedaInteligenteResponse>(
+      `${this.apiUrl}/busqueda-inteligente`,
+      { consulta }
+    );
   }
 
   // GET /libros/:id — obtiene el detalle de un libro por su id

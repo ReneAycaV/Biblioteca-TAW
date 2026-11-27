@@ -1,0 +1,42 @@
+<div class="admin-layout">
+  <button
+    type="button"
+    class="sidebar-toggle"
+    (click)="menuAbierto = !menuAbierto"
+    aria-label="Abrir menú"
+  >
+    <i class="bi" [ngClass]="menuAbierto ? 'bi-x-lg' : 'bi-list'"></i>
+  </button>
+
+  <aside class="admin-sidebar" [class.admin-sidebar--abierto]="menuAbierto">
+    <div class="sidebar-brand">
+      <img src="assets/logos/nyu-logo-imagen.svg" alt="NYU" class="sidebar-brand__icon" />
+      <span class="sidebar-brand__text">NYU Libraries</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let enlace of enlaces"
+        [routerLink]="enlace.ruta"
+        routerLinkActive="sidebar-nav__item--active"
+        [routerLinkActiveOptions]="{ exact: enlace.exacto }"
+        class="sidebar-nav__item"
+        (click)="menuAbierto = false"
+      >
+        <i class="bi" [ngClass]="enlace.icono"></i>
+        <span>{{ enlace.texto }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-logout" (click)="cerrarSesion()">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>
