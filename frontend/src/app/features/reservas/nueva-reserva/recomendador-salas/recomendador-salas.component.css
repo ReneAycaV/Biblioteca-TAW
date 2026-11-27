@@ -1,0 +1,275 @@
+/* Recomendador inteligente de salas — guía visual NYU (violeta #57068C, Montserrat) */
+.reco {
+  background: #ffffff;
+  border: 1px solid #EEE6F3;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0 2px 10px rgba(51, 6, 98, 0.06);
+}
+
+.reco__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.reco__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #330662;
+  margin: 0 0 4px;
+}
+
+.reco__hint {
+  font-size: 13px;
+  color: #6D6D6D;
+  margin: 0 0 16px;
+}
+
+.reco__modo {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #F2F2F2;
+  color: #404040;
+  border: 1px solid #D6D6D6;
+}
+
+.reco__modo--ia {
+  background: #EEE6F3;
+  color: #57068C;
+  border-color: #AB82C5;
+}
+
+.reco__form {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.reco__input {
+  flex: 1;
+  resize: vertical;
+  border: 1.5px solid #D6C8E8;
+  background: #FAF7FC;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #330662;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reco__input:focus {
+  border-color: #57068C;
+  box-shadow: 0 0 0 3px rgba(87, 6, 140, 0.12);
+}
+
+.reco__btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0 22px;
+  background: #57068C;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.reco__btn:hover:not(:disabled) {
+  background: #702B9D;
+}
+
+.reco__btn:disabled {
+  background: #AB82C5;
+  cursor: not-allowed;
+}
+
+.reco__ejemplos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.reco__ejemplos-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7B5AA6;
+}
+
+.reco__chip {
+  border: 1px solid #D6C8E8;
+  background: #ffffff;
+  color: #57068C;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.reco__chip:hover:not(:disabled) {
+  background: #EEE6F3;
+}
+
+.reco__error {
+  margin: 16px 0 0;
+  color: #c0392b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.reco__criterios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.reco__tag {
+  background: #EEE6F3;
+  color: #330662;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reco__explicacion {
+  margin: 14px 0 0;
+  font-size: 14px;
+  color: #404040;
+  line-height: 1.5;
+}
+
+.reco__aviso {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #8a5a00;
+  background: #FFF8E1;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.reco__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.reco-card {
+  border: 1px solid #EEE6F3;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #FCFAFD;
+}
+
+.reco-card:first-child {
+  border-color: #AB82C5;
+  box-shadow: 0 4px 14px rgba(87, 6, 140, 0.12);
+}
+
+.reco-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reco-card__rank {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #57068C;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.reco-card__puntaje {
+  font-size: 13px;
+  font-weight: 700;
+  color: #009B8A;
+}
+
+.reco-card__nombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: #330662;
+  margin: 6px 0 0;
+}
+
+.reco-card__meta,
+.reco-card__bloque {
+  font-size: 13px;
+  color: #6D6D6D;
+  margin: 0;
+}
+
+.reco-card__bloque {
+  color: #57068C;
+  font-weight: 600;
+}
+
+.reco-card__barra {
+  height: 6px;
+  border-radius: 999px;
+  background: #EEE6F3;
+  overflow: hidden;
+}
+
+.reco-card__barra span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #57068C, #AB82C5);
+}
+
+.reco-card__motivo {
+  font-size: 12.5px;
+  color: #404040;
+  line-height: 1.45;
+  margin: 4px 0 8px;
+  flex: 1;
+}
+
+.reco-card__cta {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 0;
+  background: #57068C;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reco-card__cta:hover {
+  background: #702B9D;
+}
+
+.reco-card__desc {
+  font-size: 12px;
+  color: #404040;
+  margin: 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

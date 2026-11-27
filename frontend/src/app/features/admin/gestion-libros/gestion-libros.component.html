@@ -1,1 +1,164 @@
-<p>gestion-libros works!</p>
+<div class="adm-header">
+  <div>
+    <h1 class="adm-title">Gestión de Libros</h1>
+    <p class="adm-subtitle">Administra el catálogo bibliográfico, el stock y la disponibilidad.</p>
+  </div>
+  <button type="button" class="adm-btn adm-btn--primary" (click)="abrirNuevo()">
+    <i class="bi bi-plus-lg"></i> Nuevo libro
+  </button>
+</div>
+
+<div class="adm-stats">
+  <div class="adm-stat"><p class="adm-stat__label">Títulos</p><span class="adm-stat__value">{{ libros.length }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">Ejemplares totales</p><span class="adm-stat__value">{{ totalEjemplares }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">Ejemplares prestados</p><span class="adm-stat__value">{{ ejemplaresPrestados }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">Títulos inactivos</p><span class="adm-stat__value">{{ librosInactivos }}</span></div>
+</div>
+
+<div class="adm-alert adm-alert--ok" *ngIf="exito">{{ exito }}<button (click)="exito = ''">&times;</button></div>
+<div class="adm-alert adm-alert--error" *ngIf="error">{{ error }}<button (click)="error = ''">&times;</button></div>
+
+<div class="adm-card">
+  <div class="adm-toolbar">
+    <div class="adm-search">
+      <i class="bi bi-search"></i>
+      <input class="adm-input" type="search" placeholder="Buscar por título, autor, ISBN o editorial" [(ngModel)]="busqueda" />
+    </div>
+    <select class="adm-select adm-select--auto" [(ngModel)]="filtroCategoria" aria-label="Categoría">
+      <option value="">Todas las categorías</option>
+      <option *ngFor="let c of categorias" [value]="c">{{ c }}</option>
+    </select>
+    <select class="adm-select adm-select--auto" [(ngModel)]="filtroEstado" aria-label="Estado">
+      <option value="todos">Todos los estados</option>
+      <option value="activos">Activos</option>
+      <option value="sin-stock">Sin stock</option>
+      <option value="inactivos">Inactivos</option>
+    </select>
+  </div>
+
+  <div class="adm-loading" *ngIf="cargando">Cargando libros...</div>
+
+  <div class="adm-table-wrap" *ngIf="!cargando">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Libro</th>
+          <th>ISBN</th>
+          <th>Categoría</th>
+          <th class="num">Stock</th>
+          <th class="num">Valor</th>
+          <th>Estado</th>
+          <th class="num">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let libro of librosFiltrados">
+          <td class="adm-muted">#{{ libro.idLibro }}</td>
+          <td>
+            <div class="adm-strong">{{ libro.titulo }}</div>
+            <div class="adm-muted">{{ libro.autor }}<span *ngIf="libro.editorial"> · {{ libro.editorial }}</span></div>
+          </td>
+          <td class="adm-nowrap">{{ libro.isbn }}</td>
+          <td>{{ libro.categoria || '—' }}</td>
+          <td class="num">{{ libro.stockDisponible }} / {{ libro.stockTotal }}</td>
+          <td class="num">{{ +libro.valorLibro | currency: 'CLP':'symbol-narrow':'1.0-0' }}</td>
+          <td>
+            <span class="adm-badge" [ngClass]="etiquetaEstado(libro).clase">{{ etiquetaEstado(libro).texto }}</span>
+          </td>
+          <td>
+            <div class="adm-actions">
+              <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" (click)="abrirEditar(libro)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button
+                type="button"
+                class="adm-btn adm-btn--sm"
+                [ngClass]="estaActivo(libro) ? 'adm-btn--danger' : 'adm-btn--success'"
+                (click)="cambiarEstado(libro)"
+              >
+                {{ estaActivo(libro) ? 'Desactivar' : 'Activar' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="librosFiltrados.length === 0">
+          <td colspan="8" class="adm-empty">No hay libros que coincidan con la búsqueda.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal crear / editar libro -->
+<div class="adm-modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <form class="adm-modal" (click)="$event.stopPropagation()" (ngSubmit)="guardar()">
+    <div class="adm-modal__header">
+      <h2>{{ libroEditando ? 'Editar libro' : 'Nuevo libro' }}</h2>
+      <button type="button" class="adm-modal__close" (click)="cerrarModal()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="adm-modal__body">
+      <div class="adm-form-grid">
+        <div class="adm-field adm-field--full">
+          <label for="titulo">Título <span class="adm-req">*</span></label>
+          <input id="titulo" name="titulo" class="adm-input" [(ngModel)]="form.titulo" required />
+        </div>
+        <div class="adm-field">
+          <label for="autor">Autor <span class="adm-req">*</span></label>
+          <input id="autor" name="autor" class="adm-input" [(ngModel)]="form.autor" required />
+        </div>
+        <div class="adm-field">
+          <label for="isbn">ISBN <span class="adm-req">*</span></label>
+          <input id="isbn" name="isbn" class="adm-input" [(ngModel)]="form.isbn" required />
+        </div>
+        <div class="adm-field">
+          <label for="editorial">Editorial</label>
+          <input id="editorial" name="editorial" class="adm-input" [(ngModel)]="form.editorial" />
+        </div>
+        <div class="adm-field">
+          <label for="categoria">Categoría</label>
+          <input id="categoria" name="categoria" class="adm-input" [(ngModel)]="form.categoria" list="lista-categorias" />
+          <datalist id="lista-categorias">
+            <option *ngFor="let c of categorias" [value]="c"></option>
+          </datalist>
+        </div>
+        <div class="adm-field">
+          <label for="anio">Año de publicación</label>
+          <input id="anio" name="anio" class="adm-input" [(ngModel)]="form.anio" placeholder="2019" maxlength="4" inputmode="numeric" />
+        </div>
+        <div class="adm-field">
+          <label for="ubicacion">Ubicación física</label>
+          <input id="ubicacion" name="ubicacionFisica" class="adm-input" [(ngModel)]="form.ubicacionFisica" placeholder="Estante A-3" />
+        </div>
+        <div class="adm-field">
+          <label for="stockTotal">Stock total <span class="adm-req">*</span></label>
+          <input id="stockTotal" name="stockTotal" type="number" min="0" class="adm-input" [(ngModel)]="form.stockTotal" required />
+        </div>
+        <div class="adm-field">
+          <label for="stockDisponible">Stock disponible <span class="adm-req">*</span></label>
+          <input id="stockDisponible" name="stockDisponible" type="number" min="0" class="adm-input" [(ngModel)]="form.stockDisponible" required />
+          <small>No puede superar el stock total.</small>
+        </div>
+        <div class="adm-field">
+          <label for="valor">Valor del libro (CLP) <span class="adm-req">*</span></label>
+          <input id="valor" name="valorLibro" type="number" min="0" class="adm-input" [(ngModel)]="form.valorLibro" required />
+          <small>Se usa para calcular multas (1% diario).</small>
+        </div>
+        <div class="adm-field adm-field--full">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" name="descripcion" rows="3" class="adm-textarea" [(ngModel)]="form.descripcion"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-alert adm-alert--error adm-modal__error" *ngIf="errorForm">{{ errorForm }}</div>
+
+    <div class="adm-modal__footer">
+      <button type="button" class="adm-btn adm-btn--ghost" (click)="cerrarModal()" [disabled]="guardando">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn--primary" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : (libroEditando ? 'Guardar cambios' : 'Crear libro') }}
+      </button>
+    </div>
+  </form>
+</div>

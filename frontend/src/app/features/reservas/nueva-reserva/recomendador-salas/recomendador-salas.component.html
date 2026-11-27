@@ -1,0 +1,84 @@
+<section class="reco" aria-labelledby="reco-titulo">
+  <div class="reco__head">
+    <div>
+      <h2 id="reco-titulo" class="reco__title">Describe lo que necesitas</h2>
+      <p class="reco__hint">
+        Escríbelo con tus palabras y te recomendamos las 3 mejores salas libres para hoy.
+      </p>
+    </div>
+    <span *ngIf="respuesta" class="reco__modo" [class.reco__modo--ia]="respuesta.modo === 'ia'">
+      {{ etiquetaModo }}
+    </span>
+  </div>
+
+  <form class="reco__form" (ngSubmit)="recomendar()">
+    <textarea
+      class="reco__input"
+      name="consulta"
+      rows="2"
+      maxlength="400"
+      [(ngModel)]="consulta"
+      placeholder="Ej: Necesito una sala para 5 personas hoy en la tarde, cerca de la cafetería"
+      aria-label="Describe la sala que necesitas"
+      (keydown.enter)="$event.preventDefault(); recomendar()"
+    ></textarea>
+    <button type="submit" class="reco__btn" [disabled]="cargando || consulta.trim().length < 3">
+      {{ cargando ? 'Buscando…' : 'Recomendar salas' }}
+    </button>
+  </form>
+
+  <div class="reco__ejemplos">
+    <span class="reco__ejemplos-label">Prueba con:</span>
+    <button
+      *ngFor="let ej of ejemplos"
+      type="button"
+      class="reco__chip"
+      (click)="usarEjemplo(ej)"
+      [disabled]="cargando"
+    >
+      {{ ej }}
+    </button>
+  </div>
+
+  <p *ngIf="error" class="reco__error">{{ error }}</p>
+
+  <ng-container *ngIf="respuesta">
+    <div class="reco__criterios">
+      <span class="reco__tag" *ngIf="respuesta.criterios.personas">
+        👥 {{ respuesta.criterios.personas }} {{ respuesta.criterios.personas === 1 ? 'persona' : 'personas' }}
+      </span>
+      <span class="reco__tag" *ngIf="respuesta.criterios.bloques.length">
+        🕒 Bloques {{ respuesta.criterios.bloques.join(', ') }}
+      </span>
+      <span class="reco__tag" *ngIf="respuesta.criterios.ubicaciones.length">
+        📍 {{ respuesta.criterios.ubicaciones.join(' / ') }}
+      </span>
+      <span class="reco__tag" *ngIf="respuesta.criterios.preferirBajaDemanda">🤫 Poca demanda</span>
+    </div>
+
+    <p class="reco__explicacion">{{ respuesta.explicacion }}</p>
+    <p *ngFor="let aviso of respuesta.avisos" class="reco__aviso">{{ aviso }}</p>
+
+    <div class="reco__grid">
+      <article *ngFor="let rec of respuesta.recomendaciones; let i = index" class="reco-card">
+        <div class="reco-card__top">
+          <span class="reco-card__rank">#{{ i + 1 }}</span>
+          <span class="reco-card__puntaje">{{ rec.puntaje }} pts</span>
+        </div>
+        <h3 class="reco-card__nombre">{{ rec.nombreSala }}</h3>
+        <p class="reco-card__meta">
+          {{ rec.ubicacion }} · capacidad {{ rec.capacidad }}
+        </p>
+        <p class="reco-card__desc" *ngIf="rec.descripcion">{{ rec.descripcion }}</p>
+        <p class="reco-card__bloque">
+          Bloque {{ rec.bloqueLetra }} · {{ rec.inicio }}–{{ rec.fin }}
+        </p>
+        <div class="reco-card__barra" aria-hidden="true">
+          <span [style.width.%]="rec.puntaje"></span>
+        </div>
+        <p class="reco-card__motivo">{{ rec.motivo }}</p>
+        <button type="button" class="reco-card__cta" (click)="reservar(rec)">Reservar</button>
+      </article>
+    </div>
+  </ng-container>
+</section>

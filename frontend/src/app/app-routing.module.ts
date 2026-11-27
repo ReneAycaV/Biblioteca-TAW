@@ -16,6 +16,8 @@ import { GestionUsuariosComponent } from './features/admin/gestion-usuarios/gest
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { GestionSalasComponent } from './features/admin/gestion-salas/gestion-salas.component';
+import { GestionMultasComponent } from './features/admin/gestion-multas/gestion-multas.component';
+import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
 
 const routes: Routes = [
   { path: '',              component: MenuPrincipalUsuarioComponent, canActivate: [AuthGuard] },
@@ -27,11 +29,25 @@ const routes: Routes = [
   { path: 'crear-prestamo', component: CrearPrestamoComponent,       canActivate: [AuthGuard] },
   { path: 'nueva-reserva', component: NuevaReservaComponent,         canActivate: [AuthGuard] },
   { path: 'detalle-sala/:id', component: DetalleSalaComponent,       canActivate: [AuthGuard] },
-  { path: 'menu-admin',       component: MenuPrincipalAdminComponent,  },
-  // Rutas del panel admin — los demás compañeros agregan sus componentes aquí
-  { path: 'admin/libros',     component: GestionLibrosComponent,       canActivate: [AuthGuard, RoleGuard] },
-  { path: 'admin/salas',      component: GestionSalasComponent,        canActivate: [AuthGuard, RoleGuard] },
-  { path: 'admin/usuarios',   component: GestionUsuariosComponent,     canActivate: [AuthGuard, RoleGuard] },
+  // Panel de administración: todas las páginas comparten el layout con sidebar
+  {
+    path: 'menu-admin',
+    component: AdminLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    children: [{ path: '', component: MenuPrincipalAdminComponent }],
+  },
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    children: [
+      { path: 'libros',   component: GestionLibrosComponent },
+      { path: 'usuarios', component: GestionUsuariosComponent },
+      { path: 'salas',    component: GestionSalasComponent },
+      { path: 'multas',   component: GestionMultasComponent },
+      { path: '', pathMatch: 'full', redirectTo: '/menu-admin' },
+    ],
+  },
   { path: 'login',            component: LoginComponent },
 ];
 

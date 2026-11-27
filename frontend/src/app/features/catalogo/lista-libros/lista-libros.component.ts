@@ -2,6 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ILibro } from '../../../shared/interfaces/ilibro-detalle';
 import { CatalogoService } from '../services/catalogo.service';
+import {
+  IBusquedaInteligenteResponse,
+  IRecomendacionesLibrosResponse,
+} from '../../../shared/interfaces/irecomendacion';
 
 @Component({
   selector: 'app-lista-libros',
@@ -19,12 +23,73 @@ export class ListaLibrosComponent implements OnInit, OnDestroy {
   cargando = false;
   mensajeError = '';
 
+  // ── Propuesta B: recomendaciones y búsqueda inteligente (IA con modo respaldo) ──
+  recomendaciones: IRecomendacionesLibrosResponse | null = null;
+  cargandoRecomendaciones = false;
+
+  modoBusqueda: 'normal' | 'inteligente' = 'normal';
+  busquedaIa: IBusquedaInteligenteResponse | null = null;
+  buscandoIa = false;
+  errorBusquedaIa = '';
+
   private sub!: Subscription;
 
   constructor(private catalogoService: CatalogoService) {}
 
   ngOnInit(): void {
     this.cargarLibros();
+    this.cargarRecomendaciones();
+  }
+
+  cargarRecomendaciones(): void {
+    this.cargandoRecomendaciones = true;
+    this.catalogoService.getRecomendaciones().subscribe({
+      next: (res) => {
+        this.recomendaciones = res;
+        this.cargandoRecomendaciones = false;
+      },
+      error: (err) => {
+        // si falla, simplemente no se muestra la sección
+        console.warn('No se pudieron cargar las recomendaciones:', err);
+        this.cargandoRecomendaciones = false;
+      },
+    });
+  }
+
+  setModoBusqueda(modo: 'normal' | 'inteligente'): void {
+    this.modoBusqueda = modo;
+    this.busquedaIa = null;
+    this.errorBusquedaIa = '';
+  }
+
+  // Enter en el buscador: en modo inteligente consulta al backend
+  onBuscar(): void {
+    if (this.modoBusqueda !== 'inteligente') return;
+    const consulta = this.searchQuery.trim();
+    if (consulta.length < 3 || this.buscandoIa) return;
+
+    this.buscandoIa = true;
+    this.errorBusquedaIa = '';
+    this.catalogoService.busquedaInteligente(consulta).subscribe({
+      next: (res) => {
+        this.busquedaIa = res;
+        this.buscandoIa = false;
+      },
+      error: (err) => {
+        this.errorBusquedaIa = err?.error?.message || 'No se pudo realizar la búsqueda inteligente.';
+        this.buscandoIa = false;
+      },
+    });
+  }
+
+  limpiarBusqueda(): void {
+    this.searchQuery = '';
+    this.busquedaIa = null;
+    this.errorBusquedaIa = '';
+  }
+
+  etiquetaModo(modo: string | undefined): string {
+    return modo === 'ia' ? 'Generado con IA' : 'Modo respaldo · reglas';
   }
 
   ngOnDestroy(): void {
@@ -49,7 +114,8 @@ export class ListaLibrosComponent implements OnInit, OnDestroy {
 
   // Filtra por búsqueda de texto y por el chip activo
   get librosFiltrados(): ILibro[] {
-    const q = this.searchQuery.trim().toLowerCase();
+    // en modo inteligente el texto es una descripción, no filtra la grilla
+    const q = this.modoBusqueda === 'inteligente' ? '' : this.searchQuery.trim().toLowerCase();
     return this.libros.filter(libro => {
       const matchSearch = !q ||
         (libro.titulo ?? '').toLowerCase().includes(q) ||

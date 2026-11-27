@@ -1,102 +1,147 @@
-<div class="admin-page-container">
-  <div class="admin-header">
-    <h1 class="page-title">Gestión de Salas</h1>
-    <p class="page-subtitle">Administra los espacios de estudio y reuniones del sistema.</p>
+<div class="adm-header">
+  <div>
+    <h1 class="adm-title">Gestión de Salas</h1>
+    <p class="adm-subtitle">Administra los espacios de estudio, su capacidad y disponibilidad.</p>
+  </div>
+  <button type="button" class="adm-btn adm-btn--primary" (click)="abrirNueva()">
+    <i class="bi bi-plus-lg"></i> Nueva sala
+  </button>
+</div>
+
+<div class="adm-stats">
+  <div class="adm-stat"><p class="adm-stat__label">Salas registradas</p><span class="adm-stat__value">{{ listaSalas.length }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">Disponibles</p><span class="adm-stat__value">{{ contarPorEstado('Disponible') }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">En mantenimiento / bloqueadas</p><span class="adm-stat__value">{{ contarPorEstado('Mantenimiento') + contarPorEstado('Bloqueada') }}</span></div>
+  <div class="adm-stat"><p class="adm-stat__label">Capacidad disponible</p><span class="adm-stat__value">{{ capacidadTotal }} <small class="adm-muted">pers.</small></span></div>
+</div>
+
+<div class="adm-alert adm-alert--ok" *ngIf="exito">{{ exito }}<button (click)="exito = ''">&times;</button></div>
+<div class="adm-alert adm-alert--error" *ngIf="error">{{ error }}<button (click)="error = ''">&times;</button></div>
+
+<div class="adm-card">
+  <div class="adm-toolbar">
+    <div class="adm-search">
+      <i class="bi bi-search"></i>
+      <input class="adm-input" type="search" placeholder="Buscar sala por nombre o descripción" [(ngModel)]="busqueda" />
+    </div>
+    <select class="adm-select adm-select--auto" [(ngModel)]="filtroUbicacion" aria-label="Ubicación">
+      <option value="">Todas las ubicaciones</option>
+      <option *ngFor="let u of ubicaciones" [value]="u">{{ u }}</option>
+    </select>
+    <select class="adm-select adm-select--auto" [(ngModel)]="filtroEstado" aria-label="Estado">
+      <option value="">Todos los estados</option>
+      <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+    </select>
   </div>
 
-  <div class="admin-content-wrapper">
-    
-    <div class="form-side">
-      <h2 class="section-title">Nueva Sala</h2>
-      
-      <form (ngSubmit)="guardarSala()">
-        
-        <div class="input-group">
-          <label>Nombre de la Sala</label>
-          <div class="input-wrapper">
-            <input type="text" name="nombreSala" [(ngModel)]="nuevaSala.nombreSala" placeholder="Ej: Sala de Estudio 1" required>
-          </div>
-        </div>
+  <div class="adm-loading" *ngIf="cargando">Cargando salas...</div>
 
-        <div class="input-group">
-          <label>Capacidad (Personas)</label>
-          <div class="input-wrapper">
-            <input type="number" name="capacidad" [(ngModel)]="nuevaSala.capacidad" min="1" required>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label>Ubicación</label>
-          <div class="input-wrapper select-wrapper">
-            <select name="ubicacion" [(ngModel)]="nuevaSala.ubicacion">
-              <option *ngFor="let loc of ubicaciones" [value]="loc">{{ loc }}</option>
+  <div class="adm-table-wrap" *ngIf="!cargando">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th class="num">Capacidad</th>
+          <th>Ubicación</th>
+          <th>Estado</th>
+          <th class="num">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sala of salasFiltradas">
+          <td class="adm-muted">#{{ sala.idSala }}</td>
+          <td>
+            <div class="adm-strong">{{ sala.nombreSala }}</div>
+            <div class="adm-muted desc-sala" *ngIf="sala.descripcion" [title]="sala.descripcion">{{ sala.descripcion }}</div>
+            <div class="adm-muted sin-desc" *ngIf="!sala.descripcion">Sin descripción</div>
+          </td>
+          <td class="num">{{ sala.capacidad }} pers.</td>
+          <td><span class="adm-badge adm-badge--violet">{{ sala.ubicacion }}</span></td>
+          <td>
+            <select
+              class="estado-select"
+              [ngClass]="claseEstado(sala.estado)"
+              [ngModel]="sala.estado"
+              (ngModelChange)="cambiarEstado(sala, $event)"
+              [attr.aria-label]="'Estado de ' + sala.nombreSala"
+            >
+              <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
             </select>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label>Estado de Sala</label>
-          <div class="input-wrapper select-wrapper">
-            <select name="estado" [(ngModel)]="nuevaSala.estado">
-              <option *ngFor="let est of estados" [value]="est">{{ est }}</option>
-            </select>
-          </div>
-        </div>
-
-        <button type="submit" class="submit-btn">
-          Guardar Sala
-        </button>
-      </form>
-    </div>
-
-    <div class="table-side">
-      <div class="table-header">
-        <h2 class="section-title mb-0">Salas Registradas</h2>
-        <span class="badge-total">{{ listaSalas.length }} en total</span>
-      </div>
-
-      <div class="table-container">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Capacidad</th>
-              <th>Ubicación</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let sala of listaSalas">
-              <td class="id-col">#{{ sala.idSala }}</td>
-              <td class="fw-bold">{{ sala.nombreSala }}</td>
-              <td>{{ sala.capacidad }} pers.</td>
-              <td><span class="tag-ubicacion">{{ sala.ubicacion }}</span></td>
-              <td>
-                <span class="tag-estado" 
-                      [ngClass]="{
-                        'estado-disponible': sala.estado === 'Disponible',
-                        'estado-mantenimiento': sala.estado === 'Mantenimiento',
-                        'estado-bloqueada': sala.estado === 'Bloqueada'
-                      }">
-                  {{ sala.estado }}
-                </span>
-              </td>
-              <td>
-                <button type="button" class="delete-btn" (click)="borrarSala(sala.idSala)">
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-            
-            <tr *ngIf="listaSalas.length === 0">
-              <td colspan="6" class="empty-state">No hay salas registradas actualmente.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+          </td>
+          <td>
+            <div class="adm-actions">
+              <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" (click)="abrirEditar(sala)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button type="button" class="adm-btn adm-btn--danger adm-btn--sm" (click)="borrarSala(sala)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="salasFiltradas.length === 0">
+          <td colspan="6" class="adm-empty">No hay salas que coincidan con la búsqueda.</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+</div>
+
+<!-- Modal crear / editar sala -->
+<div class="adm-modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()">
+  <form class="adm-modal adm-modal--sm" (click)="$event.stopPropagation()" (ngSubmit)="guardarSala()">
+    <div class="adm-modal__header">
+      <h2>{{ salaEditando ? 'Editar sala' : 'Nueva sala' }}</h2>
+      <button type="button" class="adm-modal__close" (click)="cerrarModal()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="adm-modal__body">
+      <div class="adm-form-grid">
+        <div class="adm-field adm-field--full">
+          <label for="nombreSala">Nombre de la sala <span class="adm-req">*</span></label>
+          <input id="nombreSala" name="nombreSala" class="adm-input" [(ngModel)]="form.nombreSala" placeholder="Ej: Sala de Estudio 1" maxlength="50" required />
+        </div>
+        <div class="adm-field">
+          <label for="capacidad">Capacidad (personas) <span class="adm-req">*</span></label>
+          <input id="capacidad" name="capacidad" type="number" min="1" class="adm-input" [(ngModel)]="form.capacidad" required />
+        </div>
+        <div class="adm-field">
+          <label for="ubicacion">Ubicación</label>
+          <select id="ubicacion" name="ubicacion" class="adm-select" [(ngModel)]="form.ubicacion">
+            <option *ngFor="let u of ubicaciones" [value]="u">{{ u }}</option>
+          </select>
+        </div>
+        <div class="adm-field adm-field--full">
+          <label for="descripcionSala">Descripción</label>
+          <textarea
+            id="descripcionSala"
+            name="descripcion"
+            rows="3"
+            maxlength="500"
+            class="adm-textarea"
+            [(ngModel)]="form.descripcion"
+            placeholder="Ej: Sala silenciosa con pizarra, proyector, enchufes en cada puesto y luz natural."
+          ></textarea>
+          <small>Equipamiento y ambiente. El recomendador con IA la usa para sugerir la sala adecuada ({{ form.descripcion.length }}/500).</small>
+        </div>
+        <div class="adm-field adm-field--full">
+          <label for="estado">Estado</label>
+          <select id="estado" name="estado" class="adm-select" [(ngModel)]="form.estado">
+            <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+          </select>
+          <small>Las salas en mantenimiento o bloqueadas no se pueden reservar.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="adm-alert adm-alert--error adm-modal__error" *ngIf="errorForm">{{ errorForm }}</div>
+
+    <div class="adm-modal__footer">
+      <button type="button" class="adm-btn adm-btn--ghost" (click)="cerrarModal()" [disabled]="guardando">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn--primary" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : (salaEditando ? 'Guardar cambios' : 'Crear sala') }}
+      </button>
+    </div>
+  </form>
 </div>

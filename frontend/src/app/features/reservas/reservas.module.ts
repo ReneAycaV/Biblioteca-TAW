@@ -5,6 +5,8 @@ import { SharedModule } from '../../shared/shared.module';
 import { HorarioComponent } from './nueva-reserva/horario/horario.component';
 import { Routes, RouterModule } from '@angular/router';
 import { DetalleSalaComponent } from './nueva-reserva/detalle-sala/detalle-sala.component';
+import { RecomendadorSalasComponent } from './nueva-reserva/recomendador-salas/recomendador-salas.component';
+import { FormsModule } from '@angular/forms';
 
 const routes: Routes = [
   {
@@ -22,9 +24,11 @@ const routes: Routes = [
     NuevaReservaComponent,
     HorarioComponent,
     DetalleSalaComponent,
+    RecomendadorSalasComponent,
   ],
   imports: [
     CommonModule,
+    FormsModule,
     SharedModule,
     RouterModule.forChild(routes)
   ]

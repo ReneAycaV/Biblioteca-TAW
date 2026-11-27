@@ -1,0 +1,169 @@
+<div class="adm-header">
+  <div>
+    <h1 class="adm-title">Gestión de Multas</h1>
+    <p class="adm-subtitle">Revisa los libros vencidos, controla los pagos y condona multas cuando corresponda.</p>
+  </div>
+  <button type="button" class="adm-btn adm-btn--ghost" (click)="cargarMultas()" [disabled]="cargando">
+    <i class="bi bi-arrow-clockwise"></i> Actualizar
+  </button>
+</div>
+
+<div class="adm-stats">
+  <button type="button" class="adm-stat adm-stat--btn" [class.adm-stat--activo]="filtro === 'revision'" (click)="filtro = filtro === 'revision' ? '' : 'revision'">
+    <p class="adm-stat__label">Requieren revisión</p><span class="adm-stat__value text-warning-emphasis">{{ contar('revision') }}</span>
+  </button>
+  <button type="button" class="adm-stat adm-stat--btn" [class.adm-stat--activo]="filtro === 'pendiente'" (click)="filtro = filtro === 'pendiente' ? '' : 'pendiente'">
+    <p class="adm-stat__label">Pendientes de pago</p><span class="adm-stat__value">{{ contar('pendiente') }}</span>
+  </button>
+  <div class="adm-stat">
+    <p class="adm-stat__label">Por cobrar</p><span class="adm-stat__value">{{ totalPorCobrar | currency: 'CLP':'symbol-narrow':'1.0-0' }}</span>
+  </div>
+  <div class="adm-stat">
+    <p class="adm-stat__label">Recaudado</p><span class="adm-stat__value">{{ totalRecaudado | currency: 'CLP':'symbol-narrow':'1.0-0' }}</span>
+  </div>
+</div>
+
+<div class="adm-alert adm-alert--ok" *ngIf="exito">{{ exito }}<button (click)="exito = ''">&times;</button></div>
+<div class="adm-alert adm-alert--error" *ngIf="error">{{ error }}<button (click)="error = ''">&times;</button></div>
+
+<div class="adm-card">
+  <div class="adm-toolbar">
+    <div class="adm-search">
+      <i class="bi bi-search"></i>
+      <input class="adm-input" type="search" placeholder="Buscar por estudiante, correo, RUT o libro" [(ngModel)]="busqueda" />
+    </div>
+    <select class="adm-select adm-select--auto" [(ngModel)]="filtro" aria-label="Situación">
+      <option value="">Todas las multas</option>
+      <option value="revision">Requieren revisión</option>
+      <option value="pendiente">Pendientes de pago</option>
+      <option value="pagada">Pagadas</option>
+      <option value="condonada">Condonadas</option>
+    </select>
+  </div>
+
+  <div class="adm-loading" *ngIf="cargando">Cargando multas...</div>
+
+  <div class="adm-table-wrap" *ngIf="!cargando">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Multa</th>
+          <th>Estudiante</th>
+          <th>Libro</th>
+          <th>Vencimiento</th>
+          <th class="num">Atraso</th>
+          <th class="num">Monto</th>
+          <th>Situación</th>
+          <th class="num">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of multasFiltradas">
+          <td>
+            <div class="adm-strong">#{{ m.idMulta }}</div>
+            <div class="adm-muted">{{ m.fechaGeneracion | date: 'dd/MM/yyyy' }}</div>
+          </td>
+          <td>
+            <div class="adm-strong">{{ m.usuario.nombre }} {{ m.usuario.apellido }}</div>
+            <div class="adm-muted">{{ m.usuario.correo }}</div>
+          </td>
+          <td>
+            <div>{{ m.libro.titulo }}</div>
+            <div class="adm-muted">{{ etiquetaLibro(m) }}</div>
+          </td>
+          <td>{{ m.prestamo.fechaDevolucionEsperada | date: 'dd/MM/yyyy' }}</td>
+          <td class="num">{{ m.diasAtraso }} {{ m.diasAtraso === 1 ? 'día' : 'días' }}</td>
+          <td class="num">
+            <span *ngIf="m.monto !== null">{{ +m.monto | currency: 'CLP':'symbol-narrow':'1.0-0' }}</span>
+            <span *ngIf="m.monto === null" class="adm-muted">Por definir</span>
+          </td>
+          <td>
+            <span class="adm-badge" [ngClass]="etiqueta(m).clase">{{ etiqueta(m).texto }}</span>
+            <div class="adm-muted motivo" *ngIf="esCondonada(m)" [title]="m.observaciones">{{ m.observaciones }}</div>
+            <div class="adm-muted" *ngIf="m.fechaPago && !esCondonada(m)">{{ m.fechaPago | date: 'dd/MM/yyyy' }}</div>
+          </td>
+          <td>
+            <div class="adm-actions" *ngIf="m.estadoPago === 'pendiente'">
+              <button
+                type="button"
+                class="adm-btn adm-btn--primary adm-btn--sm"
+                *ngIf="m.requiereDecision"
+                (click)="abrirRevision(m)"
+              >
+                <i class="bi bi-clipboard-check"></i> Revisar libro
+              </button>
+              <button type="button" class="adm-btn adm-btn--ghost adm-btn--sm" (click)="abrirCondonar(m)">
+                Condonar
+              </button>
+            </div>
+            <span class="adm-muted" *ngIf="m.estadoPago === 'pagada'">—</span>
+          </td>
+        </tr>
+        <tr *ngIf="multasFiltradas.length === 0">
+          <td colspan="8" class="adm-empty">No hay multas que coincidan con el filtro.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: revisión del libro -->
+<div class="adm-modal-backdrop" *ngIf="multaRevision as m" (click)="cerrarModales()">
+  <div class="adm-modal adm-modal--sm" (click)="$event.stopPropagation()">
+    <div class="adm-modal__header">
+      <h2>Revisar libro · Multa #{{ m.idMulta }}</h2>
+      <button type="button" class="adm-modal__close" (click)="cerrarModales()" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="adm-modal__body">
+      <div class="adm-alert adm-alert--error" *ngIf="errorModal">{{ errorModal }}</div>
+      <p class="mb-2">
+        <strong>{{ m.usuario.nombre }} {{ m.usuario.apellido }}</strong> tiene vencido
+        <strong>"{{ m.libro.titulo }}"</strong> con {{ m.diasAtraso }} días de atraso.
+      </p>
+      <p class="adm-muted mb-3">Indica en qué condición se recibió el libro. Esto define el monto que deberá pagar el estudiante.</p>
+
+      <div class="opciones">
+        <button type="button" class="opcion" (click)="resolver('BUENO')" [disabled]="procesando">
+          <i class="bi bi-check-circle text-success"></i>
+          <span class="opcion__titulo">Devuelto en buen estado</span>
+          <span class="opcion__detalle">Paga solo el atraso: {{ montoEstimado(m, false) | currency: 'CLP':'symbol-narrow':'1.0-0' }}</span>
+        </button>
+        <button type="button" class="opcion" (click)="resolver('PERDIDO')" [disabled]="procesando">
+          <i class="bi bi-x-circle text-danger"></i>
+          <span class="opcion__titulo">Perdido o dañado</span>
+          <span class="opcion__detalle">Valor del libro + atraso: {{ montoEstimado(m, true) | currency: 'CLP':'symbol-narrow':'1.0-0' }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="adm-modal__footer">
+      <button type="button" class="adm-btn adm-btn--ghost" (click)="cerrarModales()" [disabled]="procesando">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: condonar multa -->
+<div class="adm-modal-backdrop" *ngIf="multaCondonar as m" (click)="cerrarModales()">
+  <form class="adm-modal adm-modal--sm" (click)="$event.stopPropagation()" (ngSubmit)="condonar()">
+    <div class="adm-modal__header">
+      <h2>Condonar multa #{{ m.idMulta }}</h2>
+      <button type="button" class="adm-modal__close" (click)="cerrarModales()" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="adm-modal__body">
+      <div class="adm-alert adm-alert--error" *ngIf="errorModal">{{ errorModal }}</div>
+      <p class="mb-3">
+        La multa de <strong>{{ m.usuario.nombre }} {{ m.usuario.apellido }}</strong> quedará en $0 y, si no tiene
+        otras multas pendientes, el estudiante será desbloqueado.
+      </p>
+      <div class="adm-field">
+        <label for="motivo">Motivo <span class="adm-req">*</span></label>
+        <textarea id="motivo" name="motivo" rows="3" class="adm-textarea" maxlength="255" [(ngModel)]="motivoCondonacion" placeholder="Ej: Licencia médica presentada"></textarea>
+      </div>
+    </div>
+    <div class="adm-modal__footer">
+      <button type="button" class="adm-btn adm-btn--ghost" (click)="cerrarModales()" [disabled]="procesando">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn--primary" [disabled]="procesando">
+        {{ procesando ? 'Condonando...' : 'Condonar multa' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -90,7 +90,13 @@ export class ReserveRoomService {
   }
 
   private getDiaSemana(fecha: Date | string): string {
-    const fechaDate = new Date(fecha);
+    // Las columnas DATE llegan como texto "YYYY-MM-DD"; new Date() lo leería como
+    // medianoche UTC, que en Chile cae el día anterior (un viernes se contaba como jueves).
+    const partes =
+      typeof fecha === 'string' ? fecha.match(/^(\d{4})-(\d{2})-(\d{2})/) : null;
+    const fechaDate = partes
+      ? new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]))
+      : new Date(fecha);
     const dias = [
       'domingo',
       'lunes',
@@ -197,6 +203,39 @@ export class ReserveRoomService {
       totalReservasConsideradas: reservas.length,
       topBloques,
     };
+  }
+
+  /**
+   * Misma lógica de alta demanda que getCafeteriaDemandData, pero para todas las salas:
+   * cuenta reservas (activas o finalizadas) de los últimos `daysBack` días agrupadas
+   * por bloque, solo para el mismo día de la semana que `fecha` (YYYY-MM-DD).
+   * La usa el recomendador inteligente de salas para premiar bloques tranquilos.
+   */
+  async contarDemandaPorBloque(
+    fecha: string,
+    daysBack = 30,
+  ): Promise<Map<number, number>> {
+    const diaObjetivo = this.getDiaSemana(fecha);
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - daysBack);
+
+    const reservas = await this.reservaRepository
+      .createQueryBuilder('reserva')
+      .where('reserva.fechaReserva >= :fechaInicio', {
+        fechaInicio: fechaInicio.toISOString().split('T')[0],
+      })
+      .andWhere('reserva.estado IN (:...estados)', {
+        estados: [EstadoReserva.ACTIVA, EstadoReserva.FINALIZADA],
+      })
+      .getMany();
+
+    const contador = new Map<number, number>();
+    for (const reserva of reservas) {
+      if (this.getDiaSemana(reserva.fechaReserva) !== diaObjetivo) continue;
+      const bloque = Number(reserva.bloqueHorario);
+      contador.set(bloque, (contador.get(bloque) ?? 0) + 1);
+    }
+    return contador;
   }
 
   // crear reserva
